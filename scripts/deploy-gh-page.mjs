@@ -1,6 +1,6 @@
 import { mkdtemp, readdir, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, extname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
@@ -8,6 +8,7 @@ const branch = 'gh-page';
 const remote = 'origin';
 const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const buildDir = resolve(repoRoot, 'dist');
+const dryRun = process.argv.includes('--dry-run');
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
@@ -34,11 +35,22 @@ function build() {
   const packageManager = process.env.npm_execpath;
 
   if (packageManager) {
-    run(process.execPath, [packageManager, 'run', 'build']);
+    const extension = extname(packageManager).toLowerCase();
+    const isJavaScriptLauncher = ['.js', '.cjs', '.mjs'].includes(extension);
+
+    if (isJavaScriptLauncher) {
+      run(process.execPath, [packageManager, 'run', 'build']);
+    } else {
+      run(packageManager, ['run', 'build']);
+    }
     return;
   }
 
-  run(process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm', ['run', 'build']);
+  if (process.platform === 'win32') {
+    run(process.env.ComSpec ?? 'cmd.exe', ['/d', '/s', '/c', 'pnpm run build']);
+  } else {
+    run('pnpm', ['run', 'build']);
+  }
 }
 
 async function main() {
@@ -84,8 +96,10 @@ async function main() {
     if (parent) commitArgs.splice(2, 0, '-p', parent);
     const commit = deploymentGit(commitArgs, { capture: true });
 
-    git(['push', remote, `${commit}:${remoteRef}`]);
-    console.log(`Published dist/ to ${remote}/${branch}.`);
+    git(['push', ...(dryRun ? ['--dry-run'] : []), remote, `${commit}:${remoteRef}`]);
+    console.log(dryRun
+      ? `Dry run succeeded for dist/ to ${remote}/${branch}.`
+      : `Published dist/ to ${remote}/${branch}.`);
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }
