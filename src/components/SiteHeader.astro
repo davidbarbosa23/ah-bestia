@@ -44,14 +44,14 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
     <form method="dialog" class="command__surface">
       <div class="command__field">
         <label for="command-search">{t.nav.search}</label>
-        <input id="command-search" type="search" autocomplete="off" placeholder={lang === 'en' ? 'Projects, about, contact…' : 'Proyectos, acerca, contacto…'} data-command-input />
+        <input id="command-search" type="search" autocomplete="off" placeholder={lang === 'en' ? 'Labs, about, contact…' : 'Labs, acerca, contacto…'} data-command-input />
         <button class="command__close" value="close" aria-label="Close">ESC</button>
       </div>
       <div class="command__results" data-command-results>
         <a href="#work" data-command-item>{t.nav.work}<span>↵</span></a>
         <a href="#about" data-command-item>{t.nav.about}<span>↵</span></a>
         <a href="#contact" data-command-item>{t.nav.contact}<span>↵</span></a>
-        <a href={`/${lang}/dev/projects/`} data-command-item>{t.dev.primaryCta}<span>↗</span></a>
+        <a href={`/${lang}/dev/labs/`} data-command-item>{t.dev.primaryCta}<span>↗</span></a>
       </div>
     </form>
   </dialog>

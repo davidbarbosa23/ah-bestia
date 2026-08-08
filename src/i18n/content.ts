@@ -7,9 +7,9 @@ export const copy = {
       homeTitle: 'David Barbosa — Software Engineer & Photographer',
       homeDescription:
         'Software engineer in Bogotá building thoughtful web products, with an independent photography practice.',
-      projectsTitle: 'Selected projects — David Barbosa',
+      projectsTitle: 'Labs — David Barbosa',
       projectsDescription:
-        'Selected software experiments and product work by David Barbosa.',
+        'Small web experiments, interface studies, and product work by David Barbosa.',
       photoTitle: 'Spain, in transit — David Barbosa',
       photoDescription:
         'A visual note on movement, distance, landscape, and the spaces between destinations in Spain.',
@@ -32,7 +32,7 @@ export const copy = {
       title: 'I make software\nfeel considered.',
       intro:
         'I’m David Barbosa, a software engineer in Bogotá. I work where product thinking, frontend craft, and reliable systems meet.',
-      primaryCta: 'Explore projects',
+      primaryCta: 'Explore Labs',
       secondaryCta: 'Email David',
       codeLabel: 'david.ts',
       aboutTitle: 'Pragmatic by default. Curious on purpose.',
@@ -51,14 +51,14 @@ export const copy = {
         ['2016—2019', 'Tradeview / iLikeWebSites', 'Web Developer & Designer'],
         ['2015—2016', 'Rampa / Data Solutions Group', 'Web Designer'],
       ],
-      projectsTitle: 'Selected output, not a feature grid.',
+      projectsTitle: 'From the Labs.',
       projectsIntro:
-        'A small collection of product work and self-directed experiments. More case studies can be added without changing the route structure.',
+        'Small web projects documented through working interfaces, screenshots, and notes about how they were built.',
       projectName: 'Fixed Gear Calculator',
       projectDesc:
         'A bilingual gearing calculator for track and fixed-gear riders, translating chainring and sprocket choices into ratios, skid patches, development, and speed.',
       projectMeta: 'Product experiment · Calculation UI',
-      projectLink: 'Read project note',
+      projectLink: 'Open live experiment',
       contactTitle: 'Have a hard problem and a clear reason to solve it?',
       contactBody:
         'Write to me with the context, the constraints, and what success should look like.',
@@ -133,7 +133,6 @@ export const copy = {
       nextTitle: 'Track studies — coming soon',
     },
     footer: {
-      statement: 'Code for systems. Photographs for everything they miss.',
       copyright: 'David Barbosa',
     },
   },
@@ -142,9 +141,9 @@ export const copy = {
       homeTitle: 'David Barbosa — Ingeniero de Software y Fotógrafo',
       homeDescription:
         'Ingeniero de software en Bogotá que construye productos web con criterio y desarrolla una práctica fotográfica independiente.',
-      projectsTitle: 'Proyectos seleccionados — David Barbosa',
+      projectsTitle: 'Labs — David Barbosa',
       projectsDescription:
-        'Experimentos de software y trabajo de producto seleccionado por David Barbosa.',
+        'Pequeños experimentos web, estudios de interfaz y trabajo de producto de David Barbosa.',
       photoTitle: 'España, en tránsito — David Barbosa',
       photoDescription:
         'Una nota visual sobre movimiento, distancia, paisaje y los espacios entre destinos en España.',
@@ -167,7 +166,7 @@ export const copy = {
       title: 'Hago que el software\nse sienta pensado.',
       intro:
         'Soy David Barbosa, ingeniero de software en Bogotá. Trabajo donde se encuentran el producto, el cuidado del frontend y los sistemas confiables.',
-      primaryCta: 'Explorar proyectos',
+      primaryCta: 'Explorar Labs',
       secondaryCta: 'Escribirle a David',
       codeLabel: 'david.ts',
       aboutTitle: 'Pragmático por defecto. Curioso a propósito.',
@@ -190,14 +189,14 @@ export const copy = {
         ],
         ['2015—2016', 'Rampa / Data Solutions Group', 'Diseñador Web'],
       ],
-      projectsTitle: 'Trabajo seleccionado, sin cuadrículas genéricas.',
+      projectsTitle: 'Desde Labs.',
       projectsIntro:
-        'Una colección pequeña de trabajo de producto y experimentos propios. La estructura está lista para sumar más casos de estudio.',
+        'Pequeños proyectos web documentados con interfaces funcionales, capturas y notas sobre cómo fueron construidos.',
       projectName: 'Calculadora de piñón fijo',
       projectDesc:
         'Una calculadora bilingüe para ciclistas de pista y piñón fijo que traduce coronillas y piñones en proporciones, skid patches, desarrollo y velocidad.',
       projectMeta: 'Experimento de producto · Interfaz de cálculo',
-      projectLink: 'Leer nota del proyecto',
+      projectLink: 'Abrir experimento',
       contactTitle:
         '¿Tienes un problema difícil y una buena razón para resolverlo?',
       contactBody:
@@ -283,8 +282,6 @@ export const copy = {
       nextTitle: 'Estudios de pista — próximamente',
     },
     footer: {
-      statement:
-        'Código para los sistemas. Fotografías para todo lo que se les escapa.',
       copyright: 'David Barbosa',
     },
   },

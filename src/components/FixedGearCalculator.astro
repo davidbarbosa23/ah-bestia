@@ -1,0 +1,322 @@
+---
+import type { Lang } from '../i18n/content';
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+
+const labels = lang === 'en'
+  ? {
+      title: 'Fixed gear calculator',
+      subtitle: 'Change the setup. The analysis updates immediately.',
+      setup: 'Setup',
+      chainring: 'Chainring',
+      sprocket: 'Rear sprocket',
+      tire: 'Tire',
+      skid: 'Count both leading feet',
+      skidHelp: 'Use both left-foot-forward and right-foot-forward skid positions.',
+      units: 'Units',
+      metric: 'Metric',
+      imperial: 'Imperial',
+      analysis: 'Analysis',
+      ratio: 'Ratio',
+      ratioHelp: 'Rear-wheel turns for every complete turn of the cranks.',
+      patches: 'Skid patches',
+      patchesHelp: 'Distinct tire positions that touch the road while skidding.',
+      rollout: 'Rollout',
+      rolloutHelp: 'Distance travelled by one complete turn of the cranks.',
+      equivalent: 'Equivalent gears within 2%',
+      equivalentHelp: 'Choose a combination to load it into the calculator.',
+      cadence: 'Cadence / speed',
+      rpm: 'rpm',
+      teeth: 'teeth',
+      combination: 'Use gear combination',
+      live: 'Calculator results updated',
+    }
+  : {
+      title: 'Calculadora de piñón fijo',
+      subtitle: 'Cambia la configuración. El análisis se actualiza de inmediato.',
+      setup: 'Configuración',
+      chainring: 'Plato',
+      sprocket: 'Piñón trasero',
+      tire: 'Cubierta',
+      skid: 'Contar ambas piernas dominantes',
+      skidHelp: 'Incluye skids con el pie izquierdo y el derecho adelante.',
+      units: 'Unidades',
+      metric: 'Métrico',
+      imperial: 'Imperial',
+      analysis: 'Análisis',
+      ratio: 'Relación',
+      ratioHelp: 'Vueltas de la rueda trasera por cada vuelta completa de las bielas.',
+      patches: 'Skid patches',
+      patchesHelp: 'Posiciones distintas de la cubierta que tocan el suelo al derrapar.',
+      rollout: 'Desarrollo',
+      rolloutHelp: 'Distancia recorrida por cada vuelta completa de las bielas.',
+      equivalent: 'Relaciones equivalentes dentro del 2%',
+      equivalentHelp: 'Elige una combinación para cargarla en la calculadora.',
+      cadence: 'Cadencia / velocidad',
+      rpm: 'rpm',
+      teeth: 'dientes',
+      combination: 'Usar combinación',
+      live: 'Resultados de la calculadora actualizados',
+    };
+
+const chainrings = Array.from({ length: 33 }, (_, index) => index + 28);
+const sprockets = Array.from({ length: 15 }, (_, index) => index + 9);
+const tires = [
+  ['700 × 20', 2079],
+  ['700 × 23', 2096],
+  ['700 × 25', 2105],
+  ['700 × 28', 2136],
+  ['700 × 32', 2155],
+  ['700 × 35', 2168],
+  ['700 × 38', 2180],
+  ['700 × 44', 2224],
+  ['700 × 50', 2289],
+  ['650 × 25', 1952],
+  ['26 × 1.50', 2010],
+] as const;
+const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
+---
+
+<fixed-gear-calculator class="fg-calculator" data-lang={lang}>
+  <header class="fg-calculator__header">
+    <div>
+      <p class="mono-label">001 / live.client</p>
+      <h2>{labels.title}</h2>
+    </div>
+    <p>{labels.subtitle}</p>
+  </header>
+
+  <div class="fg-calculator__workspace">
+    <form class="fg-controls" data-fg-form>
+      <fieldset>
+        <legend>{labels.setup}</legend>
+        <label class="fg-field">
+          <span>{labels.chainring}</span>
+          <span class="fg-select-wrap">
+            <select name="chainring" data-chainring>
+              {chainrings.map((value) => <option value={value} selected={value === 48}>{value}T</option>)}
+            </select>
+          </span>
+        </label>
+        <label class="fg-field">
+          <span>{labels.sprocket}</span>
+          <span class="fg-select-wrap">
+            <select name="sprocket" data-sprocket>
+              {sprockets.map((value) => <option value={value} selected={value === 17}>{value}T</option>)}
+            </select>
+          </span>
+        </label>
+        <label class="fg-field">
+          <span>{labels.tire}</span>
+          <span class="fg-select-wrap">
+            <select name="tire" data-tire>
+              {tires.map(([name, circumference]) => (
+                <option value={circumference} selected={circumference === 2105}>{name}</option>
+              ))}
+            </select>
+          </span>
+        </label>
+        <label class="fg-check">
+          <input type="checkbox" name="ambidextrous" data-ambidextrous />
+          <span>
+            <strong>{labels.skid}</strong>
+            <small>{labels.skidHelp}</small>
+          </span>
+        </label>
+      </fieldset>
+
+      <fieldset class="fg-unit-fieldset">
+        <legend>{labels.units}</legend>
+        <div class="fg-unit-switch">
+          <label><input type="radio" name="units" value="metric" checked data-units /> <span>{labels.metric}</span></label>
+          <label><input type="radio" name="units" value="imperial" data-units /> <span>{labels.imperial}</span></label>
+        </div>
+      </fieldset>
+    </form>
+
+    <section class="fg-visual" aria-label={labels.analysis}>
+      <svg class="fg-wheel" viewBox="0 0 520 390" role="img" aria-label="Rear wheel, chainring, and skid patch diagram">
+        <g class="fg-wheel__rear" data-wheel-rotation>
+          <circle class="fg-wheel__tire" cx="230" cy="195" r="151" />
+          <circle class="fg-wheel__rim" cx="230" cy="195" r="137" />
+          <circle class="fg-wheel__skids" cx="230" cy="195" r="151" pathLength="100" data-skid-ring />
+          {Array.from({ length: 24 }, (_, index) => {
+            const angle = (index * 15 * Math.PI) / 180;
+            const x = 230 + Math.cos(angle) * 137;
+            const y = 195 + Math.sin(angle) * 137;
+            return <line class="fg-wheel__spoke" x1="230" y1="195" x2={x} y2={y} />;
+          })}
+          <circle class="fg-wheel__hub" cx="230" cy="195" r="15" />
+          <circle class="fg-wheel__cog" cx="230" cy="195" r="31" />
+        </g>
+        <path class="fg-wheel__chain" d="M230 164 C310 126 399 123 445 153 M230 226 C310 264 399 267 445 237" />
+        <g class="fg-wheel__crank" data-crank-rotation>
+          <circle cx="445" cy="195" r="49" />
+          <circle cx="445" cy="195" r="8" />
+          <path d="M445 195 477 220M477 220h24" />
+        </g>
+      </svg>
+      <p class="fg-visual__ratio"><span data-visual-gear>48 × 17</span><strong data-visual-ratio>2.82</strong></p>
+    </section>
+  </div>
+
+  <section class="fg-analysis" aria-labelledby="fg-analysis-title">
+    <div class="fg-section-heading">
+      <p class="mono-label">output.json</p>
+      <h3 id="fg-analysis-title">{labels.analysis}</h3>
+    </div>
+    <div class="fg-metrics" aria-live="polite">
+      <article>
+        <p>{labels.ratio}</p>
+        <strong data-ratio>2.82</strong>
+        <small>{labels.ratioHelp}</small>
+      </article>
+      <article>
+        <p>{labels.patches}</p>
+        <strong data-patches>17</strong>
+        <small>{labels.patchesHelp}</small>
+      </article>
+      <article>
+        <p>{labels.rollout}</p>
+        <strong><span data-rollout>5.94</span> <span data-rollout-unit>m</span></strong>
+        <small>{labels.rolloutHelp}</small>
+      </article>
+    </div>
+  </section>
+
+  <section class="fg-data-section">
+    <div class="fg-section-heading">
+      <p class="mono-label">± 2%</p>
+      <h3>{labels.equivalent}</h3>
+      <p>{labels.equivalentHelp}</p>
+    </div>
+    <div class="fg-equivalents" data-equivalents aria-live="polite"></div>
+  </section>
+
+  <section class="fg-data-section fg-data-section--cadence">
+    <div class="fg-section-heading">
+      <p class="mono-label">50—130 {labels.rpm}</p>
+      <h3>{labels.cadence}</h3>
+    </div>
+    <div class="fg-cadence" data-cadence>
+      {cadences.map((rpm) => (
+        <article data-rpm={rpm}>
+          <span>{rpm} {labels.rpm}</span>
+          <strong data-speed>—</strong>
+        </article>
+      ))}
+    </div>
+  </section>
+  <p class="sr-only" role="status" aria-live="polite" data-live-status>{labels.live}</p>
+</fixed-gear-calculator>
+
+<script>
+  class FixedGearCalculator extends HTMLElement {
+    private controller?: AbortController;
+
+    connectedCallback() {
+      this.controller?.abort();
+      this.controller = new AbortController();
+      const form = this.querySelector('[data-fg-form]');
+      form?.addEventListener('change', () => this.update(), { signal: this.controller.signal });
+      this.addEventListener('click', (event) => {
+        const target = event.target instanceof Element
+          ? event.target.closest<HTMLButtonElement>('[data-equivalent-ring]')
+          : null;
+        if (!target) return;
+        const chainring = this.querySelector<HTMLSelectElement>('[data-chainring]');
+        const sprocket = this.querySelector<HTMLSelectElement>('[data-sprocket]');
+        if (!chainring || !sprocket) return;
+        chainring.value = target.dataset.equivalentRing ?? chainring.value;
+        sprocket.value = target.dataset.equivalentCog ?? sprocket.value;
+        this.update();
+        chainring.focus({ preventScroll: true });
+      }, { signal: this.controller.signal });
+      this.update();
+    }
+
+    disconnectedCallback() {
+      this.controller?.abort();
+    }
+
+    private gcd(a: number, b: number): number {
+      return b === 0 ? a : this.gcd(b, a % b);
+    }
+
+    private update() {
+      const chainring = Number(this.querySelector<HTMLSelectElement>('[data-chainring]')?.value ?? 48);
+      const sprocket = Number(this.querySelector<HTMLSelectElement>('[data-sprocket]')?.value ?? 17);
+      const circumferenceMm = Number(this.querySelector<HTMLSelectElement>('[data-tire]')?.value ?? 2105);
+      const ambidextrous = this.querySelector<HTMLInputElement>('[data-ambidextrous]')?.checked ?? false;
+      const units = this.querySelector<HTMLInputElement>('[data-units]:checked')?.value ?? 'metric';
+      const lang = this.dataset.lang === 'es' ? 'es' : 'en';
+      const ratio = chainring / sprocket;
+      const divisor = this.gcd(chainring, sprocket);
+      const basePatches = sprocket / divisor;
+      const patches = ambidextrous && (chainring / divisor) % 2 === 1
+        ? basePatches * 2
+        : basePatches;
+      const rolloutM = (circumferenceMm / 1000) * ratio;
+
+      this.querySelectorAll<HTMLElement>('[data-ratio], [data-visual-ratio]')
+        .forEach((node) => { node.textContent = ratio.toFixed(2); });
+      const patchesNode = this.querySelector<HTMLElement>('[data-patches]');
+      if (patchesNode) patchesNode.textContent = String(patches);
+      const visualGear = this.querySelector<HTMLElement>('[data-visual-gear]');
+      if (visualGear) visualGear.textContent = `${chainring} × ${sprocket}`;
+
+      const rollout = this.querySelector<HTMLElement>('[data-rollout]');
+      const rolloutUnit = this.querySelector<HTMLElement>('[data-rollout-unit]');
+      if (rollout && rolloutUnit) {
+        rollout.textContent = units === 'metric'
+          ? rolloutM.toFixed(2)
+          : (rolloutM * 39.3701).toFixed(1);
+        rolloutUnit.textContent = units === 'metric' ? 'm' : 'in';
+      }
+
+      const skidRing = this.querySelector<SVGCircleElement>('[data-skid-ring]');
+      if (skidRing) {
+        const dash = Math.min(2.2, 55 / patches);
+        const gap = Math.max(0.5, (100 / patches) - dash);
+        skidRing.style.strokeDasharray = `${dash} ${gap}`;
+      }
+
+      const equivalentRoot = this.querySelector<HTMLElement>('[data-equivalents]');
+      if (equivalentRoot) {
+        const combinations: Array<[number, number]> = [];
+        for (let ring = 28; ring <= 60; ring += 1) {
+          for (let cog = 9; cog <= 23; cog += 1) {
+            const delta = Math.abs((ring / cog) - ratio) / ratio;
+            if (delta <= 0.02) combinations.push([ring, cog]);
+          }
+        }
+        combinations.sort((a, b) => (a[0] / a[1]) - (b[0] / b[1]));
+        equivalentRoot.replaceChildren(...combinations.map(([ring, cog]) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.dataset.equivalentRing = String(ring);
+          button.dataset.equivalentCog = String(cog);
+          button.setAttribute('aria-label', `${lang === 'es' ? 'Usar combinación' : 'Use gear combination'} ${ring} × ${cog}`);
+          button.textContent = `${ring} × ${cog}`;
+          if (ring === chainring && cog === sprocket) button.setAttribute('aria-current', 'true');
+          return button;
+        }));
+      }
+
+      this.querySelectorAll<HTMLElement>('[data-rpm]').forEach((item) => {
+        const rpm = Number(item.dataset.rpm ?? 0);
+        const kmh = rolloutM * rpm * 60 / 1000;
+        const speed = item.querySelector<HTMLElement>('[data-speed]');
+        if (!speed) return;
+        speed.textContent = units === 'metric'
+          ? `${kmh.toFixed(1)} km/h`
+          : `${(kmh / 1.609344).toFixed(1)} mph`;
+      });
+    }
+  }
+
+  if (!customElements.get('fixed-gear-calculator')) {
+    customElements.define('fixed-gear-calculator', FixedGearCalculator);
+  }
+</script>

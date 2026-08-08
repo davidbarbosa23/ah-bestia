@@ -1,9 +1,9 @@
 {
-  "date": "2026-08-07",
+  "date": "2026-08-08",
   "framework": "Astro 7.2",
-  "fontStack": null,
-  "palette": null,
-  "motion": "motion-cut before this build",
-  "spacing": null,
-  "preserve": []
+  "fontStack": "Space Grotesk + Inter + JetBrains Mono",
+  "palette": "Cobalt OKLCH tokens in tokens.css",
+  "motion": "GSAP 3.15 motion-on with reduced-motion fallbacks",
+  "spacing": "4pt named custom-property scale",
+  "preserve": ["font stack", "Cobalt palette", "spacing scale", "site header and footer"]
 }
