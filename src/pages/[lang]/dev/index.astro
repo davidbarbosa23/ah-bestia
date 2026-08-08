@@ -25,25 +25,38 @@ const t = copy[lang];
 
   gsap.registerPlugin(ScrollTrigger);
 
-  const mm = gsap.matchMedia();
-  mm.add('(prefers-reduced-motion: no-preference)', () => {
-    const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
-    intro
-      .from('.dev-hero .status-line', { autoAlpha: 0, y: 10, duration: 0.36 })
-      .from('.dev-hero h1 span', { autoAlpha: 0, yPercent: 24, duration: 0.72, stagger: 0.08 }, '<0.08')
-      .from('.dev-hero__intro, .dev-hero__actions', { autoAlpha: 0, y: 12, duration: 0.48, stagger: 0.08 }, '<0.18')
-      .from('.source-card', { autoAlpha: 0, x: 18, duration: 0.68 }, '<0.08');
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined;
 
-    gsap.utils.toArray<HTMLElement>('.reveal-item').forEach((item) => {
-      gsap.from(item, {
-        autoAlpha: 0,
-        y: 18,
-        duration: 0.62,
-        ease: 'power2.out',
-        scrollTrigger: { trigger: item, start: 'top 86%', once: true },
+  const teardownDeveloperAnimations = () => {
+    mm?.revert();
+    mm = undefined;
+  };
+
+  const setupDeveloperAnimations = () => {
+    teardownDeveloperAnimations();
+    if (!document.querySelector('.dev-hero')) return;
+
+    mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      intro
+        .from('.dev-hero .status-line', { autoAlpha: 0, y: 10, duration: 0.36 })
+        .from('.dev-hero h1 span', { autoAlpha: 0, yPercent: 24, duration: 0.72, stagger: 0.08 }, '<0.08')
+        .from('.dev-hero__intro, .dev-hero__actions', { autoAlpha: 0, y: 12, duration: 0.48, stagger: 0.08 }, '<0.18')
+        .from('.source-card', { autoAlpha: 0, x: 18, duration: 0.68 }, '<0.08');
+
+      gsap.utils.toArray<HTMLElement>('.reveal-item').forEach((item) => {
+        gsap.from(item, {
+          autoAlpha: 0,
+          y: 18,
+          duration: 0.62,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: item, start: 'top 86%', once: true },
+        });
       });
     });
-  });
+  };
 
-  window.addEventListener('pagehide', () => mm.revert(), { once: true });
+  document.addEventListener('astro:page-load', setupDeveloperAnimations);
+  document.addEventListener('astro:before-swap', teardownDeveloperAnimations);
 </script>

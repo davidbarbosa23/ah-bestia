@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import type { Lang } from '../i18n/content';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   lang: Lang;
@@ -75,9 +76,36 @@ const structuredData = {
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
       })();
     </script>
+    <ClientRouter fallback="swap" />
   </head>
   <body data-experience={experience}>
     <a class="skip-link" href="#main">{lang === 'en' ? 'Skip to content' : 'Saltar al contenido'}</a>
     <slot />
   </body>
 </html>
+
+<script>
+  let languageScrollPosition: { left: number; top: number } | undefined;
+
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
+    const link = event.target.closest('a[data-language-link]');
+    if (!link) return;
+
+    languageScrollPosition = {
+      left: window.scrollX,
+      top: window.scrollY,
+    };
+  });
+
+  document.addEventListener('astro:before-swap', (event) => {
+    const theme = document.documentElement.dataset.theme ?? 'light';
+    event.newDocument.documentElement.dataset.theme = theme;
+  });
+
+  document.addEventListener('astro:after-swap', () => {
+    if (!languageScrollPosition) return;
+    window.scrollTo({ ...languageScrollPosition, behavior: 'instant' });
+    languageScrollPosition = undefined;
+  });
+</script>

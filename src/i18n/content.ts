@@ -5,24 +5,39 @@ export const copy = {
   en: {
     meta: {
       homeTitle: 'David Barbosa — Software Engineer & Photographer',
-      homeDescription: 'Software engineer in Bogotá building thoughtful web products, with an independent photography practice.',
+      homeDescription:
+        'Software engineer in Bogotá building thoughtful web products, with an independent photography practice.',
       projectsTitle: 'Selected projects — David Barbosa',
-      projectsDescription: 'Selected software experiments and product work by David Barbosa.',
+      projectsDescription:
+        'Selected software experiments and product work by David Barbosa.',
       photoTitle: 'Bogotá, between rains — David Barbosa',
-      photoDescription: 'A visual note on concrete, altitude, rain, and the pauses between Bogotá streets.',
+      photoDescription:
+        'A visual note on concrete, altitude, rain, and the pauses between Bogotá streets.',
     },
-    nav: { work: 'Work', about: 'About', contact: 'Contact', search: 'Jump to…', menu: 'Menu' },
-    modes: { label: 'View as', developer: 'Developer', photographer: 'Photographer' },
+    nav: {
+      work: 'Work',
+      about: 'About',
+      contact: 'Contact',
+      search: 'Jump to…',
+      menu: 'Menu',
+    },
+    modes: {
+      label: 'View as',
+      developer: 'Developer',
+      photographer: 'Photographer',
+    },
     theme: { light: 'Use light theme', dark: 'Use dark theme' },
     dev: {
       status: 'Available for thoughtful collaborations',
       title: 'I make software\nfeel considered.',
-      intro: 'I’m David Barbosa, a software engineer in Bogotá. I work where product thinking, frontend craft, and reliable systems meet.',
+      intro:
+        'I’m David Barbosa, a software engineer in Bogotá. I work where product thinking, frontend craft, and reliable systems meet.',
       primaryCta: 'Explore projects',
       secondaryCta: 'Email David',
       codeLabel: 'david.ts',
       aboutTitle: 'Pragmatic by default. Curious on purpose.',
-      aboutBody: 'I turn ambiguous product questions into clear interfaces and maintainable systems. My background spans software engineering, web development, and graphic design—so I care about how a product works, reads, and feels.',
+      aboutBody:
+        'I turn ambiguous product questions into clear interfaces and maintainable systems. My background spans software engineering, web development, and graphic design—so I care about how a product works, reads, and feels.',
       current: 'Currently',
       currentValue: 'Software Engineer, Mercado Libre',
       location: 'Based in',
@@ -31,45 +46,78 @@ export const copy = {
       focusValue: 'TypeScript · React · Web platforms',
       experienceTitle: 'A career built across the stack.',
       experience: [
-        ['2021—NOW', 'Mercado Libre', 'Frontend Software Engineer'],
-        ['2019—2020', 'Quantun Connexion', 'Software Engineer'],
+        ['2021—NOW', 'Mercado Libre', 'Senior Software Engineer'],
+        ['2019—2020', 'Quantum Connexion', 'Software Engineer'],
         ['2016—2019', 'Tradeview / iLikeWebSites', 'Web Developer & Designer'],
         ['2015—2016', 'Rampa / Data Solutions Group', 'Web Designer'],
       ],
       projectsTitle: 'Selected output, not a feature grid.',
-      projectsIntro: 'A small collection of product work and self-directed experiments. More case studies can be added without changing the route structure.',
+      projectsIntro:
+        'A small collection of product work and self-directed experiments. More case studies can be added without changing the route structure.',
       projectName: 'Fixed Gear Calculator',
-      projectDesc: 'A bilingual gearing calculator for track and fixed-gear riders, translating chainring and sprocket choices into ratios, skid patches, development, and speed.',
+      projectDesc:
+        'A bilingual gearing calculator for track and fixed-gear riders, translating chainring and sprocket choices into ratios, skid patches, development, and speed.',
       projectMeta: 'Product experiment · Calculation UI',
       projectLink: 'Read project note',
       contactTitle: 'Have a hard problem and a clear reason to solve it?',
-      contactBody: 'Write to me with the context, the constraints, and what success should look like.',
+      contactBody:
+        'Write to me with the context, the constraints, and what success should look like.',
       contactLink: 'Start a conversation',
     },
     photo: {
       status: 'Independent photographic practice',
       title: 'The city,\nbetween systems.',
-      intro: 'Concrete, altitude, weather, and the unplanned pauses between one destination and the next.',
+      intro:
+        'Concrete, altitude, weather, and the unplanned pauses between one destination and the next.',
       galleryTitle: 'Field notes from Bogotá and beyond.',
       galleryHint: 'Scroll to move through the contact sheet',
       openNote: 'Open visual note',
       images: [
-        ['bogota-clock.jpg', 'Vertical time', 'Bogotá · study in repetition', 'Alejandro Barba'],
-        ['bogota-street.jpg', 'Old city / new city', 'Bogotá · two scales in one street', 'Jimmy Woo'],
-        ['brick-curve.jpg', 'The curve in the brick', 'Bogotá · public architecture', 'Sergio Aguirre'],
-        ['urban-canyon.jpg', 'A narrow horizon', 'Bogotá · overcast afternoon', 'Sebastian Laverde'],
-        ['paramo.jpg', 'Where the road thins out', 'Páramo del Sol · high altitude', 'Urip Dunker'],
+        [
+          'bogota-clock.jpg',
+          'Vertical time',
+          'Bogotá · study in repetition',
+          'Alejandro Barba',
+        ],
+        [
+          'bogota-street.jpg',
+          'Old city / new city',
+          'Bogotá · two scales in one street',
+          'Jimmy Woo',
+        ],
+        [
+          'brick-curve.jpg',
+          'The curve in the brick',
+          'Bogotá · public architecture',
+          'Sergio Aguirre',
+        ],
+        [
+          'urban-canyon.jpg',
+          'A narrow horizon',
+          'Bogotá · overcast afternoon',
+          'Sebastian Laverde',
+        ],
+        [
+          'paramo.jpg',
+          'Where the road thins out',
+          'Páramo del Sol · high altitude',
+          'Urip Dunker',
+        ],
       ],
-      creditNote: 'Prototype imagery is credited to its Unsplash photographers and can be replaced with David’s final archive.',
+      creditNote:
+        'Prototype imagery is credited to its Unsplash photographers and can be replaced with David’s final archive.',
     },
     projects: {
       back: 'Back home',
       title: 'Projects are questions with working answers.',
-      intro: 'This archive starts with one published experiment and is structured to grow into full case studies.',
+      intro:
+        'This archive starts with one published experiment and is structured to grow into full case studies.',
       challenge: 'Question',
-      challengeText: 'How do gear choices change cadence, speed, and skid patches on a fixed-gear bicycle?',
+      challengeText:
+        'How do gear choices change cadence, speed, and skid patches on a fixed-gear bicycle?',
       answer: 'Working answer',
-      answerText: 'A compact calculator with metric and imperial units, bilingual routing, and legible numeric output.',
+      answerText:
+        'A compact calculator with metric and imperial units, bilingual routing, and legible numeric output.',
       status: 'Status',
       statusText: 'Published experiment',
       stack: 'Surface',
@@ -87,29 +135,47 @@ export const copy = {
       next: 'Next note',
       nextTitle: 'Altitude studies — coming soon',
     },
-    footer: { statement: 'Code for systems. Photographs for everything they miss.', copyright: 'David Barbosa' },
+    footer: {
+      statement: 'Code for systems. Photographs for everything they miss.',
+      copyright: 'David Barbosa',
+    },
   },
   es: {
     meta: {
       homeTitle: 'David Barbosa — Ingeniero de Software y Fotógrafo',
-      homeDescription: 'Ingeniero de software en Bogotá que construye productos web con criterio y desarrolla una práctica fotográfica independiente.',
+      homeDescription:
+        'Ingeniero de software en Bogotá que construye productos web con criterio y desarrolla una práctica fotográfica independiente.',
       projectsTitle: 'Proyectos seleccionados — David Barbosa',
-      projectsDescription: 'Experimentos de software y trabajo de producto seleccionado por David Barbosa.',
+      projectsDescription:
+        'Experimentos de software y trabajo de producto seleccionado por David Barbosa.',
       photoTitle: 'Bogotá, entre lluvias — David Barbosa',
-      photoDescription: 'Una nota visual sobre concreto, altura, lluvia y las pausas entre las calles de Bogotá.',
+      photoDescription:
+        'Una nota visual sobre concreto, altura, lluvia y las pausas entre las calles de Bogotá.',
     },
-    nav: { work: 'Trabajo', about: 'Acerca', contact: 'Contacto', search: 'Ir a…', menu: 'Menú' },
-    modes: { label: 'Ver como', developer: 'Desarrollador', photographer: 'Fotógrafo' },
+    nav: {
+      work: 'Trabajo',
+      about: 'Acerca',
+      contact: 'Contacto',
+      search: 'Ir a…',
+      menu: 'Menú',
+    },
+    modes: {
+      label: 'Ver como',
+      developer: 'Desarrollador',
+      photographer: 'Fotógrafo',
+    },
     theme: { light: 'Usar tema claro', dark: 'Usar tema oscuro' },
     dev: {
       status: 'Disponible para colaboraciones con propósito',
       title: 'Hago que el software\nse sienta pensado.',
-      intro: 'Soy David Barbosa, ingeniero de software en Bogotá. Trabajo donde se encuentran el producto, el cuidado del frontend y los sistemas confiables.',
+      intro:
+        'Soy David Barbosa, ingeniero de software en Bogotá. Trabajo donde se encuentran el producto, el cuidado del frontend y los sistemas confiables.',
       primaryCta: 'Explorar proyectos',
       secondaryCta: 'Escribirle a David',
       codeLabel: 'david.ts',
       aboutTitle: 'Pragmático por defecto. Curioso a propósito.',
-      aboutBody: 'Convierto preguntas ambiguas de producto en interfaces claras y sistemas mantenibles. Mi experiencia abarca ingeniería de software, desarrollo web y diseño gráfico: me importa cómo funciona, se lee y se siente un producto.',
+      aboutBody:
+        'Convierto preguntas ambiguas de producto en interfaces claras y sistemas mantenibles. Mi experiencia abarca ingeniería de software, desarrollo web y diseño gráfico: me importa cómo funciona, se lee y se siente un producto.',
       current: 'Actualmente',
       currentValue: 'Ingeniero de Software, Mercado Libre',
       location: 'Desde',
@@ -118,45 +184,83 @@ export const copy = {
       focusValue: 'TypeScript · React · Plataformas web',
       experienceTitle: 'Una carrera construida a través del stack.',
       experience: [
-        ['2021—HOY', 'Mercado Libre', 'Ingeniero de Software Frontend'],
-        ['2019—2020', 'Quantun Connexion', 'Ingeniero de Software'],
-        ['2016—2019', 'Tradeview / iLikeWebSites', 'Desarrollador y Diseñador Web'],
+        ['2021—HOY', 'Mercado Libre', 'Ingeniero de Software Senior'],
+        ['2019—2020', 'Quantum Connexion', 'Ingeniero de Software'],
+        [
+          '2016—2019',
+          'Tradeview / iLikeWebSites',
+          'Desarrollador y Diseñador Web',
+        ],
         ['2015—2016', 'Rampa / Data Solutions Group', 'Diseñador Web'],
       ],
       projectsTitle: 'Trabajo seleccionado, sin cuadrículas genéricas.',
-      projectsIntro: 'Una colección pequeña de trabajo de producto y experimentos propios. La estructura está lista para sumar más casos de estudio.',
+      projectsIntro:
+        'Una colección pequeña de trabajo de producto y experimentos propios. La estructura está lista para sumar más casos de estudio.',
       projectName: 'Calculadora de piñón fijo',
-      projectDesc: 'Una calculadora bilingüe para ciclistas de pista y piñón fijo que traduce coronillas y piñones en proporciones, skid patches, desarrollo y velocidad.',
+      projectDesc:
+        'Una calculadora bilingüe para ciclistas de pista y piñón fijo que traduce coronillas y piñones en proporciones, skid patches, desarrollo y velocidad.',
       projectMeta: 'Experimento de producto · Interfaz de cálculo',
       projectLink: 'Leer nota del proyecto',
-      contactTitle: '¿Tienes un problema difícil y una buena razón para resolverlo?',
-      contactBody: 'Escríbeme con el contexto, las restricciones y cómo debería verse un buen resultado.',
+      contactTitle:
+        '¿Tienes un problema difícil y una buena razón para resolverlo?',
+      contactBody:
+        'Escríbeme con el contexto, las restricciones y cómo debería verse un buen resultado.',
       contactLink: 'Iniciar una conversación',
     },
     photo: {
       status: 'Práctica fotográfica independiente',
       title: 'La ciudad,\nentre sistemas.',
-      intro: 'Concreto, altura, clima y las pausas inesperadas entre un destino y el siguiente.',
+      intro:
+        'Concreto, altura, clima y las pausas inesperadas entre un destino y el siguiente.',
       galleryTitle: 'Notas de campo desde Bogotá y más allá.',
       galleryHint: 'Desplázate para recorrer la hoja de contacto',
       openNote: 'Abrir nota visual',
       images: [
-        ['bogota-clock.jpg', 'Tiempo vertical', 'Bogotá · estudio de repetición', 'Alejandro Barba'],
-        ['bogota-street.jpg', 'Ciudad vieja / ciudad nueva', 'Bogotá · dos escalas en una calle', 'Jimmy Woo'],
-        ['brick-curve.jpg', 'La curva en el ladrillo', 'Bogotá · arquitectura pública', 'Sergio Aguirre'],
-        ['urban-canyon.jpg', 'Un horizonte estrecho', 'Bogotá · tarde nublada', 'Sebastian Laverde'],
-        ['paramo.jpg', 'Donde el camino se adelgaza', 'Páramo del Sol · gran altura', 'Urip Dunker'],
+        [
+          'bogota-clock.jpg',
+          'Tiempo vertical',
+          'Bogotá · estudio de repetición',
+          'Alejandro Barba',
+        ],
+        [
+          'bogota-street.jpg',
+          'Ciudad vieja / ciudad nueva',
+          'Bogotá · dos escalas en una calle',
+          'Jimmy Woo',
+        ],
+        [
+          'brick-curve.jpg',
+          'La curva en el ladrillo',
+          'Bogotá · arquitectura pública',
+          'Sergio Aguirre',
+        ],
+        [
+          'urban-canyon.jpg',
+          'Un horizonte estrecho',
+          'Bogotá · tarde nublada',
+          'Sebastian Laverde',
+        ],
+        [
+          'paramo.jpg',
+          'Donde el camino se adelgaza',
+          'Páramo del Sol · gran altura',
+          'Urip Dunker',
+        ],
       ],
-      creditNote: 'Las imágenes del prototipo acreditan a sus fotógrafos en Unsplash y se pueden reemplazar por el archivo final de David.',
+      creditNote:
+        'Las imágenes del prototipo acreditan a sus fotógrafos en Unsplash y se pueden reemplazar por el archivo final de David.',
     },
     projects: {
       back: 'Volver al inicio',
       title: 'Los proyectos son preguntas con respuestas funcionales.',
-      intro: 'Este archivo comienza con un experimento publicado y está preparado para crecer en casos de estudio completos.',
+      intro:
+        'Este archivo comienza con un experimento publicado y está preparado para crecer en casos de estudio completos.',
       challenge: 'Pregunta',
-      challengeText: '¿Cómo cambian la cadencia, la velocidad y los skid patches según la relación de una bicicleta de piñón fijo?',
+      challengeText:
+        '¿Cómo cambian la cadencia, la velocidad y los skid patches según la relación de una bicicleta de piñón fijo?',
       answer: 'Respuesta funcional',
-      answerText: 'Una calculadora compacta con unidades métricas e imperiales, rutas bilingües y resultados numéricos legibles.',
+      answerText:
+        'Una calculadora compacta con unidades métricas e imperiales, rutas bilingües y resultados numéricos legibles.',
       status: 'Estado',
       statusText: 'Experimento publicado',
       stack: 'Superficie',
@@ -174,7 +278,11 @@ export const copy = {
       next: 'Siguiente nota',
       nextTitle: 'Estudios de altura — próximamente',
     },
-    footer: { statement: 'Código para los sistemas. Fotografías para todo lo que se les escapa.', copyright: 'David Barbosa' },
+    footer: {
+      statement:
+        'Código para los sistemas. Fotografías para todo lo que se les escapa.',
+      copyright: 'David Barbosa',
+    },
   },
 } as const;
 
