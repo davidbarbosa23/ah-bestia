@@ -1,68 +1,117 @@
 ---
+import { Image } from 'astro:assets';
 import SiteLayout from '../../../layouts/SiteLayout.astro';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
-import { copy, languages, type Lang } from '../../../i18n/content';
+import { languages, type Lang } from '../../../i18n/content';
+import { getNextGallery, photoGalleries, type PhotoGallery } from '../../../data/photoGalleries';
 
 export function getStaticPaths() {
-  return languages.map((lang) => ({ params: { lang, slug: 'bogota-between-rains' } }));
+  return languages.flatMap((lang) =>
+    photoGalleries.map((gallery) => ({
+      params: { lang, slug: gallery.slug },
+      props: { gallery },
+    })),
+  );
 }
 
+interface Props {
+  gallery: PhotoGallery;
+}
+
+const { gallery } = Astro.props as Props;
 const lang = Astro.params.lang as Lang;
-const t = copy[lang];
+const content = gallery.content[lang];
+const nextGallery = getNextGallery(gallery.slug);
+const nextContent = nextGallery.content[lang];
+const galleryImages = gallery.images.filter(({ filename }) => filename !== gallery.coverFilename);
+const labels = lang === 'en'
+  ? {
+      back: 'Back to all series',
+      kicker: 'Photographic series',
+      photographs: 'photographs',
+      source: 'Archive folder',
+      next: 'Next series',
+      photo: 'Photograph',
+      from: 'from',
+    }
+  : {
+      back: 'Volver a todas las series',
+      kicker: 'Serie fotográfica',
+      photographs: 'fotografías',
+      source: 'Carpeta del archivo',
+      next: 'Siguiente serie',
+      photo: 'Fotografía',
+      from: 'de',
+    };
 ---
 
 <SiteLayout
   lang={lang}
   experience="photographer"
-  title={t.meta.photoTitle}
-  description={t.meta.photoDescription}
-  image="/images/bogota-street.jpg"
-  imageAlt={lang === 'en' ? 'Historic Bogotá street and modern towers' : 'Calle histórica de Bogotá y torres modernas'}
+  title={`${content.title} — David Barbosa`}
+  description={content.description}
+  image={gallery.cover.src}
+  imageAlt={`${content.cardTitle}. ${content.description}`}
   pageType="article"
 >
   <SiteHeader lang={lang} experience="photographer" />
-  <main class="article-page" id="main">
+  <main class="article-page series-page" id="main">
     <div class="page-shell">
-      <a class="inner-page__back" href={`/${lang}/ph/`}><span aria-hidden="true">←</span>{t.article.back}</a>
+      <a class="inner-page__back" href={`/${lang}/ph/`}><span aria-hidden="true">←</span>{labels.back}</a>
     </div>
-    <header class="article-hero">
-      <img src="/images/bogota-street.jpg" srcset="/images/bogota-street-sm.jpg 900w, /images/bogota-street.jpg 1800w" sizes="100vw" width="1800" height="2700" fetchpriority="high" alt={lang === 'en' ? 'A historic Bogotá street framed by modern towers' : 'Una calle histórica de Bogotá enmarcada por torres modernas'} />
+
+    <header class="article-hero series-hero">
+      <Image
+        src={gallery.cover}
+        widths={[480, 720, 1080, 1400]}
+        sizes="100vw"
+        quality={88}
+        fetchpriority="high"
+        alt={`${content.cardTitle}. ${content.description}`}
+      />
       <div class="article-hero__copy page-shell">
-        <p class="mono-label">{t.article.kicker}</p>
-        <h1>{t.article.title}</h1>
-        <p>{t.article.lede}</p>
+        <p class="mono-label">{labels.kicker} · {content.location}</p>
+        <h1>{content.title}</h1>
+        <p>{content.description}</p>
       </div>
     </header>
 
-    <article class="article-body page-shell">
-      <div class="article-body__prose">
-        <p>{t.article.p1}</p>
-        <p>{t.article.p2}</p>
+    <article class="series-body page-shell">
+      <header class="series-body__meta">
+        <p><strong>{gallery.images.length}</strong> {labels.photographs}</p>
+        <p><span>{labels.source}</span> {gallery.sourceFolder}</p>
+      </header>
+
+      <div class="series-gallery">
+        {galleryImages.map(({ image, filename }, index) => {
+          const number = index + 2;
+          const alt = `${labels.photo} ${number} ${labels.from} ${content.title}`;
+          const isLandscape = image.width > image.height;
+
+          return (
+            <figure class:list={['series-photo', (isLandscape || index % 9 === 7) && 'series-photo--wide']}>
+              <Image
+                src={image}
+                widths={[480, 800, 1200, 1600]}
+                sizes={isLandscape ? '100vw' : '(min-width: 40rem) 50vw, 100vw'}
+                quality={86}
+                loading="lazy"
+                alt={alt}
+              />
+              <figcaption>
+                <span>{String(number).padStart(2, '0')} / {String(gallery.images.length).padStart(2, '0')}</span>
+                <span aria-hidden="true">{filename}</span>
+              </figcaption>
+            </figure>
+          );
+        })}
       </div>
-      <figure class="article-body__image article-body__image--offset">
-        <img src="/images/brick-curve.jpg" srcset="/images/brick-curve-sm.jpg 900w, /images/brick-curve.jpg 1800w" sizes="(min-width: 40rem) 75vw, 100vw" width="1800" height="1200" loading="lazy" alt={lang === 'en' ? 'Curved brick architecture in Bogotá' : 'Arquitectura curva de ladrillo en Bogotá'} />
-        <figcaption>Sergio Aguirre / Unsplash · Bogotá</figcaption>
-      </figure>
-      <figure class="article-body__image">
-        <img src="/images/urban-canyon.jpg" srcset="/images/urban-canyon-sm.jpg 900w, /images/urban-canyon.jpg 1800w" sizes="100vw" width="1800" height="2388" loading="lazy" alt={lang === 'en' ? 'A narrow street between tall buildings in Bogotá' : 'Una calle estrecha entre edificios altos en Bogotá'} />
-        <figcaption>Sebastian Laverde / Unsplash · Bogotá</figcaption>
-      </figure>
-      <figure class="article-body__image article-body__image--offset">
-        <img src="/images/candelaria.jpg" srcset="/images/candelaria-sm.jpg 900w, /images/candelaria.jpg 1800w" sizes="(min-width: 40rem) 75vw, 100vw" width="1800" height="2391" loading="lazy" alt={lang === 'en' ? 'A red car on a colorful street in La Candelaria' : 'Un carro rojo en una calle colorida de La Candelaria'} />
-        <figcaption>Alex Mercier / Unsplash · La Candelaria</figcaption>
-      </figure>
-      <figure class="article-body__image">
-        <img src="/images/mountain.jpg" srcset="/images/mountain-sm.jpg 900w, /images/mountain.jpg 1800w" sizes="100vw" width="1800" height="1196" loading="lazy" alt={lang === 'en' ? 'A mountain ridge disappearing into low clouds' : 'Una cresta de montaña que desaparece entre nubes bajas'} />
-        <figcaption>David Vilches / Unsplash · Cordillera Oriental</figcaption>
-      </figure>
-      <div class="article-body__prose">
-        <p>{t.article.p3}</p>
-      </div>
-      <div class="article-next" aria-disabled="true">
-        <span>{t.article.next}</span>
-        <strong>{t.article.nextTitle}</strong>
-      </div>
+
+      <a class="article-next" href={`/${lang}/ph/${nextGallery.slug}/`}>
+        <span>{labels.next}</span>
+        <strong>{nextContent.title} <span aria-hidden="true">→</span></strong>
+      </a>
     </article>
   </main>
   <SiteFooter lang={lang} />

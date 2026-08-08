@@ -1,35 +1,28 @@
 ---
+import { Image } from 'astro:assets';
 import { copy, type Lang } from '../i18n/content';
+import { photoGalleries } from '../data/photoGalleries';
+
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const t = copy[lang].photo;
-const photoLinks = [
-  'https://unsplash.com/photos/M5BPCvRiYFw',
-  'https://unsplash.com/photos/yfBzdMIbJCY',
-  'https://unsplash.com/photos/Yrt8mDAZjmI',
-  'https://unsplash.com/photos/6bbwGNZq9hU',
-  'https://unsplash.com/photos/a5M_C7Hav_g',
-];
-const photoSizes = [
-  [1800, 2700],
-  [1800, 2700],
-  [1800, 1200],
-  [1800, 2388],
-  [1800, 1350],
-] as const;
+const heroGallery = photoGalleries[0];
+const heroAlt = lang === 'en'
+  ? 'A red mountain train approaching on converging tracks in Spain'
+  : 'Un tren rojo de montaña acercándose por vías convergentes en España';
 ---
 
 <div class="experience experience--photographer" data-experience-panel="photographer">
   <main id="main">
     <section class="photo-hero" aria-labelledby="photo-title">
-      <img src="/images/bogota-street.jpg" srcset="/images/bogota-street-sm.jpg 900w, /images/bogota-street.jpg 1800w" sizes="100vw" width="1800" height="2700" fetchpriority="high" alt={lang === 'en' ? 'Historic Bogotá street meeting modern towers' : 'Calle histórica de Bogotá frente a torres modernas'} />
+      <Image src={heroGallery.cover} widths={[480, 720, 1080, 1400]} sizes="100vw" quality={88} fetchpriority="high" alt={heroAlt} />
       <div class="photo-hero__shade"></div>
       <div class="photo-hero__copy page-shell">
         <p class="status-line status-line--photo"><span></span>{t.status}</p>
         <h1 id="photo-title">{t.title.split('\n').map((line) => <span>{line}{' '}</span>)}</h1>
         <p>{t.intro}</p>
       </div>
-      <p class="photo-hero__caption">Bogotá · Jimmy Woo / Unsplash</p>
+      <p class="photo-hero__caption">España · © David Barbosa</p>
     </section>
 
     <section class="photo-gallery" aria-labelledby="gallery-title" data-horizontal-section>
@@ -38,18 +31,28 @@ const photoSizes = [
         <p>{t.galleryHint}<span aria-hidden="true">→</span></p>
       </div>
       <div class="photo-track" data-photo-track>
-        {t.images.map(([src, title, caption, credit], index) => (
-          <figure class:list={['photo-frame', index % 3 === 1 && 'photo-frame--wide', index % 3 === 2 && 'photo-frame--short']}>
-            <a href={`/${lang}/ph/bogota-between-rains/`} aria-label={`${t.openNote}: ${title}`}>
-              <img src={`/images/${src}`} srcset={`/images/${src.replace('.jpg', '-sm.jpg')} 900w, /images/${src} 1800w`} sizes="(min-width: 60rem) 62vw, 84vw" width={photoSizes[index][0]} height={photoSizes[index][1]} loading="lazy" alt={`${title}. ${caption}`} />
-              <span class="photo-frame__open">{t.openNote} ↗</span>
-            </a>
-            <figcaption>
-              <span><strong>{title}</strong>{caption}</span>
-              <a href={photoLinks[index]} rel="noreferrer" target="_blank">{credit} / Unsplash ↗</a>
-            </figcaption>
-          </figure>
-        ))}
+        {photoGalleries.map((gallery, index) => {
+          const content = gallery.content[lang];
+          return (
+            <figure class:list={['photo-frame', index % 3 === 1 && 'photo-frame--wide', index % 3 === 2 && 'photo-frame--short']}>
+              <a href={`/${lang}/ph/${gallery.slug}/`} aria-label={`${t.openNote}: ${content.cardTitle}`}>
+                <Image
+                  src={gallery.cover}
+                  widths={[420, 640, 900, 1080]}
+                  sizes="(min-width: 60rem) 29rem, 84vw"
+                  quality={86}
+                  loading="lazy"
+                  alt={`${content.cardTitle}. ${content.description}`}
+                />
+                  <span class="photo-frame__open">{t.openNote} ↗</span>
+                </a>
+              <figcaption>
+                <span><strong>{content.cardTitle}</strong>{content.location} · {gallery.images.length} {lang === 'en' ? 'photographs' : 'fotografías'}</span>
+                <span class="photo-frame__credit">© David Barbosa</span>
+              </figcaption>
+            </figure>
+          );
+        })}
       </div>
     </section>
 

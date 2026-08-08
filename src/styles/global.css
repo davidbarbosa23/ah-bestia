@@ -854,7 +854,8 @@ html[data-theme='dark'] .theme-icon--moon {
   scroll-snap-align: start;
 }
 
-.photo-frame > a {
+.photo-frame > a,
+.photo-frame__image {
   position: relative;
   display: block;
   overflow: clip;
@@ -904,7 +905,8 @@ html[data-theme='dark'] .theme-icon--moon {
   font-weight: 600;
 }
 
-.photo-frame figcaption a {
+.photo-frame figcaption a,
+.photo-frame__credit {
   min-height: 2.75rem;
   display: inline-flex;
   align-items: center;
@@ -1109,6 +1111,80 @@ html[data-theme='dark'] .theme-icon--moon {
   font-size: var(--text-xl);
 }
 
+.series-body {
+  padding-block: var(--space-xl) var(--space-3xl);
+  display: grid;
+  gap: var(--space-3xl);
+}
+
+.series-body__meta {
+  padding-block: var(--space-md);
+  border-block: var(--rule-hair) solid var(--color-rule-2);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-sm) var(--space-xl);
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+}
+
+.series-body__meta strong {
+  color: var(--color-ink);
+  font-size: var(--text-lg);
+  font-weight: 500;
+}
+
+.series-body__meta p:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+
+.series-body__meta p:last-child {
+  display: grid;
+  gap: var(--space-2xs);
+  text-align: end;
+  text-transform: none;
+}
+
+.series-body__meta p:last-child span {
+  text-transform: uppercase;
+}
+
+.series-gallery {
+  display: grid;
+  gap: var(--space-2xl) var(--space-md);
+}
+
+.series-photo {
+  display: grid;
+  align-content: start;
+  gap: var(--space-sm);
+}
+
+.series-photo img {
+  width: 100%;
+  height: auto;
+  background: var(--color-paper-2);
+}
+
+.series-photo figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.series-photo figcaption span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .jump-button:hover,
   .theme-button:hover,
@@ -1262,6 +1338,14 @@ input[aria-invalid='true'] {
   .article-body__image--offset {
     width: 75%;
     margin-inline-start: auto;
+  }
+
+  .series-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .series-photo--wide {
+    grid-column: 1 / -1;
   }
 }
 

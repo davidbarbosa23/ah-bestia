@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import type { Lang } from '../i18n/content';
 import { ClientRouter } from 'astro:transitions';
+import portrait from '../assets/portrait.jpg';
 
 interface Props {
   lang: Lang;
@@ -18,7 +19,7 @@ const {
   experience = 'developer',
   title,
   description,
-  image = '/images/portrait.jpg',
+  image = portrait.src,
   imageAlt = 'David Barbosa',
   pageType = 'website',
 } = Astro.props;
@@ -31,7 +32,7 @@ const structuredData = {
   '@type': 'Person',
   name: 'David Barbosa',
   url: 'https://barbosacap.com',
-  image: new URL('/images/portrait.jpg', Astro.site).toString(),
+  image: new URL(portrait.src, Astro.site).toString(),
   jobTitle: lang === 'en' ? 'Software Engineer' : 'Ingeniero de Software',
   sameAs: ['https://github.com/barbosacap', 'https://www.linkedin.com/in/davidbarbosar/'],
   address: { '@type': 'PostalAddress', addressLocality: 'Bogotá', addressCountry: 'CO' },

@@ -4,6 +4,7 @@ import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
 import PhotographyHome from '../../../components/PhotographyHome.astro';
 import { copy, languages, type Lang } from '../../../i18n/content';
+import { photoGalleries } from '../../../data/photoGalleries';
 
 export function getStaticPaths() {
   return languages.map((lang) => ({ params: { lang } }));
@@ -11,9 +12,10 @@ export function getStaticPaths() {
 
 const lang = Astro.params.lang as Lang;
 const t = copy[lang];
+const heroGallery = photoGalleries[0];
 ---
 
-<SiteLayout lang={lang} experience="photographer" title={t.meta.homeTitle} description={t.meta.homeDescription} image="/images/bogota-street.jpg" imageAlt={lang === 'en' ? 'Historic Bogotá street and modern towers' : 'Calle histórica de Bogotá y torres modernas'}>
+<SiteLayout lang={lang} experience="photographer" title={t.meta.homeTitle} description={t.meta.homeDescription} image={heroGallery.cover.src} imageAlt={lang === 'en' ? 'A mountain train in Spain' : 'Un tren de montaña en España'}>
   <SiteHeader lang={lang} experience="photographer" />
   <PhotographyHome lang={lang} />
   <SiteFooter lang={lang} />
