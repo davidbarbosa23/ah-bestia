@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://barbosacap.com',
+  site: 'https://ahbestia.com',
   integrations: [sitemap({
     filter: (page) => new URL(page).pathname !== '/',
   })],
