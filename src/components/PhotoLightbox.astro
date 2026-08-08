@@ -15,7 +15,7 @@ const labels = lang === 'en'
       zoomIn: 'Zoom in',
       reset: 'Reset zoom',
       close: 'Close full-screen viewer',
-      hint: 'Scroll or use + / - to zoom. Drag to move.',
+      hint: 'Pinch, scroll, or use + / - to zoom. Drag to move.',
     }
   : {
       viewer: 'Visor de fotos en pantalla completa',
@@ -25,7 +25,7 @@ const labels = lang === 'en'
       zoomIn: 'Acercar',
       reset: 'Restablecer zoom',
       close: 'Cerrar visor de pantalla completa',
-      hint: 'Desplázate o usa + / - para ampliar. Arrastra para mover.',
+      hint: 'Pellizca, desplázate o usa + / - para ampliar. Arrastra para mover.',
     };
 ---
 
@@ -86,6 +86,12 @@ const labels = lang === 'en'
     let activePointer: number | undefined;
     let lastPointerX = 0;
     let lastPointerY = 0;
+    let pinchStartDistance = 0;
+    let pinchStartScale = initialScale;
+    let pinchStartTranslateX = 0;
+    let pinchStartTranslateY = 0;
+    let pinchStartMidpointX = 0;
+    let pinchStartMidpointY = 0;
     let returnFocus: HTMLElement | null = null;
 
     const clampPosition = () => {
@@ -156,6 +162,66 @@ const labels = lang === 'en'
       event.preventDefault();
       setScale(scale + (event.deltaY < 0 ? 0.25 : -0.25));
     }, { passive: false });
+
+    const touchDistance = (touches: TouchList) => {
+      const first = touches[0];
+      const second = touches[1];
+      return Math.hypot(second.clientX - first.clientX, second.clientY - first.clientY);
+    };
+
+    const touchMidpoint = (touches: TouchList) => ({
+      x: (touches[0].clientX + touches[1].clientX) / 2,
+      y: (touches[0].clientY + touches[1].clientY) / 2,
+    });
+
+    stage.addEventListener('touchstart', (event) => {
+      if (event.touches.length !== 2) return;
+      event.preventDefault();
+
+      const midpoint = touchMidpoint(event.touches);
+      pinchStartDistance = touchDistance(event.touches);
+      pinchStartScale = scale;
+      pinchStartTranslateX = translateX;
+      pinchStartTranslateY = translateY;
+      pinchStartMidpointX = midpoint.x;
+      pinchStartMidpointY = midpoint.y;
+      activePointer = undefined;
+      stage.classList.remove('is-dragging');
+    }, { passive: false });
+
+    stage.addEventListener('touchmove', (event) => {
+      if (event.touches.length !== 2 || pinchStartDistance === 0) return;
+      event.preventDefault();
+
+      const midpoint = touchMidpoint(event.touches);
+      const stageBounds = stage.getBoundingClientRect();
+      const stageCenterX = stageBounds.left + stageBounds.width / 2;
+      const stageCenterY = stageBounds.top + stageBounds.height / 2;
+      const nextScale = Math.min(
+        maximumScale,
+        Math.max(minimumScale, pinchStartScale * touchDistance(event.touches) / pinchStartDistance),
+      );
+      const scaleRatio = nextScale / pinchStartScale;
+
+      scale = nextScale;
+      if (scale <= initialScale) {
+        translateX = 0;
+        translateY = 0;
+      } else {
+        translateX = midpoint.x - stageCenterX
+          - scaleRatio * (pinchStartMidpointX - stageCenterX - pinchStartTranslateX);
+        translateY = midpoint.y - stageCenterY
+          - scaleRatio * (pinchStartMidpointY - stageCenterY - pinchStartTranslateY);
+      }
+      renderTransform();
+    }, { passive: false });
+
+    const stopPinching = (event: TouchEvent) => {
+      if (event.touches.length < 2) pinchStartDistance = 0;
+    };
+
+    stage.addEventListener('touchend', stopPinching);
+    stage.addEventListener('touchcancel', stopPinching);
 
     stage.addEventListener('pointerdown', (event) => {
       if (scale <= initialScale) return;
