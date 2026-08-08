@@ -1,0 +1,18 @@
+---
+import { copy, type Lang } from '../i18n/content';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const t = copy[lang];
+---
+
+<footer class="site-footer" id="contact">
+  <p class="site-footer__statement">{t.footer.statement}</p>
+  <div class="site-footer__meta">
+    <span>{t.footer.copyright} · {new Date().getFullYear()}</span>
+    <div>
+      <a href="mailto:davidbarbosa.dev@gmail.com">Email</a>
+      <a href="https://github.com/barbosacap" rel="me noreferrer" target="_blank">GitHub ↗</a>
+      <a href="https://www.linkedin.com/in/davidbarbosar/" rel="me noreferrer" target="_blank">LinkedIn ↗</a>
+    </div>
+  </div>
+</footer>

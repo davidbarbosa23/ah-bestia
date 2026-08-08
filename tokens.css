@@ -1,0 +1,91 @@
+/* Hallmark · design tokens · theme: Cobalt / photographic inversion */
+:root {
+  --color-paper: oklch(98.5% 0.004 250);
+  --color-paper-2: oklch(96% 0.008 250);
+  --color-paper-3: oklch(92% 0.012 250);
+  --color-ink: oklch(20% 0.02 258);
+  --color-ink-2: oklch(30% 0.018 257);
+  --color-muted: oklch(47% 0.018 257);
+  --color-rule: oklch(86% 0.012 250);
+  --color-rule-2: oklch(72% 0.018 250);
+  --color-accent: oklch(54% 0.22 256);
+  --color-accent-ink: oklch(99% 0.004 250);
+  --color-focus: oklch(48% 0.21 256);
+  --color-graphite: oklch(19% 0.018 258);
+  --color-graphite-2: oklch(24% 0.02 258);
+  --color-on-dark: oklch(95% 0.008 250);
+  --color-on-dark-muted: oklch(74% 0.016 250);
+  --color-success: oklch(62% 0.14 155);
+  --color-error: oklch(58% 0.2 28);
+  --color-overlay: oklch(10% 0.012 258 / 0.68);
+
+  --font-display: 'Space Grotesk', 'Arial Narrow', sans-serif;
+  --font-body: 'Inter', 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', monospace;
+  --font-wordmark: 'JetBrains Mono', 'Cascadia Code', monospace;
+
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 9rem;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.5625rem;
+  --text-xl: 1.953rem;
+  --text-2xl: 2.441rem;
+  --text-3xl: 3.052rem;
+  --text-display-s: clamp(2.5rem, 6vw, 4.5rem);
+  --text-display: clamp(3.25rem, 8vw, 6.5rem);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long: 420ms;
+
+  --rule-hair: 1px;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-round: 999px;
+  --page-gutter: clamp(1rem, 4vw, 4rem);
+  --page-max: 92rem;
+}
+
+html[data-theme='dark'] {
+  --color-paper: oklch(15% 0.014 258);
+  --color-paper-2: oklch(19% 0.016 258);
+  --color-paper-3: oklch(24% 0.018 258);
+  --color-ink: oklch(95% 0.008 250);
+  --color-ink-2: oklch(87% 0.012 250);
+  --color-muted: oklch(70% 0.014 250);
+  --color-rule: oklch(30% 0.018 258);
+  --color-rule-2: oklch(43% 0.024 258);
+  --color-accent: oklch(67% 0.18 256);
+  --color-accent-ink: oklch(13% 0.016 258);
+  --color-focus: oklch(74% 0.16 256);
+  --color-overlay: oklch(7% 0.01 258 / 0.78);
+}
+
+body[data-experience='photographer'] {
+  --color-paper: oklch(12% 0.01 250);
+  --color-paper-2: oklch(16% 0.012 250);
+  --color-paper-3: oklch(21% 0.014 250);
+  --color-ink: oklch(96% 0.008 88);
+  --color-ink-2: oklch(88% 0.012 88);
+  --color-muted: oklch(72% 0.016 88);
+  --color-rule: oklch(29% 0.014 250);
+  --color-rule-2: oklch(45% 0.016 250);
+  --color-accent: oklch(80% 0.12 82);
+  --color-accent-ink: oklch(15% 0.014 250);
+  --color-focus: oklch(84% 0.12 82);
+}
