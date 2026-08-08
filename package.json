@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "check": "astro check",
+    "deploy:gh-page": "node scripts/deploy-gh-page.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
