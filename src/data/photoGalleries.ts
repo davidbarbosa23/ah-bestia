@@ -206,3 +206,8 @@ export function getNextGallery(slug: string) {
   const currentIndex = photoGalleries.findIndex((gallery) => gallery.slug === slug);
   return photoGalleries[(currentIndex + 1) % photoGalleries.length];
 }
+
+export function getPreviousGallery(slug: string) {
+  const currentIndex = photoGalleries.findIndex((gallery) => gallery.slug === slug);
+  return photoGalleries[(currentIndex - 1 + photoGalleries.length) % photoGalleries.length];
+}

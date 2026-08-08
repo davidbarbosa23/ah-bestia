@@ -70,7 +70,7 @@ export const copy = {
       intro:
         'Machines, animals, streets, and the seconds when motion settles into form.',
       galleryTitle: 'Selected series from an ongoing archive.',
-      galleryHint: 'Scroll to move through the contact sheet',
+      galleryHint: 'Scroll to move through the galleries',
       openNote: 'Open visual note',
       images: [
         [
@@ -91,24 +91,9 @@ export const copy = {
           'District motocross championship',
           null,
         ],
-        [
-          'bike-red.jpg',
-          'Machine study',
-          'Bicycles · form and detail',
-          null,
-        ],
-        [
-          'dogs-resting.jpg',
-          'After play',
-          'Dogs · a shared pause',
-          null,
-        ],
-        [
-          'achira.jpg',
-          'Achira',
-          'Portrait of a new arrival',
-          null,
-        ],
+        ['bike-red.jpg', 'Machine study', 'Bicycles · form and detail', null],
+        ['dogs-resting.jpg', 'After play', 'Dogs · a shared pause', null],
+        ['achira.jpg', 'Achira', 'Portrait of a new arrival', null],
         [
           'city-crossing.jpg',
           'City in layers',
@@ -225,7 +210,7 @@ export const copy = {
       intro:
         'Máquinas, animales, calles y los segundos en que el movimiento encuentra una forma.',
       galleryTitle: 'Series seleccionadas de un archivo en proceso.',
-      galleryHint: 'Desplázate para recorrer la hoja de contacto',
+      galleryHint: 'Desplázate para recorrer las galerías',
       openNote: 'Abrir nota visual',
       images: [
         [
@@ -258,12 +243,7 @@ export const copy = {
           'Perros · una pausa compartida',
           null,
         ],
-        [
-          'achira.jpg',
-          'Achira',
-          'Retrato de una recién llegada',
-          null,
-        ],
+        ['achira.jpg', 'Achira', 'Retrato de una recién llegada', null],
         [
           'city-crossing.jpg',
           'Ciudad en capas',

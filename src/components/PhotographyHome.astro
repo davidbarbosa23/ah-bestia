@@ -2,27 +2,27 @@
 import { Image } from 'astro:assets';
 import { copy, type Lang } from '../i18n/content';
 import { photoGalleries } from '../data/photoGalleries';
+import photographerHero from '../assets/photography/photographer-hero.jpg';
 
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const t = copy[lang].photo;
-const heroGallery = photoGalleries[0];
 const heroAlt = lang === 'en'
-  ? 'A red mountain train approaching on converging tracks in Spain'
-  : 'Un tren rojo de montaña acercándose por vías convergentes en España';
+  ? 'A Fujifilm X100VI camera emerging from deep shadow'
+  : 'Una cámara Fujifilm X100VI emergiendo de una sombra profunda';
 ---
 
 <div class="experience experience--photographer" data-experience-panel="photographer">
   <main id="main">
     <section class="photo-hero" aria-labelledby="photo-title">
-      <Image src={heroGallery.cover} widths={[480, 720, 1080, 1400]} sizes="100vw" quality={88} fetchpriority="high" alt={heroAlt} />
+      <Image src={photographerHero} widths={[480, 720, 1080, 1400, 1800, 2100]} sizes="100vw" quality={88} fetchpriority="high" alt={heroAlt} />
       <div class="photo-hero__shade"></div>
       <div class="photo-hero__copy page-shell">
         <p class="status-line status-line--photo"><span></span>{t.status}</p>
         <h1 id="photo-title">{t.title.split('\n').map((line) => <span>{line}{' '}</span>)}</h1>
         <p>{t.intro}</p>
       </div>
-      <p class="photo-hero__caption">España · © David Barbosa</p>
+      <p class="photo-hero__caption">Fujifilm X100VI · © David Barbosa</p>
     </section>
 
     <section class="photo-gallery" aria-labelledby="gallery-title" data-horizontal-section>

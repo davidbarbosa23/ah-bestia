@@ -1,0 +1,166 @@
+---
+import type { Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const label = lang === 'en' ? 'Back to top' : 'Volver arriba';
+---
+
+<button class="back-to-top" type="button" aria-label={label} title={label} data-back-to-top>
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 19V5m0 0L6.5 10.5M12 5l5.5 5.5"></path>
+  </svg>
+  <span>{lang === 'en' ? 'Top' : 'Inicio'}</span>
+</button>
+
+<script>
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let scrollFrame: number | undefined;
+  let footerIsVisible = false;
+  let footerObserver: IntersectionObserver | undefined;
+
+  const updateBackToTop = () => {
+    scrollFrame = undefined;
+
+    const button = document.querySelector<HTMLElement>('[data-back-to-top]');
+    if (!button) return;
+
+    const scrollableDistance = document.documentElement.scrollHeight - window.innerHeight;
+    const showAfter = Math.max(360, window.innerHeight * 0.7);
+    const isUseful = scrollableDistance > window.innerHeight * 0.75;
+    button.classList.toggle('is-visible', isUseful && window.scrollY > showAfter && !footerIsVisible);
+  };
+
+  const observeFooter = () => {
+    footerObserver?.disconnect();
+    footerIsVisible = false;
+
+    const footer = document.querySelector<HTMLElement>('.site-footer');
+    if (!footer) {
+      updateBackToTop();
+      return;
+    }
+
+    const footerRect = footer.getBoundingClientRect();
+    footerIsVisible = footerRect.top < window.innerHeight && footerRect.bottom > 0;
+    updateBackToTop();
+
+    footerObserver = new IntersectionObserver(([entry]) => {
+      footerIsVisible = entry?.isIntersecting ?? false;
+      updateBackToTop();
+    });
+    footerObserver.observe(footer);
+  };
+
+  const queueBackToTopUpdate = () => {
+    if (scrollFrame !== undefined) return;
+    scrollFrame = window.requestAnimationFrame(updateBackToTop);
+  };
+
+  document.addEventListener('astro:page-load', observeFooter);
+  window.addEventListener('scroll', queueBackToTopUpdate, { passive: true });
+  window.addEventListener('resize', queueBackToTopUpdate, { passive: true });
+
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
+    if (!event.target.closest('[data-back-to-top]')) return;
+
+    window.scrollTo({
+      top: 0,
+      behavior: reducedMotion.matches ? 'auto' : 'smooth',
+    });
+  });
+</script>
+
+<style>
+  .back-to-top {
+    position: fixed;
+    inset-inline-end: max(var(--space-lg), env(safe-area-inset-right));
+    inset-block-end: max(var(--space-lg), env(safe-area-inset-bottom));
+    z-index: 190;
+    width: 3.5rem;
+    height: 3.5rem;
+    padding: 0.45rem 0.35rem 0.3rem;
+    border: var(--rule-hair) solid var(--color-ink);
+    border-radius: var(--radius-sm);
+    background: var(--color-ink);
+    box-shadow: 0.3rem 0.3rem 0 var(--color-accent);
+    color: var(--color-paper);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    gap: 0.05rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(1rem) scale(0.94);
+    visibility: hidden;
+    transition:
+      opacity var(--dur-short) var(--ease-out),
+      transform var(--dur-short) var(--ease-out),
+      visibility var(--dur-short),
+      box-shadow var(--dur-micro) var(--ease-out),
+      background-color var(--dur-long) var(--ease-in-out),
+      color var(--dur-long) var(--ease-in-out);
+  }
+
+  .back-to-top.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+    visibility: visible;
+  }
+
+  .back-to-top svg {
+    width: 1.35rem;
+    height: 1.35rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    stroke-width: 1.65;
+  }
+
+  .back-to-top span {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .back-to-top:hover {
+      box-shadow: 0.16rem 0.16rem 0 var(--color-accent);
+      transform: translate(0.14rem, 0.14rem);
+    }
+  }
+
+  .back-to-top:active {
+    box-shadow: 0 0 0 var(--color-accent);
+    transform: translate(0.3rem, 0.3rem);
+  }
+
+  @media (max-width: 39.99rem) {
+    .back-to-top {
+      inset-inline-end: max(var(--space-md), env(safe-area-inset-right));
+      inset-block-end: max(var(--space-md), env(safe-area-inset-bottom));
+      width: 3.25rem;
+      height: 3.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top {
+      transform: none;
+    }
+
+    .back-to-top:hover,
+    .back-to-top:active {
+      transform: none;
+    }
+  }
+</style>

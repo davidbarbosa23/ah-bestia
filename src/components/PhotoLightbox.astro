@@ -1,0 +1,213 @@
+---
+import type { Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const labels = lang === 'en'
+  ? {
+      viewer: 'Full-screen photo viewer',
+      previous: 'Previous photograph',
+      next: 'Next photograph',
+      zoomOut: 'Zoom out',
+      zoomIn: 'Zoom in',
+      reset: 'Reset zoom',
+      close: 'Close full-screen viewer',
+      hint: 'Scroll or use + / - to zoom. Drag to move.',
+    }
+  : {
+      viewer: 'Visor de fotos en pantalla completa',
+      previous: 'Fotografía anterior',
+      next: 'Fotografía siguiente',
+      zoomOut: 'Alejar',
+      zoomIn: 'Acercar',
+      reset: 'Restablecer zoom',
+      close: 'Cerrar visor de pantalla completa',
+      hint: 'Desplázate o usa + / - para ampliar. Arrastra para mover.',
+    };
+---
+
+<dialog class="photo-lightbox" data-photo-lightbox aria-label={labels.viewer}>
+  <div class="photo-lightbox__stage" data-lightbox-stage>
+    <img data-lightbox-image alt="" draggable="false" />
+  </div>
+
+  <div class="photo-lightbox__toolbar">
+    <div class="photo-lightbox__identity" aria-live="polite">
+      <span data-lightbox-count></span>
+      <span data-lightbox-filename></span>
+    </div>
+
+    <div class="photo-lightbox__controls">
+      <button type="button" data-lightbox-zoom-out aria-label={labels.zoomOut} title={labels.zoomOut}>−</button>
+      <button class="photo-lightbox__zoom" type="button" data-lightbox-reset aria-label={labels.reset} title={labels.reset}>100%</button>
+      <button type="button" data-lightbox-zoom-in aria-label={labels.zoomIn} title={labels.zoomIn}>+</button>
+      <button type="button" data-lightbox-close aria-label={labels.close} title={labels.close}>×</button>
+    </div>
+  </div>
+
+  <button class="photo-lightbox__nav photo-lightbox__nav--previous" type="button" data-lightbox-previous aria-label={labels.previous}>←</button>
+  <button class="photo-lightbox__nav photo-lightbox__nav--next" type="button" data-lightbox-next aria-label={labels.next}>→</button>
+  <p class="photo-lightbox__hint">{labels.hint}</p>
+</dialog>
+
+<script>
+  const setupPhotoLightbox = () => {
+    const dialog = document.querySelector('[data-photo-lightbox]');
+    if (!(dialog instanceof HTMLDialogElement) || dialog.dataset.ready === 'true') return;
+
+    const stage = dialog.querySelector('[data-lightbox-stage]');
+    const image = dialog.querySelector('[data-lightbox-image]');
+    const count = dialog.querySelector('[data-lightbox-count]');
+    const filename = dialog.querySelector('[data-lightbox-filename]');
+    const zoomDisplay = dialog.querySelector('[data-lightbox-reset]');
+    const zoomOut = dialog.querySelector('[data-lightbox-zoom-out]');
+    const zoomIn = dialog.querySelector('[data-lightbox-zoom-in]');
+    const previous = dialog.querySelector('[data-lightbox-previous]');
+    const next = dialog.querySelector('[data-lightbox-next]');
+    const close = dialog.querySelector('[data-lightbox-close]');
+
+    if (!(stage instanceof HTMLElement) || !(image instanceof HTMLImageElement)) return;
+    if (!(count instanceof HTMLElement) || !(filename instanceof HTMLElement)) return;
+    if (!(zoomDisplay instanceof HTMLButtonElement) || !(zoomOut instanceof HTMLButtonElement) || !(zoomIn instanceof HTMLButtonElement)) return;
+    if (!(previous instanceof HTMLButtonElement) || !(next instanceof HTMLButtonElement) || !(close instanceof HTMLButtonElement)) return;
+
+    dialog.dataset.ready = 'true';
+    const openers = [...document.querySelectorAll<HTMLElement>('[data-lightbox-open]')];
+    const maximumScale = 4;
+    const minimumScale = 0.5;
+    const initialScale = 1;
+    let currentIndex = 0;
+    let scale = initialScale;
+    let translateX = 0;
+    let translateY = 0;
+    let activePointer: number | undefined;
+    let lastPointerX = 0;
+    let lastPointerY = 0;
+    let returnFocus: HTMLElement | null = null;
+
+    const clampPosition = () => {
+      const maxX = Math.max(0, (image.clientWidth * scale - stage.clientWidth) / 2);
+      const maxY = Math.max(0, (image.clientHeight * scale - stage.clientHeight) / 2);
+      translateX = Math.min(maxX, Math.max(-maxX, translateX));
+      translateY = Math.min(maxY, Math.max(-maxY, translateY));
+    };
+
+    const renderTransform = () => {
+      clampPosition();
+      image.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
+      zoomDisplay.textContent = `${Math.round(scale * 100)}%`;
+      zoomOut.disabled = scale <= minimumScale;
+      zoomIn.disabled = scale >= maximumScale;
+      stage.classList.toggle('is-zoomed', scale > initialScale);
+    };
+
+    const resetZoom = () => {
+      scale = initialScale;
+      translateX = 0;
+      translateY = 0;
+      renderTransform();
+    };
+
+    const setScale = (nextScale: number) => {
+      scale = Math.min(maximumScale, Math.max(minimumScale, nextScale));
+      if (scale <= initialScale) {
+        translateX = 0;
+        translateY = 0;
+      }
+      renderTransform();
+    };
+
+    const showPhoto = (index: number) => {
+      if (!openers.length) return;
+      currentIndex = (index + openers.length) % openers.length;
+      const opener = openers[currentIndex];
+      image.src = opener.dataset.lightboxSrc ?? '';
+      image.alt = opener.dataset.lightboxAlt ?? '';
+      count.textContent = `${String(currentIndex + 1).padStart(2, '0')} / ${String(openers.length).padStart(2, '0')}`;
+      filename.textContent = opener.dataset.lightboxFilename ?? '';
+      resetZoom();
+    };
+
+    openers.forEach((opener, index) => {
+      opener.addEventListener('click', () => {
+        returnFocus = opener;
+        showPhoto(index);
+        dialog.showModal();
+        requestAnimationFrame(() => close.focus());
+      });
+    });
+
+    zoomOut.addEventListener('click', () => setScale(scale - 0.25));
+    zoomIn.addEventListener('click', () => setScale(scale + 0.25));
+    zoomDisplay.addEventListener('click', resetZoom);
+    previous.addEventListener('click', () => showPhoto(currentIndex - 1));
+    next.addEventListener('click', () => showPhoto(currentIndex + 1));
+    close.addEventListener('click', () => dialog.close());
+
+    stage.addEventListener('dblclick', (event) => {
+      event.preventDefault();
+      setScale(scale === initialScale ? 2 : initialScale);
+    });
+
+    stage.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      setScale(scale + (event.deltaY < 0 ? 0.25 : -0.25));
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (event) => {
+      if (scale <= initialScale) return;
+      activePointer = event.pointerId;
+      lastPointerX = event.clientX;
+      lastPointerY = event.clientY;
+      stage.setPointerCapture(event.pointerId);
+      stage.classList.add('is-dragging');
+    });
+
+    stage.addEventListener('pointermove', (event) => {
+      if (activePointer !== event.pointerId) return;
+      translateX += event.clientX - lastPointerX;
+      translateY += event.clientY - lastPointerY;
+      lastPointerX = event.clientX;
+      lastPointerY = event.clientY;
+      renderTransform();
+    });
+
+    const stopDragging = (event: PointerEvent) => {
+      if (activePointer !== event.pointerId) return;
+      activePointer = undefined;
+      stage.classList.remove('is-dragging');
+    };
+
+    stage.addEventListener('pointerup', stopDragging);
+    stage.addEventListener('pointercancel', stopDragging);
+
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        dialog.close();
+        return;
+      }
+      if (event.key === 'ArrowLeft') showPhoto(currentIndex - 1);
+      if (event.key === 'ArrowRight') showPhoto(currentIndex + 1);
+      if (event.key === '+' || event.key === '=') setScale(scale + 0.25);
+      if (event.key === '-' || event.key === '_') setScale(scale - 0.25);
+      if (event.key === '0') resetZoom();
+    });
+
+    dialog.addEventListener('close', () => {
+      resetZoom();
+      returnFocus?.focus();
+    });
+
+    window.addEventListener('resize', renderTransform);
+    document.addEventListener('astro:before-swap', () => {
+      window.removeEventListener('resize', renderTransform);
+    }, { once: true });
+  };
+
+  setupPhotoLightbox();
+  document.addEventListener('astro:page-load', setupPhotoLightbox);
+</script>

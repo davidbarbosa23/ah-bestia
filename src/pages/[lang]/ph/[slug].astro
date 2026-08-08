@@ -3,8 +3,14 @@ import { Image } from 'astro:assets';
 import SiteLayout from '../../../layouts/SiteLayout.astro';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
+import PhotoLightbox from '../../../components/PhotoLightbox.astro';
 import { languages, type Lang } from '../../../i18n/content';
-import { getNextGallery, photoGalleries, type PhotoGallery } from '../../../data/photoGalleries';
+import {
+  getNextGallery,
+  getPreviousGallery,
+  photoGalleries,
+  type PhotoGallery,
+} from '../../../data/photoGalleries';
 
 export function getStaticPaths() {
   return languages.flatMap((lang) =>
@@ -22,15 +28,22 @@ interface Props {
 const { gallery } = Astro.props as Props;
 const lang = Astro.params.lang as Lang;
 const content = gallery.content[lang];
+const previousGallery = getPreviousGallery(gallery.slug);
 const nextGallery = getNextGallery(gallery.slug);
+const previousContent = previousGallery.content[lang];
 const nextContent = nextGallery.content[lang];
-const galleryImages = gallery.images.filter(({ filename }) => filename !== gallery.coverFilename);
+const expandLabel = lang === 'en' ? 'Open full-screen view' : 'Abrir vista de pantalla completa';
+const galleryImages = [
+  ...gallery.images.filter(({ filename }) => filename === gallery.coverFilename),
+  ...gallery.images.filter(({ filename }) => filename !== gallery.coverFilename),
+];
 const labels = lang === 'en'
   ? {
       back: 'Back to all series',
       kicker: 'Photographic series',
       photographs: 'photographs',
       source: 'Archive folder',
+      previous: 'Previous series',
       next: 'Next series',
       photo: 'Photograph',
       from: 'from',
@@ -40,6 +53,7 @@ const labels = lang === 'en'
       kicker: 'Serie fotográfica',
       photographs: 'fotografías',
       source: 'Carpeta del archivo',
+      previous: 'Serie anterior',
       next: 'Siguiente serie',
       photo: 'Fotografía',
       from: 'de',
@@ -78,27 +92,68 @@ const labels = lang === 'en'
     </header>
 
     <article class="series-body page-shell">
-      <header class="series-body__meta">
-        <p><strong>{gallery.images.length}</strong> {labels.photographs}</p>
-        <p><span>{labels.source}</span> {gallery.sourceFolder}</p>
-      </header>
+      <nav class="series-body__meta" aria-label={`${labels.previous} / ${labels.next}`}>
+        <div class="series-body__meta-group series-body__meta-group--previous">
+          <a
+            class="series-body__direction series-body__direction--previous"
+            href={`/${lang}/ph/${previousGallery.slug}/`}
+            aria-label={`${labels.previous}: ${previousContent.title}`}
+            rel="prev"
+          >
+            <svg viewBox="0 0 32 16" aria-hidden="true">
+              <path d="M30 8H3M9 2 3 8l6 6" />
+            </svg>
+            <span class="series-body__tooltip" aria-hidden="true">{previousContent.title}</span>
+          </a>
+          <p><strong>{gallery.images.length}</strong> {labels.photographs}</p>
+        </div>
+        <div class="series-body__meta-group series-body__meta-group--next">
+          <p>
+            <span class="series-body__source-label">{labels.source}</span>
+            <span class="series-body__source-name" title={gallery.sourceFolder}>{gallery.sourceFolder}</span>
+          </p>
+          <a
+            class="series-body__direction series-body__direction--next"
+            href={`/${lang}/ph/${nextGallery.slug}/`}
+            aria-label={`${labels.next}: ${nextContent.title}`}
+            rel="next"
+          >
+            <svg viewBox="0 0 32 16" aria-hidden="true">
+              <path d="M2 8h27m-6-6 6 6-6 6" />
+            </svg>
+            <span class="series-body__tooltip" aria-hidden="true">{nextContent.title}</span>
+          </a>
+        </div>
+      </nav>
 
       <div class="series-gallery">
         {galleryImages.map(({ image, filename }, index) => {
-          const number = index + 2;
+          const number = index + 1;
           const alt = `${labels.photo} ${number} ${labels.from} ${content.title}`;
           const isLandscape = image.width > image.height;
 
           return (
             <figure class:list={['series-photo', (isLandscape || index % 9 === 7) && 'series-photo--wide']}>
-              <Image
-                src={image}
-                widths={[480, 800, 1200, 1600]}
-                sizes={isLandscape ? '100vw' : '(min-width: 40rem) 50vw, 100vw'}
-                quality={86}
-                loading="lazy"
-                alt={alt}
-              />
+              <button
+                class="series-photo__open"
+                type="button"
+                aria-label={`${expandLabel}: ${alt}`}
+                aria-haspopup="dialog"
+                data-lightbox-open
+                data-lightbox-src={image.src}
+                data-lightbox-alt={alt}
+                data-lightbox-filename={filename}
+              >
+                <Image
+                  src={image}
+                  widths={[480, 800, 1200, 1600]}
+                  sizes={isLandscape ? '100vw' : '(min-width: 40rem) 50vw, 100vw'}
+                  quality={86}
+                  loading="lazy"
+                  alt={alt}
+                />
+                <span class="series-photo__expand" aria-hidden="true">↗</span>
+              </button>
               <figcaption>
                 <span>{String(number).padStart(2, '0')} / {String(gallery.images.length).padStart(2, '0')}</span>
                 <span aria-hidden="true">{filename}</span>
@@ -113,6 +168,7 @@ const labels = lang === 'en'
         <strong>{nextContent.title} <span aria-hidden="true">→</span></strong>
       </a>
     </article>
+    <PhotoLightbox lang={lang} />
   </main>
   <SiteFooter lang={lang} />
 </SiteLayout>

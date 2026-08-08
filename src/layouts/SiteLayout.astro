@@ -3,6 +3,7 @@ import '../styles/global.css';
 import type { Lang } from '../i18n/content';
 import { ClientRouter } from 'astro:transitions';
 import portrait from '../assets/portrait.jpg';
+import BackToTop from '../components/BackToTop.astro';
 
 interface Props {
   lang: Lang;
@@ -34,7 +35,7 @@ const structuredData = {
   url: 'https://barbosacap.com',
   image: new URL(portrait.src, Astro.site).toString(),
   jobTitle: lang === 'en' ? 'Software Engineer' : 'Ingeniero de Software',
-  sameAs: ['https://github.com/barbosacap', 'https://www.linkedin.com/in/davidbarbosar/'],
+  sameAs: ['https://github.com/davidbarbosa23', 'https://www.linkedin.com/in/davidbarbosar/'],
   address: { '@type': 'PostalAddress', addressLocality: 'Bogotá', addressCountry: 'CO' },
 };
 ---
@@ -82,6 +83,7 @@ const structuredData = {
   <body data-experience={experience}>
     <a class="skip-link" href="#main">{lang === 'en' ? 'Skip to content' : 'Saltar al contenido'}</a>
     <slot />
+    <BackToTop lang={lang} />
   </body>
 </html>
 
