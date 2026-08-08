@@ -1636,6 +1636,145 @@ input[aria-invalid='true'] {
   border-color: var(--color-error);
 }
 
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5
+ * Hallmark · genre: modern-minimal · macrostructure: Photographic · theme: Cobalt
+ * enrichment: H6 Photographic Fold · nav: N13 reused · footer: Ft5 reused
+ * audience: portfolio visitors · use: recover from an error · tone: friendly and composed
+ * contrast: pass (40–41) · slop: pass (42–45) · honest: pass (46) · chrome: pass (47)
+ * tokens: pass (48) · responsive: pass (49) · icons: pass (30) · mobile: pass (34, 49–57)
+ */
+.error-page {
+  position: relative;
+  min-height: calc(100svh - 4.75rem);
+  isolation: isolate;
+  background: var(--color-graphite);
+  color: var(--color-on-dark);
+  display: grid;
+  overflow: clip;
+}
+
+.error-page__background,
+.error-page__shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.error-page__background {
+  z-index: -2;
+  object-fit: cover;
+  object-position: 62% center;
+}
+
+.error-page__shade {
+  z-index: -1;
+  background: var(--color-overlay);
+}
+
+.error-page__content {
+  width: min(100%, var(--page-max));
+  min-width: 0;
+  margin-inline: auto;
+  padding: var(--space-3xl) var(--page-gutter);
+  display: grid;
+  align-content: end;
+  justify-items: start;
+  gap: var(--space-lg);
+}
+
+.error-page__content > * {
+  animation: error-page-enter var(--dur-long) var(--ease-out) both;
+}
+
+.error-page__content > :nth-child(2) {
+  animation-delay: var(--dur-micro);
+}
+
+.error-page__content > :nth-child(3),
+.error-page__content > :nth-child(4) {
+  animation-delay: var(--dur-short);
+}
+
+.error-page__code {
+  color: var(--color-on-dark-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.error-page h1 {
+  max-width: 12ch;
+  color: var(--color-on-dark);
+  font-size: var(--text-display-s);
+  overflow-wrap: anywhere;
+}
+
+.error-page__message {
+  max-width: 38rem;
+  color: var(--color-on-dark-muted);
+  font-size: var(--text-md);
+}
+
+.error-page__actions {
+  padding-block-start: var(--space-sm);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-lg);
+}
+
+.error-page__actions .button {
+  font-family: var(--font-body);
+}
+
+.error-page__actions .text-link {
+  color: var(--color-on-dark);
+}
+
+@keyframes error-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-sm));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .error-page {
+    min-height: calc(100svh - 3.25rem);
+  }
+
+  .error-page__background {
+    object-position: 68% center;
+  }
+
+  .error-page__content {
+    padding-block: var(--space-2xl);
+  }
+
+  .error-page h1 {
+    font-size: clamp(var(--text-2xl), 12vw, var(--text-display-s));
+  }
+
+  .error-page__message {
+    font-size: var(--text-base);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .error-page__content > * {
+    animation: none;
+  }
+}
+
 @media (min-width: 40rem) {
   .site-header__inner {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);

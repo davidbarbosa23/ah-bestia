@@ -1,6 +1,15 @@
 [
   {
     "date": "2026-08-07",
+    "macrostructure": "Photographic",
+    "theme": "Cobalt",
+    "enrichment": "H6 Photographic Fold",
+    "brief": "Friendly 404 and 500 recovery pages using a supplied dark developer photograph",
+    "nav": "N13",
+    "footer": "Ft5"
+  },
+  {
+    "date": "2026-08-07",
     "macrostructure": "Workbench",
     "theme": "Cobalt",
     "enrichment": "H6 Photographic Fold",

@@ -15,7 +15,7 @@ const labels = lang === 'en'
       zoomIn: 'Zoom in',
       reset: 'Reset zoom',
       close: 'Close full-screen viewer',
-      hint: 'Pinch, scroll, or use + / - to zoom. Drag to move.',
+      hint: 'Swipe to browse. Pinch, scroll, or use + / - to zoom.',
     }
   : {
       viewer: 'Visor de fotos en pantalla completa',
@@ -25,7 +25,7 @@ const labels = lang === 'en'
       zoomIn: 'Acercar',
       reset: 'Restablecer zoom',
       close: 'Cerrar visor de pantalla completa',
-      hint: 'Pellizca, desplázate o usa + / - para ampliar. Arrastra para mover.',
+      hint: 'Desliza para navegar. Pellizca, desplázate o usa + / - para ampliar.',
     };
 ---
 
@@ -92,6 +92,11 @@ const labels = lang === 'en'
     let pinchStartTranslateY = 0;
     let pinchStartMidpointX = 0;
     let pinchStartMidpointY = 0;
+    let swipeTracking = false;
+    let swipeStartX = 0;
+    let swipeStartY = 0;
+    let swipeStartTime = 0;
+    let suppressBackdropClickUntil = 0;
     let returnFocus: HTMLElement | null = null;
 
     const clampPosition = () => {
@@ -126,6 +131,34 @@ const labels = lang === 'en'
       renderTransform();
     };
 
+    const displayedPhotoBounds = () => {
+      if (!image.naturalWidth || !image.naturalHeight) return null;
+
+      const stageBounds = stage.getBoundingClientRect();
+      const stageStyles = getComputedStyle(stage);
+      const paddingLeft = Number.parseFloat(stageStyles.paddingLeft) || 0;
+      const paddingRight = Number.parseFloat(stageStyles.paddingRight) || 0;
+      const paddingTop = Number.parseFloat(stageStyles.paddingTop) || 0;
+      const paddingBottom = Number.parseFloat(stageStyles.paddingBottom) || 0;
+      const availableWidth = stage.clientWidth - paddingLeft - paddingRight;
+      const availableHeight = stage.clientHeight - paddingTop - paddingBottom;
+      const containScale = Math.min(
+        availableWidth / image.naturalWidth,
+        availableHeight / image.naturalHeight,
+      );
+      const photoWidth = image.naturalWidth * containScale * scale;
+      const photoHeight = image.naturalHeight * containScale * scale;
+      const centerX = stageBounds.left + paddingLeft + availableWidth / 2 + translateX;
+      const centerY = stageBounds.top + paddingTop + availableHeight / 2 + translateY;
+
+      return {
+        left: centerX - photoWidth / 2,
+        right: centerX + photoWidth / 2,
+        top: centerY - photoHeight / 2,
+        bottom: centerY + photoHeight / 2,
+      };
+    };
+
     const showPhoto = (index: number) => {
       if (!openers.length) return;
       currentIndex = (index + openers.length) % openers.length;
@@ -153,6 +186,18 @@ const labels = lang === 'en'
     next.addEventListener('click', () => showPhoto(currentIndex + 1));
     close.addEventListener('click', () => dialog.close());
 
+    stage.addEventListener('click', (event) => {
+      if (performance.now() < suppressBackdropClickUntil) return;
+      const bounds = displayedPhotoBounds();
+      if (!bounds) return;
+
+      const isInsidePhoto = event.clientX >= bounds.left
+        && event.clientX <= bounds.right
+        && event.clientY >= bounds.top
+        && event.clientY <= bounds.bottom;
+      if (!isInsidePhoto) dialog.close();
+    });
+
     stage.addEventListener('dblclick', (event) => {
       event.preventDefault();
       setScale(scale === initialScale ? 2 : initialScale);
@@ -175,9 +220,20 @@ const labels = lang === 'en'
     });
 
     stage.addEventListener('touchstart', (event) => {
+      if (event.touches.length === 1) {
+        swipeTracking = scale <= initialScale;
+        if (swipeTracking) {
+          swipeStartX = event.touches[0].clientX;
+          swipeStartY = event.touches[0].clientY;
+          swipeStartTime = performance.now();
+        }
+        return;
+      }
+
       if (event.touches.length !== 2) return;
       event.preventDefault();
 
+      swipeTracking = false;
       const midpoint = touchMidpoint(event.touches);
       pinchStartDistance = touchDistance(event.touches);
       pinchStartScale = scale;
@@ -185,13 +241,25 @@ const labels = lang === 'en'
       pinchStartTranslateY = translateY;
       pinchStartMidpointX = midpoint.x;
       pinchStartMidpointY = midpoint.y;
+      suppressBackdropClickUntil = performance.now() + 400;
       activePointer = undefined;
       stage.classList.remove('is-dragging');
     }, { passive: false });
 
     stage.addEventListener('touchmove', (event) => {
+      if (event.touches.length === 1 && swipeTracking) {
+        const movementX = event.touches[0].clientX - swipeStartX;
+        const movementY = event.touches[0].clientY - swipeStartY;
+        if (Math.abs(movementX) > 8 && Math.abs(movementX) > Math.abs(movementY)) {
+          event.preventDefault();
+          suppressBackdropClickUntil = performance.now() + 400;
+        }
+        return;
+      }
+
       if (event.touches.length !== 2 || pinchStartDistance === 0) return;
       event.preventDefault();
+      suppressBackdropClickUntil = performance.now() + 400;
 
       const midpoint = touchMidpoint(event.touches);
       const stageBounds = stage.getBoundingClientRect();
@@ -216,12 +284,29 @@ const labels = lang === 'en'
       renderTransform();
     }, { passive: false });
 
-    const stopPinching = (event: TouchEvent) => {
+    const stopTouchGesture = (event: TouchEvent) => {
+      if (swipeTracking && event.touches.length === 0 && event.changedTouches.length) {
+        const touch = event.changedTouches[0];
+        const movementX = touch.clientX - swipeStartX;
+        const movementY = touch.clientY - swipeStartY;
+        const elapsed = performance.now() - swipeStartTime;
+        const swipeThreshold = Math.max(48, Math.min(96, stage.clientWidth * 0.12));
+        const isHorizontalSwipe = Math.abs(movementX) >= swipeThreshold
+          && Math.abs(movementX) > Math.abs(movementY) * 1.25
+          && elapsed < 700;
+
+        if (isHorizontalSwipe) {
+          suppressBackdropClickUntil = performance.now() + 400;
+          showPhoto(movementX < 0 ? currentIndex + 1 : currentIndex - 1);
+        }
+      }
+
+      if (event.touches.length === 0) swipeTracking = false;
       if (event.touches.length < 2) pinchStartDistance = 0;
     };
 
-    stage.addEventListener('touchend', stopPinching);
-    stage.addEventListener('touchcancel', stopPinching);
+    stage.addEventListener('touchend', stopTouchGesture);
+    stage.addEventListener('touchcancel', stopTouchGesture);
 
     stage.addEventListener('pointerdown', (event) => {
       if (scale <= initialScale) return;
@@ -234,8 +319,13 @@ const labels = lang === 'en'
 
     stage.addEventListener('pointermove', (event) => {
       if (activePointer !== event.pointerId) return;
-      translateX += event.clientX - lastPointerX;
-      translateY += event.clientY - lastPointerY;
+      const movementX = event.clientX - lastPointerX;
+      const movementY = event.clientY - lastPointerY;
+      if (Math.abs(movementX) + Math.abs(movementY) > 2) {
+        suppressBackdropClickUntil = performance.now() + 250;
+      }
+      translateX += movementX;
+      translateY += movementY;
       lastPointerX = event.clientX;
       lastPointerY = event.clientY;
       renderTransform();
