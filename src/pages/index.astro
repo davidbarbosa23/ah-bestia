@@ -1,3 +1,35 @@
 ---
-return Astro.redirect('/en/dev/');
+const destination = '/en/dev/';
+const canonical = new URL(destination, Astro.site);
 ---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="refresh" content={`0;url=${destination}`} />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={canonical} />
+    <title>David Barbosa</title>
+    <script is:inline>
+      window.location.replace('/en/dev/');
+    </script>
+    <style is:inline>
+      html,
+      body {
+        min-height: 100%;
+        margin: 0;
+        background: #f7f8fb;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        html,
+        body {
+          background: #111318;
+        }
+      }
+    </style>
+  </head>
+  <body></body>
+</html>
