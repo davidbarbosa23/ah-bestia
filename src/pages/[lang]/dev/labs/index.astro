@@ -1,0 +1,69 @@
+---
+import SiteLayout from '../../../../layouts/SiteLayout.astro';
+import SiteHeader from '../../../../components/SiteHeader.astro';
+import SiteFooter from '../../../../components/SiteFooter.astro';
+import { languages, type Lang } from '../../../../i18n/content';
+import { labProjects, labsCopy } from '../../../../data/labs';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = labsCopy[lang];
+---
+
+<SiteLayout
+  lang={lang}
+  experience="developer"
+  title={t.metaTitle}
+  description={t.metaDescription}
+>
+  <SiteHeader lang={lang} experience="developer" />
+  <main class="labs-index page-shell" id="main">
+    <a class="inner-page__back" href={`/${lang}/dev/`}>
+      <span aria-hidden="true">←</span>{t.back}
+    </a>
+
+    <header class="labs-index__header">
+      <div>
+        <p class="mono-label">{t.label}</p>
+        <h1>{t.title}</h1>
+      </div>
+      <p>{t.intro}</p>
+    </header>
+
+    <div class="labs-index__meta" aria-label={`${labProjects.length} ${t.count}`}>
+      <span>{String(labProjects.length).padStart(2, '0')} {t.count}</span>
+      <span>index / {new Date().getFullYear()}</span>
+    </div>
+
+    <ol class="labs-list">
+      {labProjects.map((project, index) => {
+        const content = project.content[lang];
+        return (
+          <li>
+            <a class="labs-row" href={`/${lang}/dev/labs/${project.slug}/`}>
+              <span class="labs-row__number">{String(index + 1).padStart(3, '0')}</span>
+              <span class="labs-row__body">
+                <span class="labs-row__title">{content.title}</span>
+                <span class="labs-row__summary">{content.summary}</span>
+              </span>
+              <span class="labs-row__meta">
+                <span>{t.live}</span>
+                <span>{project.tags.join(' · ')}</span>
+              </span>
+              <span class="labs-row__action">{t.open}<span aria-hidden="true">↗</span></span>
+            </a>
+          </li>
+        );
+      })}
+    </ol>
+
+    <aside class="labs-index__note">
+      <span aria-hidden="true">+</span>
+      <p>{t.nextText}</p>
+    </aside>
+  </main>
+  <SiteFooter lang={lang} />
+</SiteLayout>
