@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://barbosacap.com/sitemap-index.xml
+Sitemap: https://ahbestia.com/sitemap-index.xml
