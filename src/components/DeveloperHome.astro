@@ -1,0 +1,92 @@
+---
+import { copy, type Lang } from '../i18n/content';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const t = copy[lang].dev;
+---
+
+<div class="experience experience--developer" data-experience-panel="developer">
+  <main id="main">
+    <section class="dev-hero page-shell" aria-labelledby="developer-title">
+      <div class="dev-hero__copy">
+        <p class="status-line"><span></span>{t.status}</p>
+        <h1 id="developer-title">{t.title.split('\n').map((line) => <span>{line}{' '}</span>)}</h1>
+        <p class="dev-hero__intro">{t.intro}</p>
+        <div class="dev-hero__actions">
+          <a class="button button--primary" href={`/${lang}/dev/projects/`}>{t.primaryCta}<span aria-hidden="true">↗</span></a>
+          <a class="text-link" href="mailto:davidbarbosa.dev@gmail.com">{t.secondaryCta}<span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+
+      <figure class="source-card" aria-label={lang === 'en' ? 'Developer profile as TypeScript' : 'Perfil del desarrollador como TypeScript'}>
+        <figcaption>{t.codeLabel}<span>UTF-8 · TS</span></figcaption>
+        <pre><code><span class="tok-key">export const</span> david = {'{'}
+  role: <span class="tok-string">'software-engineer'</span>,
+  location: <span class="tok-string">'bogotá.co'</span>,
+  focus: [
+    <span class="tok-string">'product systems'</span>,
+    <span class="tok-string">'frontend craft'</span>,
+    <span class="tok-string">'clear interfaces'</span>
+  ],
+  status: <span class="tok-function">build</span>(<span class="tok-string">'with-care'</span>)
+{'}'} <span class="tok-cursor" aria-hidden="true"></span></code></pre>
+        <p class="source-card__result"><span>●</span> {lang === 'en' ? 'compiled without noise' : 'compilado sin ruido'}</p>
+      </figure>
+    </section>
+
+    <section class="about-section page-shell" id="about">
+      <div class="about-section__copy reveal-item">
+        <h2>{t.aboutTitle}</h2>
+        <p>{t.aboutBody}</p>
+      </div>
+      <dl class="profile-spec reveal-item">
+        <div><dt>{t.current}</dt><dd>{t.currentValue}</dd></div>
+        <div><dt>{t.location}</dt><dd>{t.locationValue}</dd></div>
+        <div><dt>{t.focus}</dt><dd>{t.focusValue}</dd></div>
+      </dl>
+    </section>
+
+    <section class="experience-section" aria-labelledby="experience-title">
+      <div class="page-shell">
+        <h2 id="experience-title" class="reveal-item">{t.experienceTitle}</h2>
+        <div class="experience-log">
+          {t.experience.map(([date, company, role]) => (
+            <article class="experience-row reveal-item">
+              <p class="experience-row__date">{date}</p>
+              <h3>{company}</h3>
+              <p>{role}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="project-section page-shell" id="work" aria-labelledby="projects-heading">
+      <div class="project-section__head reveal-item">
+        <h2 id="projects-heading">{t.projectsTitle}</h2>
+        <p>{t.projectsIntro}</p>
+      </div>
+      <a class="project-feature reveal-item" href={`/${lang}/dev/projects/`}>
+        <div class="project-feature__visual" aria-hidden="true">
+          <div class="gear gear--one"></div>
+          <div class="gear gear--two"></div>
+          <p>48 × 17 <span>2.82</span></p>
+        </div>
+        <div class="project-feature__body">
+          <p class="mono-label">{t.projectMeta}</p>
+          <h3>{t.projectName}</h3>
+          <p>{t.projectDesc}</p>
+          <span class="text-link">{t.projectLink}<span aria-hidden="true">↗</span></span>
+        </div>
+      </a>
+    </section>
+
+    <section class="contact-section page-shell" aria-labelledby="contact-title">
+      <h2 id="contact-title">{t.contactTitle}</h2>
+      <div>
+        <p>{t.contactBody}</p>
+        <a class="button button--primary" href="mailto:davidbarbosa.dev@gmail.com">{t.contactLink}<span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+  </main>
+</div>

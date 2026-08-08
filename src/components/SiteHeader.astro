@@ -1,0 +1,118 @@
+---
+import { alternatePath, copy, type Lang } from '../i18n/content';
+
+interface Props { lang: Lang; experience?: 'developer' | 'photographer'; }
+const { lang, experience } = Astro.props;
+const t = copy[lang];
+const altLang = lang === 'en' ? 'es' : 'en';
+const altPath = alternatePath(Astro.url.pathname, lang);
+const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
+---
+
+<header class="site-header" data-site-header>
+  <div class="site-header__inner">
+    <a class="wordmark" href={homePath} aria-label="David Barbosa — home">
+      <span aria-hidden="true">db/</span><span>David Barbosa</span>
+    </a>
+
+    {experience && (
+      <nav class="experience-switch" aria-label={t.modes.label}>
+        <a class:list={['experience-switch__option', experience === 'developer' && 'is-active']} href={`/${lang}/dev/`} aria-current={experience === 'developer' ? 'page' : undefined} aria-label={t.modes.developer}>
+          <span class="switch-wide">{t.modes.developer}</span><span class="switch-short" aria-hidden="true">DEV</span>
+        </a>
+        <a class:list={['experience-switch__option', experience === 'photographer' && 'is-active']} href={`/${lang}/ph/`} aria-current={experience === 'photographer' ? 'page' : undefined} aria-label={t.modes.photographer}>
+          <span class="switch-wide">{t.modes.photographer}</span><span class="switch-short" aria-hidden="true">PHOTO</span>
+        </a>
+      </nav>
+    )}
+
+    <nav class="site-tools" aria-label="Utility navigation">
+      {experience === 'developer' && <button class="jump-button" type="button" data-command-open aria-label={`${t.nav.search} (Ctrl K)`}>
+        <span>{t.nav.search}</span><kbd>⌘K</kbd>
+      </button>}
+      <button class="theme-button" type="button" data-theme-toggle aria-label={t.theme.dark} title={t.theme.dark}>
+        <svg class="theme-icon theme-icon--sun" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path></svg>
+        <svg class="theme-icon theme-icon--moon" aria-hidden="true" viewBox="0 0 24 24"><path d="M20.5 15.5A8.5 8.5 0 0 1 8.5 3.5a8.5 8.5 0 1 0 12 12Z"></path></svg>
+      </button>
+      <a class="language-link" href={altPath} hreflang={altLang} lang={lang} aria-label={altLang === 'es' ? 'Cambiar a español' : 'Switch to English'} title={altLang === 'es' ? 'Cambiar a español' : 'Switch to English'} data-language-link>{lang.toUpperCase()}</a>
+    </nav>
+  </div>
+</header>
+
+{experience === 'developer' && (
+  <dialog class="command" data-command aria-label={t.nav.search}>
+    <form method="dialog" class="command__surface">
+      <div class="command__field">
+        <label for="command-search">{t.nav.search}</label>
+        <input id="command-search" type="search" autocomplete="off" placeholder={lang === 'en' ? 'Projects, about, contact…' : 'Proyectos, acerca, contacto…'} data-command-input />
+        <button class="command__close" value="close" aria-label="Close">ESC</button>
+      </div>
+      <div class="command__results" data-command-results>
+        <a href="#work" data-command-item>{t.nav.work}<span>↵</span></a>
+        <a href="#about" data-command-item>{t.nav.about}<span>↵</span></a>
+        <a href="#contact" data-command-item>{t.nav.contact}<span>↵</span></a>
+        <a href={`/${lang}/dev/projects/`} data-command-item>{t.dev.primaryCta}<span>↗</span></a>
+      </div>
+    </form>
+  </dialog>
+)}
+
+<script>
+  const syncThemeLabel = () => {
+    const root = document.documentElement;
+    const themeButton = document.querySelector('[data-theme-toggle]');
+    if (!(themeButton instanceof HTMLElement)) return;
+    const dark = root.dataset.theme === 'dark';
+    const nextLabel = dark ? (document.documentElement.lang === 'es' ? 'Usar tema claro' : 'Use light theme') : (document.documentElement.lang === 'es' ? 'Usar tema oscuro' : 'Use dark theme');
+    themeButton.setAttribute('aria-label', nextLabel);
+    themeButton.setAttribute('title', nextLabel);
+  };
+  syncThemeLabel();
+  document.addEventListener('astro:page-load', syncThemeLabel);
+
+  const openCommand = () => {
+    const dialog = document.querySelector('[data-command]');
+    const input = document.querySelector('[data-command-input]');
+    if (!(dialog instanceof HTMLDialogElement)) return;
+    dialog.showModal();
+    requestAnimationFrame(() => (input instanceof HTMLInputElement) && input.focus());
+  };
+
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
+
+    if (event.target.closest('[data-theme-toggle]')) {
+      const root = document.documentElement;
+      const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      root.dataset.theme = next;
+      localStorage.setItem('theme', next);
+      syncThemeLabel();
+      return;
+    }
+
+    if (event.target.closest('[data-command-open]')) {
+      openCommand();
+      return;
+    }
+
+    const dialog = document.querySelector('[data-command]');
+    if (event.target === dialog && dialog instanceof HTMLDialogElement) dialog.close();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      openCommand();
+    }
+  });
+
+  document.addEventListener('input', (event) => {
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement) || !input.matches('[data-command-input]')) return;
+    const query = input.value.toLowerCase();
+    const items = [...document.querySelectorAll('[data-command-item]')];
+    items.forEach((item) => {
+      if (item instanceof HTMLElement) item.hidden = !item.textContent?.toLowerCase().includes(query);
+    });
+  });
+</script>

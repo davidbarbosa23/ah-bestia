@@ -1,0 +1,114 @@
+---
+import '../styles/global.css';
+import type { Lang } from '../i18n/content';
+import { ClientRouter } from 'astro:transitions';
+import portrait from '../assets/portrait.jpg';
+import BackToTop from '../components/BackToTop.astro';
+
+interface Props {
+  lang: Lang;
+  experience?: 'developer' | 'photographer';
+  title: string;
+  description: string;
+  image?: string;
+  imageAlt?: string;
+  pageType?: 'website' | 'article';
+}
+
+const {
+  lang,
+  experience = 'developer',
+  title,
+  description,
+  image = portrait.src,
+  imageAlt = 'David Barbosa',
+  pageType = 'website',
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const enPath = Astro.url.pathname.replace(/^\/(en|es)(?=\/|$)/, '/en');
+const esPath = Astro.url.pathname.replace(/^\/(en|es)(?=\/|$)/, '/es');
+const socialImage = new URL(image, Astro.site);
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'David Barbosa',
+  url: 'https://barbosacap.com',
+  image: new URL(portrait.src, Astro.site).toString(),
+  jobTitle: lang === 'en' ? 'Software Engineer' : 'Ingeniero de Software',
+  sameAs: ['https://github.com/davidbarbosa23', 'https://www.linkedin.com/in/davidbarbosar/'],
+  address: { '@type': 'PostalAddress', addressLocality: 'Bogotá', addressCountry: 'CO' },
+};
+---
+
+<!doctype html>
+<html lang={lang} data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#f7f8fb" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="David Barbosa" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={new URL(enPath, Astro.site)} />
+    <link rel="alternate" hreflang="es" href={new URL(esPath, Astro.site)} />
+    <link rel="alternate" hreflang="x-default" href={new URL(enPath, Astro.site)} />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <meta property="og:type" content={pageType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta property="og:locale" content={lang === 'en' ? 'en_US' : 'es_CO'} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <script is:inline>
+      (() => {
+        const saved = localStorage.getItem('theme');
+        const dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      })();
+    </script>
+    <ClientRouter fallback="swap" />
+  </head>
+  <body data-experience={experience}>
+    <a class="skip-link" href="#main">{lang === 'en' ? 'Skip to content' : 'Saltar al contenido'}</a>
+    <slot />
+    <BackToTop lang={lang} />
+  </body>
+</html>
+
+<script>
+  let languageScrollPosition: { left: number; top: number } | undefined;
+
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
+    const link = event.target.closest('a[data-language-link]');
+    if (!link) return;
+
+    languageScrollPosition = {
+      left: window.scrollX,
+      top: window.scrollY,
+    };
+  });
+
+  document.addEventListener('astro:before-swap', (event) => {
+    const theme = document.documentElement.dataset.theme ?? 'light';
+    event.newDocument.documentElement.dataset.theme = theme;
+  });
+
+  document.addEventListener('astro:after-swap', () => {
+    if (!languageScrollPosition) return;
+    window.scrollTo({ ...languageScrollPosition, behavior: 'instant' });
+    languageScrollPosition = undefined;
+  });
+</script>

@@ -1,0 +1,78 @@
+---
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import SiteFooter from '../../../components/SiteFooter.astro';
+import PhotographyHome from '../../../components/PhotographyHome.astro';
+import { copy, languages, type Lang } from '../../../i18n/content';
+import photographerHero from '../../../assets/photography/photographer-hero.jpg';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = copy[lang];
+---
+
+<SiteLayout lang={lang} experience="photographer" title={t.meta.homeTitle} description={t.meta.homeDescription} image={photographerHero.src} imageAlt={lang === 'en' ? 'A Fujifilm X100VI camera emerging from shadow' : 'Una cámara Fujifilm X100VI emergiendo de la sombra'}>
+  <SiteHeader lang={lang} experience="photographer" />
+  <PhotographyHome lang={lang} />
+  <SiteFooter lang={lang} />
+</SiteLayout>
+
+<script>
+  import gsap from 'gsap';
+  import ScrollTrigger from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined;
+
+  const teardownPhotographyAnimations = () => {
+    mm?.revert();
+    mm = undefined;
+  };
+
+  const setupPhotographyAnimations = () => {
+    teardownPhotographyAnimations();
+    if (!document.querySelector('.photo-hero')) return;
+
+    mm = gsap.matchMedia();
+    mm.add({
+      allowMotion: '(prefers-reduced-motion: no-preference)',
+      desktop: '(min-width: 60rem)',
+    }, (context) => {
+      const { allowMotion, desktop } = context.conditions as { allowMotion: boolean; desktop: boolean };
+      if (!allowMotion) return;
+
+      const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      intro
+        .from('.photo-hero .status-line', { autoAlpha: 0, y: 10, duration: 0.36 })
+        .from('.photo-hero h1 span', { autoAlpha: 0, yPercent: 24, duration: 0.72, stagger: 0.08 }, '<0.08')
+        .from('.photo-hero__copy > p:last-child', { autoAlpha: 0, y: 12, duration: 0.48 }, '<0.18');
+
+      if (desktop) {
+        const section = document.querySelector('[data-horizontal-section]');
+        const track = document.querySelector('[data-photo-track]');
+        if (section instanceof HTMLElement && track instanceof HTMLElement) {
+          const distance = () => Math.max(0, track.scrollWidth - window.innerWidth + 64);
+          gsap.to(track, {
+            x: () => -distance(),
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top top',
+              end: () => `+=${distance()}`,
+              pin: true,
+              scrub: 0.8,
+              invalidateOnRefresh: true,
+            },
+          });
+        }
+      }
+    });
+  };
+
+  document.addEventListener('astro:page-load', setupPhotographyAnimations);
+  document.addEventListener('astro:before-swap', teardownPhotographyAnimations);
+</script>

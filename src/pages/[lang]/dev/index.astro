@@ -1,0 +1,62 @@
+---
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import SiteFooter from '../../../components/SiteFooter.astro';
+import DeveloperHome from '../../../components/DeveloperHome.astro';
+import { copy, languages, type Lang } from '../../../i18n/content';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = copy[lang];
+---
+
+<SiteLayout lang={lang} experience="developer" title={t.meta.homeTitle} description={t.meta.homeDescription}>
+  <SiteHeader lang={lang} experience="developer" />
+  <DeveloperHome lang={lang} />
+  <SiteFooter lang={lang} />
+</SiteLayout>
+
+<script>
+  import gsap from 'gsap';
+  import ScrollTrigger from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  let mm: ReturnType<typeof gsap.matchMedia> | undefined;
+
+  const teardownDeveloperAnimations = () => {
+    mm?.revert();
+    mm = undefined;
+  };
+
+  const setupDeveloperAnimations = () => {
+    teardownDeveloperAnimations();
+    if (!document.querySelector('.dev-hero')) return;
+
+    mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      intro
+        .from('.dev-hero .status-line', { autoAlpha: 0, y: 10, duration: 0.36 })
+        .from('.dev-hero h1 span', { autoAlpha: 0, yPercent: 24, duration: 0.72, stagger: 0.08 }, '<0.08')
+        .from('.dev-hero__intro, .dev-hero__actions', { autoAlpha: 0, y: 12, duration: 0.48, stagger: 0.08 }, '<0.18')
+        .from('.source-card', { autoAlpha: 0, x: 18, duration: 0.68 }, '<0.08');
+
+      gsap.utils.toArray<HTMLElement>('.reveal-item').forEach((item) => {
+        gsap.from(item, {
+          autoAlpha: 0,
+          y: 18,
+          duration: 0.62,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: item, start: 'top 86%', once: true },
+        });
+      });
+    });
+  };
+
+  document.addEventListener('astro:page-load', setupDeveloperAnimations);
+  document.addEventListener('astro:before-swap', teardownDeveloperAnimations);
+</script>
