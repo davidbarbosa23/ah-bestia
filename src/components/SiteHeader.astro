@@ -1,32 +1,33 @@
 ---
 import { alternatePath, copy, type Lang } from '../i18n/content';
 
-interface Props { lang: Lang; home?: boolean; }
-const { lang, home = false } = Astro.props;
+interface Props { lang: Lang; experience?: 'developer' | 'photographer'; }
+const { lang, experience } = Astro.props;
 const t = copy[lang];
 const altLang = lang === 'en' ? 'es' : 'en';
 const altPath = alternatePath(Astro.url.pathname, lang);
+const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
 ---
 
 <header class="site-header" data-site-header>
   <div class="site-header__inner">
-    <a class="wordmark" href={`/${lang}`} aria-label="David Barbosa — home">
+    <a class="wordmark" href={homePath} aria-label="David Barbosa — home">
       <span aria-hidden="true">db/</span><span>David Barbosa</span>
     </a>
 
-    {home && (
-      <div class="experience-switch" role="group" aria-label={t.modes.label}>
-        <button class="experience-switch__option is-active" type="button" data-mode-button="developer" aria-pressed="true" aria-label={t.modes.developer}>
+    {experience && (
+      <nav class="experience-switch" aria-label={t.modes.label}>
+        <a class:list={['experience-switch__option', experience === 'developer' && 'is-active']} href={`/${lang}/dev/`} aria-current={experience === 'developer' ? 'page' : undefined} aria-label={t.modes.developer}>
           <span class="switch-wide">{t.modes.developer}</span><span class="switch-short" aria-hidden="true">DEV</span>
-        </button>
-        <button class="experience-switch__option" type="button" data-mode-button="photographer" aria-pressed="false" aria-label={t.modes.photographer}>
+        </a>
+        <a class:list={['experience-switch__option', experience === 'photographer' && 'is-active']} href={`/${lang}/ph/`} aria-current={experience === 'photographer' ? 'page' : undefined} aria-label={t.modes.photographer}>
           <span class="switch-wide">{t.modes.photographer}</span><span class="switch-short" aria-hidden="true">PHOTO</span>
-        </button>
-      </div>
+        </a>
+      </nav>
     )}
 
     <nav class="site-tools" aria-label="Utility navigation">
-      {home && <button class="jump-button" type="button" data-command-open aria-label={`${t.nav.search} (Ctrl K)`}>
+      {experience === 'developer' && <button class="jump-button" type="button" data-command-open aria-label={`${t.nav.search} (Ctrl K)`}>
         <span>{t.nav.search}</span><kbd>⌘K</kbd>
       </button>}
       <button class="theme-button" type="button" data-theme-toggle aria-label={t.theme.dark} title={t.theme.dark}>
@@ -38,7 +39,7 @@ const altPath = alternatePath(Astro.url.pathname, lang);
   </div>
 </header>
 
-{home && (
+{experience === 'developer' && (
   <dialog class="command" data-command aria-label={t.nav.search}>
     <form method="dialog" class="command__surface">
       <div class="command__field">
@@ -50,7 +51,7 @@ const altPath = alternatePath(Astro.url.pathname, lang);
         <a href="#work" data-command-item>{t.nav.work}<span>↵</span></a>
         <a href="#about" data-command-item>{t.nav.about}<span>↵</span></a>
         <a href="#contact" data-command-item>{t.nav.contact}<span>↵</span></a>
-        <a href={`/${lang}/projects`} data-command-item>{t.dev.primaryCta}<span>↗</span></a>
+        <a href={`/${lang}/dev/projects/`} data-command-item>{t.dev.primaryCta}<span>↗</span></a>
       </div>
     </form>
   </dialog>

@@ -13,7 +13,7 @@ const t = copy[lang].dev;
         <h1 id="developer-title">{t.title.split('\n').map((line) => <span>{line}{' '}</span>)}</h1>
         <p class="dev-hero__intro">{t.intro}</p>
         <div class="dev-hero__actions">
-          <a class="button button--primary" href={`/${lang}/projects`}>{t.primaryCta}<span aria-hidden="true">↗</span></a>
+          <a class="button button--primary" href={`/${lang}/dev/projects/`}>{t.primaryCta}<span aria-hidden="true">↗</span></a>
           <a class="text-link" href="mailto:davidbarbosa.dev@gmail.com">{t.secondaryCta}<span aria-hidden="true">↗</span></a>
         </div>
       </div>
@@ -66,7 +66,7 @@ const t = copy[lang].dev;
         <h2 id="projects-heading">{t.projectsTitle}</h2>
         <p>{t.projectsIntro}</p>
       </div>
-      <a class="project-feature reveal-item" href={`/${lang}/projects`}>
+      <a class="project-feature reveal-item" href={`/${lang}/dev/projects/`}>
         <div class="project-feature__visual" aria-hidden="true">
           <div class="gear gear--one"></div>
           <div class="gear gear--two"></div>

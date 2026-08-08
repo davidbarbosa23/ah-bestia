@@ -1,0 +1,69 @@
+---
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import SiteFooter from '../../../components/SiteFooter.astro';
+import { copy, languages, type Lang } from '../../../i18n/content';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang, slug: 'bogota-between-rains' } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = copy[lang];
+---
+
+<SiteLayout
+  lang={lang}
+  experience="photographer"
+  title={t.meta.photoTitle}
+  description={t.meta.photoDescription}
+  image="/images/bogota-street.jpg"
+  imageAlt={lang === 'en' ? 'Historic Bogotá street and modern towers' : 'Calle histórica de Bogotá y torres modernas'}
+  pageType="article"
+>
+  <SiteHeader lang={lang} experience="photographer" />
+  <main class="article-page" id="main">
+    <div class="page-shell">
+      <a class="inner-page__back" href={`/${lang}/ph/`}><span aria-hidden="true">←</span>{t.article.back}</a>
+    </div>
+    <header class="article-hero">
+      <img src="/images/bogota-street.jpg" srcset="/images/bogota-street-sm.jpg 900w, /images/bogota-street.jpg 1800w" sizes="100vw" width="1800" height="2700" fetchpriority="high" alt={lang === 'en' ? 'A historic Bogotá street framed by modern towers' : 'Una calle histórica de Bogotá enmarcada por torres modernas'} />
+      <div class="article-hero__copy page-shell">
+        <p class="mono-label">{t.article.kicker}</p>
+        <h1>{t.article.title}</h1>
+        <p>{t.article.lede}</p>
+      </div>
+    </header>
+
+    <article class="article-body page-shell">
+      <div class="article-body__prose">
+        <p>{t.article.p1}</p>
+        <p>{t.article.p2}</p>
+      </div>
+      <figure class="article-body__image article-body__image--offset">
+        <img src="/images/brick-curve.jpg" srcset="/images/brick-curve-sm.jpg 900w, /images/brick-curve.jpg 1800w" sizes="(min-width: 40rem) 75vw, 100vw" width="1800" height="1200" loading="lazy" alt={lang === 'en' ? 'Curved brick architecture in Bogotá' : 'Arquitectura curva de ladrillo en Bogotá'} />
+        <figcaption>Sergio Aguirre / Unsplash · Bogotá</figcaption>
+      </figure>
+      <figure class="article-body__image">
+        <img src="/images/urban-canyon.jpg" srcset="/images/urban-canyon-sm.jpg 900w, /images/urban-canyon.jpg 1800w" sizes="100vw" width="1800" height="2388" loading="lazy" alt={lang === 'en' ? 'A narrow street between tall buildings in Bogotá' : 'Una calle estrecha entre edificios altos en Bogotá'} />
+        <figcaption>Sebastian Laverde / Unsplash · Bogotá</figcaption>
+      </figure>
+      <figure class="article-body__image article-body__image--offset">
+        <img src="/images/candelaria.jpg" srcset="/images/candelaria-sm.jpg 900w, /images/candelaria.jpg 1800w" sizes="(min-width: 40rem) 75vw, 100vw" width="1800" height="2391" loading="lazy" alt={lang === 'en' ? 'A red car on a colorful street in La Candelaria' : 'Un carro rojo en una calle colorida de La Candelaria'} />
+        <figcaption>Alex Mercier / Unsplash · La Candelaria</figcaption>
+      </figure>
+      <figure class="article-body__image">
+        <img src="/images/mountain.jpg" srcset="/images/mountain-sm.jpg 900w, /images/mountain.jpg 1800w" sizes="100vw" width="1800" height="1196" loading="lazy" alt={lang === 'en' ? 'A mountain ridge disappearing into low clouds' : 'Una cresta de montaña que desaparece entre nubes bajas'} />
+        <figcaption>David Vilches / Unsplash · Cordillera Oriental</figcaption>
+      </figure>
+      <div class="article-body__prose">
+        <p>{t.article.p3}</p>
+      </div>
+      <div class="article-next" aria-disabled="true">
+        <span>{t.article.next}</span>
+        <strong>{t.article.nextTitle}</strong>
+      </div>
+    </article>
+  </main>
+  <SiteFooter lang={lang} />
+</SiteLayout>
