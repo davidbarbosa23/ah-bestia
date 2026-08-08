@@ -32,6 +32,7 @@ const labels = lang === 'en'
 <dialog class="photo-lightbox" data-photo-lightbox aria-label={labels.viewer}>
   <div class="photo-lightbox__stage" data-lightbox-stage>
     <img data-lightbox-image alt="" draggable="false" />
+    <img class="photo-lightbox__carousel-image" data-lightbox-carousel-image alt="" draggable="false" aria-hidden="true" />
   </div>
 
   <div class="photo-lightbox__toolbar">
@@ -60,6 +61,7 @@ const labels = lang === 'en'
 
     const stage = dialog.querySelector('[data-lightbox-stage]');
     const image = dialog.querySelector('[data-lightbox-image]');
+    const carouselImage = dialog.querySelector('[data-lightbox-carousel-image]');
     const count = dialog.querySelector('[data-lightbox-count]');
     const filename = dialog.querySelector('[data-lightbox-filename]');
     const zoomDisplay = dialog.querySelector('[data-lightbox-reset]');
@@ -69,7 +71,7 @@ const labels = lang === 'en'
     const next = dialog.querySelector('[data-lightbox-next]');
     const close = dialog.querySelector('[data-lightbox-close]');
 
-    if (!(stage instanceof HTMLElement) || !(image instanceof HTMLImageElement)) return;
+    if (!(stage instanceof HTMLElement) || !(image instanceof HTMLImageElement) || !(carouselImage instanceof HTMLImageElement)) return;
     if (!(count instanceof HTMLElement) || !(filename instanceof HTMLElement)) return;
     if (!(zoomDisplay instanceof HTMLButtonElement) || !(zoomOut instanceof HTMLButtonElement) || !(zoomIn instanceof HTMLButtonElement)) return;
     if (!(previous instanceof HTMLButtonElement) || !(next instanceof HTMLButtonElement) || !(close instanceof HTMLButtonElement)) return;
@@ -79,7 +81,21 @@ const labels = lang === 'en'
     const maximumScale = 4;
     const minimumScale = 0.5;
     const initialScale = 1;
+    const photoTransitionDuration = 360;
+    const outgoingTransitionClasses = [
+      'is-carousel-leaving-next',
+      'is-carousel-leaving-previous',
+      'is-carousel-resetting',
+    ];
+    const incomingTransitionClasses = [
+      'is-carousel-active',
+      'is-carousel-from-next',
+      'is-carousel-from-previous',
+    ];
     let currentIndex = 0;
+    let requestedIndex = 0;
+    let photoTransitionSequence = 0;
+    let isPhotoTransitioning = false;
     let scale = initialScale;
     let translateX = 0;
     let translateY = 0;
@@ -159,9 +175,8 @@ const labels = lang === 'en'
       };
     };
 
-    const showPhoto = (index: number) => {
-      if (!openers.length) return;
-      currentIndex = (index + openers.length) % openers.length;
+    const applyPhoto = (index: number) => {
+      currentIndex = index;
       const opener = openers[currentIndex];
       image.src = opener.dataset.lightboxSrc ?? '';
       image.alt = opener.dataset.lightboxAlt ?? '';
@@ -170,10 +185,84 @@ const labels = lang === 'en'
       resetZoom();
     };
 
+    const preloadPhoto = async (source: string) => {
+      if (!source) return;
+      const preload = new Image();
+      preload.src = source;
+      try {
+        await preload.decode();
+      } catch {
+        // The visible image will still display the browser's loading/error state.
+      }
+    };
+
+    const wait = (duration: number) => new Promise((resolve) => window.setTimeout(resolve, duration));
+
+    const clearPhotoTransition = () => {
+      image.classList.add('is-carousel-resetting');
+      image.classList.remove('is-carousel-leaving-next', 'is-carousel-leaving-previous');
+      carouselImage.classList.remove(...incomingTransitionClasses);
+      carouselImage.removeAttribute('src');
+      void image.offsetWidth;
+      image.classList.remove('is-carousel-resetting');
+    };
+
+    const showPhoto = async (index: number, direction?: 'next' | 'previous') => {
+      if (!openers.length) return;
+      if (direction && isPhotoTransitioning) return;
+
+      const resolvedIndex = (index + openers.length) % openers.length;
+      const opener = openers[resolvedIndex];
+      const source = opener.dataset.lightboxSrc ?? '';
+      const sequence = ++photoTransitionSequence;
+      const shouldAnimate = Boolean(
+        direction
+        && dialog.open
+        && !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      );
+
+      requestedIndex = resolvedIndex;
+      clearPhotoTransition();
+
+      if (!shouldAnimate) {
+        applyPhoto(resolvedIndex);
+        return;
+      }
+
+      isPhotoTransitioning = true;
+      resetZoom();
+      await preloadPhoto(source);
+      if (sequence !== photoTransitionSequence) return;
+
+      const leavingClass = `is-carousel-leaving-${direction}`;
+      const incomingClass = `is-carousel-from-${direction}`;
+      carouselImage.src = source;
+      carouselImage.classList.add('is-carousel-active', incomingClass);
+
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      });
+      if (sequence !== photoTransitionSequence) return;
+
+      image.classList.add(leavingClass);
+      carouselImage.classList.remove(incomingClass);
+      await wait(photoTransitionDuration);
+      if (sequence !== photoTransitionSequence) return;
+
+      image.classList.add('is-carousel-resetting');
+      applyPhoto(resolvedIndex);
+      image.classList.remove(leavingClass);
+      void image.offsetWidth;
+      image.classList.remove('is-carousel-resetting');
+      carouselImage.classList.remove(...incomingTransitionClasses);
+      carouselImage.removeAttribute('src');
+      isPhotoTransitioning = false;
+    };
+
     openers.forEach((opener, index) => {
       opener.addEventListener('click', () => {
         returnFocus = opener;
-        showPhoto(index);
+        void showPhoto(index);
         dialog.showModal();
         requestAnimationFrame(() => close.focus());
       });
@@ -182,8 +271,8 @@ const labels = lang === 'en'
     zoomOut.addEventListener('click', () => setScale(scale - 0.25));
     zoomIn.addEventListener('click', () => setScale(scale + 0.25));
     zoomDisplay.addEventListener('click', resetZoom);
-    previous.addEventListener('click', () => showPhoto(currentIndex - 1));
-    next.addEventListener('click', () => showPhoto(currentIndex + 1));
+    previous.addEventListener('click', () => void showPhoto(requestedIndex - 1, 'previous'));
+    next.addEventListener('click', () => void showPhoto(requestedIndex + 1, 'next'));
     close.addEventListener('click', () => dialog.close());
 
     stage.addEventListener('click', (event) => {
@@ -297,7 +386,11 @@ const labels = lang === 'en'
 
         if (isHorizontalSwipe) {
           suppressBackdropClickUntil = performance.now() + 400;
-          showPhoto(movementX < 0 ? currentIndex + 1 : currentIndex - 1);
+          const direction = movementX < 0 ? 'next' : 'previous';
+          void showPhoto(
+            direction === 'next' ? requestedIndex + 1 : requestedIndex - 1,
+            direction,
+          );
         }
       }
 
@@ -346,14 +439,18 @@ const labels = lang === 'en'
         dialog.close();
         return;
       }
-      if (event.key === 'ArrowLeft') showPhoto(currentIndex - 1);
-      if (event.key === 'ArrowRight') showPhoto(currentIndex + 1);
+      if (event.key === 'ArrowLeft') void showPhoto(requestedIndex - 1, 'previous');
+      if (event.key === 'ArrowRight') void showPhoto(requestedIndex + 1, 'next');
       if (event.key === '+' || event.key === '=') setScale(scale + 0.25);
       if (event.key === '-' || event.key === '_') setScale(scale - 0.25);
       if (event.key === '0') resetZoom();
     });
 
     dialog.addEventListener('close', () => {
+      photoTransitionSequence += 1;
+      isPhotoTransitioning = false;
+      image.classList.remove(...outgoingTransitionClasses);
+      clearPhotoTransition();
       resetZoom();
       returnFocus?.focus();
     });
