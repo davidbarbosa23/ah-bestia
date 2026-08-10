@@ -241,7 +241,10 @@ const labels = ui[lang].photography.lightbox;
     };
 
     const finishPhotoTransition = async (index: number, sequence: number) => {
+      photoTransition.forEach((animation) => animation.cancel());
+      photoTransition = [];
       setSlideX(0);
+      setCarouselSlideX(0);
       applyPhoto(index);
       await waitForImagePaint(image);
       if (sequence !== photoTransitionSequence || !dialog.open) return;
@@ -251,7 +254,6 @@ const labels = ui[lang].photography.lightbox;
       setCarouselSlideX(0);
       preparedIndex = undefined;
       preparedDirection = undefined;
-      photoTransition = [];
       isPhotoTransitioning = false;
     };
 
