@@ -2,17 +2,24 @@
 import '../styles/global.css';
 import { ui, type Lang } from '../i18n/content';
 import { ClientRouter } from 'astro:transitions';
+import type { ImageMetadata } from 'astro';
 import portrait from '../assets/portrait.jpg';
 import BackToTop from '../components/BackToTop.astro';
+
+type SchemaType = 'WebPage' | 'ProfilePage' | 'CollectionPage' | 'Article' | 'ImageGallery';
 
 interface Props {
   lang: Lang;
   experience?: 'developer' | 'photographer';
   title: string;
   description: string;
-  image?: string;
+  image?: ImageMetadata | string;
   imageAlt?: string;
   pageType?: 'website' | 'article';
+  schemaType?: SchemaType;
+  indexable?: boolean;
+  localized?: boolean;
+  includeStructuredData?: boolean;
 }
 
 const {
@@ -20,24 +27,70 @@ const {
   experience = 'developer',
   title,
   description,
-  image = portrait.src,
+  image = portrait,
   imageAlt = 'David Barbosa',
   pageType = 'website',
+  schemaType = 'WebPage',
+  indexable = true,
+  localized = true,
+  includeStructuredData = true,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const enPath = Astro.url.pathname.replace(/^\/(en|es)(?=\/|$)/, '/en');
 const esPath = Astro.url.pathname.replace(/^\/(en|es)(?=\/|$)/, '/es');
-const socialImage = new URL(image, Astro.site);
+const imageMetadata = typeof image === 'string' ? undefined : image;
+const socialImage = new URL(typeof image === 'string' ? image : image.src, Astro.site);
 const labels = ui[lang];
+const alternateLang = lang === 'en' ? 'es' : 'en';
+const siteUrl = new URL('/', Astro.site);
+const personId = `${siteUrl}#person`;
+const websiteId = `${siteUrl}#website`;
+const webpageId = `${canonical}#webpage`;
+const primaryImage = {
+  '@type': 'ImageObject',
+  contentUrl: socialImage.toString(),
+  caption: imageAlt,
+  ...(imageMetadata && {
+    width: imageMetadata.width,
+    height: imageMetadata.height,
+  }),
+};
+const pageStructuredData = {
+  '@type': schemaType,
+  '@id': webpageId,
+  url: canonical.toString(),
+  name: title,
+  description,
+  inLanguage: lang,
+  isPartOf: { '@id': websiteId },
+  primaryImageOfPage: primaryImage,
+  ...(schemaType === 'ProfilePage'
+    ? { mainEntity: { '@id': personId } }
+    : { creator: { '@id': personId } }),
+};
 const structuredData = {
   '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: 'David Barbosa',
-  url: 'https://ahbestia.com',
-  image: new URL(portrait.src, Astro.site).toString(),
-  jobTitle: labels.metadata.jobTitle,
-  sameAs: ['https://github.com/davidbarbosa23', 'https://www.linkedin.com/in/davidbarbosar/'],
-  address: { '@type': 'PostalAddress', addressLocality: 'Bogotá', addressCountry: 'CO' },
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': personId,
+      name: 'David Barbosa',
+      url: siteUrl.toString(),
+      image: new URL(portrait.src, Astro.site).toString(),
+      jobTitle: labels.metadata.jobTitle,
+      sameAs: ['https://github.com/davidbarbosa23', 'https://www.linkedin.com/in/davidbarbosar/'],
+      address: { '@type': 'PostalAddress', addressLocality: 'Bogotá', addressCountry: 'CO' },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': websiteId,
+      url: siteUrl.toString(),
+      name: 'David Barbosa',
+      inLanguage: ['en', 'es'],
+      creator: { '@id': personId },
+    },
+    pageStructuredData,
+  ],
 };
 ---
 
@@ -51,11 +104,12 @@ const structuredData = {
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="author" content="David Barbosa" />
-    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="robots" content={indexable ? 'index,follow,max-image-preview:large' : 'noindex,follow'} />
     <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="en" href={new URL(enPath, Astro.site)} />
-    <link rel="alternate" hreflang="es" href={new URL(esPath, Astro.site)} />
-    <link rel="alternate" hreflang="x-default" href={new URL(enPath, Astro.site)} />
+    {localized && <link rel="alternate" hreflang="en" href={new URL(enPath, Astro.site)} />}
+    {localized && <link rel="alternate" hreflang="es" href={new URL(esPath, Astro.site)} />}
+    {localized && <link rel="alternate" hreflang="x-default" href={new URL(enPath, Astro.site)} />}
+    <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -66,12 +120,18 @@ const structuredData = {
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={socialImage} />
     <meta property="og:image:alt" content={imageAlt} />
+    {imageMetadata && <meta property="og:image:width" content={String(imageMetadata.width)} />}
+    {imageMetadata && <meta property="og:image:height" content={String(imageMetadata.height)} />}
+    {imageMetadata && <meta property="og:image:type" content={`image/${imageMetadata.format === 'jpg' ? 'jpeg' : imageMetadata.format}`} />}
+    <meta property="og:site_name" content="David Barbosa" />
     <meta property="og:locale" content={labels.metadata.locale} />
+    <meta property="og:locale:alternate" content={ui[alternateLang].metadata.locale} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
-    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+    {includeStructuredData && <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
     <script is:inline>
       (() => {
         const saved = localStorage.getItem('theme');

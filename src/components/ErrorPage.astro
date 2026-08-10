@@ -30,8 +30,15 @@ const initial = translations.en.ui.error.errors[code];
 const pageTitle = `${code} — ${initial.title} — David Barbosa`;
 ---
 
-<SiteLayout lang="en" title={pageTitle} description={initial.description}>
-  <SiteHeader lang="en" />
+<SiteLayout
+  lang="en"
+  title={pageTitle}
+  description={initial.description}
+  indexable={false}
+  localized={false}
+  includeStructuredData={false}
+>
+  <SiteHeader lang="en" languageHref="?lang=es" />
 
   <main
     id="main"

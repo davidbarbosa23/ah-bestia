@@ -6,7 +6,10 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://ahbestia.com',
   integrations: [sitemap({
-    filter: (page) => new URL(page).pathname !== '/',
+    filter: (page) => {
+      const pathname = new URL(page).pathname;
+      return pathname !== '/' && !pathname.includes('/dev/projects/');
+    },
   })],
   i18n: {
     defaultLocale: 'en',

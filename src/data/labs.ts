@@ -23,7 +23,7 @@ export interface LabProject {
 
 export const labsCopy = {
   en: {
-    metaTitle: 'Labs — David Barbosa',
+    metaTitle: 'Developer Labs — David Barbosa',
     metaDescription:
       'Small web experiments by David Barbosa, documented with working interfaces and plain-language notes.',
     back: 'Back home',
@@ -43,7 +43,7 @@ export const labsCopy = {
     nextText: 'The next question is still open.',
   },
   es: {
-    metaTitle: 'Labs — David Barbosa',
+    metaTitle: 'Labs de desarrollo — David Barbosa',
     metaDescription:
       'Pequeños experimentos web de David Barbosa, documentados con interfaces funcionales y notas en lenguaje claro.',
     back: 'Volver al inicio',

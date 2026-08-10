@@ -10,9 +10,9 @@ export const copy = {
       projectsTitle: 'Labs — David Barbosa',
       projectsDescription:
         'Small web experiments, interface studies, and product work by David Barbosa.',
-      photoTitle: 'Spain, in transit — David Barbosa',
+      photoTitle: 'Photography — David Barbosa',
       photoDescription:
-        'A visual note on movement, distance, landscape, and the spaces between destinations in Spain.',
+        'Independent photography by David Barbosa exploring machines, animals, streets, movement, and light.',
     },
     nav: {
       work: 'Work',
@@ -144,9 +144,9 @@ export const copy = {
       projectsTitle: 'Labs — David Barbosa',
       projectsDescription:
         'Pequeños experimentos web, estudios de interfaz y trabajo de producto de David Barbosa.',
-      photoTitle: 'España, en tránsito — David Barbosa',
+      photoTitle: 'Fotografía — David Barbosa',
       photoDescription:
-        'Una nota visual sobre movimiento, distancia, paisaje y los espacios entre destinos en España.',
+        'Fotografía independiente de David Barbosa sobre máquinas, animales, calles, movimiento y luz.',
     },
     nav: {
       work: 'Trabajo',
@@ -321,9 +321,10 @@ export interface UiCopy {
     sourceCardLabel: string;
     sourceCardResult: string;
   };
-  photography: {
-    photographs: string;
-    series: {
+    photography: {
+      photographs: string;
+      metaTitleSuffix: string;
+      series: {
       back: string;
       kicker: string;
       source: string;
@@ -404,6 +405,7 @@ export const ui = {
     },
     photography: {
       photographs: 'photographs',
+      metaTitleSuffix: 'Photography by David Barbosa',
       series: {
         back: 'Back to all series',
         kicker: 'Photographic series',
@@ -499,6 +501,7 @@ export const ui = {
     },
     photography: {
       photographs: 'fotografías',
+      metaTitleSuffix: 'Fotografía de David Barbosa',
       series: {
         back: 'Volver a todas las series',
         kicker: 'Serie fotográfica',

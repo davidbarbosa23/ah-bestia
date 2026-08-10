@@ -14,7 +14,7 @@ const lang = Astro.params.lang as Lang;
 const t = copy[lang];
 ---
 
-<SiteLayout lang={lang} experience="photographer" title={t.meta.homeTitle} description={t.meta.homeDescription} image={photographerHero.src} imageAlt={ui[lang].metadata.photographerHeroSocialAlt}>
+<SiteLayout lang={lang} experience="photographer" title={t.meta.photoTitle} description={t.meta.photoDescription} image={photographerHero} imageAlt={ui[lang].metadata.photographerHeroSocialAlt} schemaType="CollectionPage">
   <SiteHeader lang={lang} experience="photographer" />
   <PhotographyHome lang={lang} />
   <SiteFooter lang={lang} />

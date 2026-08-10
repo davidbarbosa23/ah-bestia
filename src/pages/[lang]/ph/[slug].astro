@@ -42,11 +42,12 @@ const galleryImages = [
 <SiteLayout
   lang={lang}
   experience="photographer"
-  title={`${content.title} — David Barbosa`}
+  title={`${content.title} — ${ui[lang].photography.metaTitleSuffix}`}
   description={content.description}
-  image={gallery.cover.src}
+  image={gallery.cover}
   imageAlt={`${content.cardTitle}. ${content.description}`}
   pageType="article"
+  schemaType="ImageGallery"
 >
   <SiteHeader lang={lang} experience="photographer" />
   <main class="article-page series-page" id="main">

@@ -1,12 +1,16 @@
 ---
 import { alternatePath, copy, ui, type Lang } from '../i18n/content';
 
-interface Props { lang: Lang; experience?: 'developer' | 'photographer'; }
-const { lang, experience } = Astro.props;
+interface Props {
+  lang: Lang;
+  experience?: 'developer' | 'photographer';
+  languageHref?: string;
+}
+const { lang, experience, languageHref } = Astro.props;
 const t = copy[lang];
 const labels = ui[lang];
 const altLang = lang === 'en' ? 'es' : 'en';
-const altPath = alternatePath(Astro.url.pathname, lang);
+const altPath = languageHref ?? alternatePath(Astro.url.pathname, lang);
 const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
 ---
 
@@ -49,9 +53,9 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
         <button class="command__close" value="close" aria-label={labels.common.close}>ESC</button>
       </div>
       <div class="command__results" data-command-results>
-        <a href="#work" data-command-item>{t.nav.work}<span>↵</span></a>
-        <a href="#about" data-command-item>{t.nav.about}<span>↵</span></a>
-        <a href="#contact" data-command-item>{t.nav.contact}<span>↵</span></a>
+        <a href={`/${lang}/dev/#work`} data-command-item>{t.nav.work}<span>↵</span></a>
+        <a href={`/${lang}/dev/#about`} data-command-item>{t.nav.about}<span>↵</span></a>
+        <a href={`/${lang}/dev/#contact`} data-command-item>{t.nav.contact}<span>↵</span></a>
         <a href={`/${lang}/dev/labs/`} data-command-item>{t.dev.primaryCta}<span>↗</span></a>
       </div>
     </form>
