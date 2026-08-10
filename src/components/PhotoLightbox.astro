@@ -31,8 +31,12 @@ const labels = lang === 'en'
 
 <dialog class="photo-lightbox" data-photo-lightbox aria-label={labels.viewer}>
   <div class="photo-lightbox__stage" data-lightbox-stage>
-    <img data-lightbox-image alt="" draggable="false" />
-    <img class="photo-lightbox__carousel-image" data-lightbox-carousel-image alt="" draggable="false" aria-hidden="true" />
+    <div class="photo-lightbox__slide" data-lightbox-slide>
+      <img data-lightbox-image alt="" draggable="false" />
+    </div>
+    <div class="photo-lightbox__slide photo-lightbox__carousel-slide" data-lightbox-carousel-slide aria-hidden="true">
+      <img data-lightbox-carousel-image alt="" draggable="false" />
+    </div>
   </div>
 
   <div class="photo-lightbox__toolbar">
@@ -55,11 +59,15 @@ const labels = lang === 'en'
 </dialog>
 
 <script>
+  import gsap from 'gsap';
+
   const setupPhotoLightbox = () => {
     const dialog = document.querySelector('[data-photo-lightbox]');
     if (!(dialog instanceof HTMLDialogElement) || dialog.dataset.ready === 'true') return;
 
     const stage = dialog.querySelector('[data-lightbox-stage]');
+    const slide = dialog.querySelector('[data-lightbox-slide]');
+    const carouselSlide = dialog.querySelector('[data-lightbox-carousel-slide]');
     const image = dialog.querySelector('[data-lightbox-image]');
     const carouselImage = dialog.querySelector('[data-lightbox-carousel-image]');
     const count = dialog.querySelector('[data-lightbox-count]');
@@ -71,7 +79,8 @@ const labels = lang === 'en'
     const next = dialog.querySelector('[data-lightbox-next]');
     const close = dialog.querySelector('[data-lightbox-close]');
 
-    if (!(stage instanceof HTMLElement) || !(image instanceof HTMLImageElement) || !(carouselImage instanceof HTMLImageElement)) return;
+    if (!(stage instanceof HTMLElement) || !(slide instanceof HTMLElement) || !(carouselSlide instanceof HTMLElement)) return;
+    if (!(image instanceof HTMLImageElement) || !(carouselImage instanceof HTMLImageElement)) return;
     if (!(count instanceof HTMLElement) || !(filename instanceof HTMLElement)) return;
     if (!(zoomDisplay instanceof HTMLButtonElement) || !(zoomOut instanceof HTMLButtonElement) || !(zoomIn instanceof HTMLButtonElement)) return;
     if (!(previous instanceof HTMLButtonElement) || !(next instanceof HTMLButtonElement) || !(close instanceof HTMLButtonElement)) return;
@@ -81,25 +90,21 @@ const labels = lang === 'en'
     const maximumScale = 4;
     const minimumScale = 0.5;
     const initialScale = 1;
-    const photoTransitionDuration = 360;
-    const outgoingTransitionClasses = [
-      'is-carousel-leaving-next',
-      'is-carousel-leaving-previous',
-      'is-carousel-resetting',
-    ];
-    const incomingTransitionClasses = [
-      'is-carousel-active',
-      'is-carousel-from-next',
-      'is-carousel-from-previous',
-    ];
+    const photoTransitionDuration = 0.34;
+    const photoPreloads = new Map<string, Promise<void>>();
+    const setSlideX = gsap.quickSetter(slide, 'x', 'px');
+    const setCarouselSlideX = gsap.quickSetter(carouselSlide, 'x', 'px');
     let currentIndex = 0;
     let requestedIndex = 0;
-    let photoTransitionSequence = 0;
     let isPhotoTransitioning = false;
+    let photoTransition: gsap.core.Tween | undefined;
+    let preparedIndex: number | undefined;
+    let preparedDirection: 'next' | 'previous' | undefined;
     let scale = initialScale;
     let translateX = 0;
     let translateY = 0;
     let activePointer: number | undefined;
+    let pointerGesture: 'swipe' | 'pan' | undefined;
     let lastPointerX = 0;
     let lastPointerY = 0;
     let pinchStartDistance = 0;
@@ -112,8 +117,36 @@ const labels = lang === 'en'
     let swipeStartX = 0;
     let swipeStartY = 0;
     let swipeStartTime = 0;
+    let swipeDirection: 'next' | 'previous' | undefined;
     let suppressBackdropClickUntil = 0;
     let returnFocus: HTMLElement | null = null;
+
+    const resolveIndex = (index: number) => (index + openers.length) % openers.length;
+
+    const photoSource = (index: number) => openers[resolveIndex(index)]?.dataset.lightboxSrc ?? '';
+
+    const preloadPhoto = (index: number) => {
+      const source = photoSource(index);
+      if (!source) return Promise.resolve();
+
+      const cached = photoPreloads.get(source);
+      if (cached) return cached;
+
+      const preload = new Image();
+      preload.decoding = 'async';
+      preload.src = source;
+      const decoded = preload.decode().catch(() => {
+        // The visible image still provides the browser's loading/error state.
+      });
+      photoPreloads.set(source, decoded);
+      return decoded;
+    };
+
+    const preloadAround = (index: number) => {
+      void preloadPhoto(index);
+      void preloadPhoto(index - 1);
+      void preloadPhoto(index + 1);
+    };
 
     const clampPosition = () => {
       const maxX = Math.max(0, (image.clientWidth * scale - stage.clientWidth) / 2);
@@ -177,102 +210,137 @@ const labels = lang === 'en'
 
     const applyPhoto = (index: number) => {
       currentIndex = index;
+      requestedIndex = index;
       const opener = openers[currentIndex];
       image.src = opener.dataset.lightboxSrc ?? '';
       image.alt = opener.dataset.lightboxAlt ?? '';
       count.textContent = `${String(currentIndex + 1).padStart(2, '0')} / ${String(openers.length).padStart(2, '0')}`;
       filename.textContent = opener.dataset.lightboxFilename ?? '';
       resetZoom();
+      preloadAround(currentIndex);
     };
-
-    const preloadPhoto = async (source: string) => {
-      if (!source) return;
-      const preload = new Image();
-      preload.src = source;
-      try {
-        await preload.decode();
-      } catch {
-        // The visible image will still display the browser's loading/error state.
-      }
-    };
-
-    const wait = (duration: number) => new Promise((resolve) => window.setTimeout(resolve, duration));
 
     const clearPhotoTransition = () => {
-      image.classList.add('is-carousel-resetting');
-      image.classList.remove('is-carousel-leaving-next', 'is-carousel-leaving-previous');
-      carouselImage.classList.remove(...incomingTransitionClasses);
+      photoTransition?.kill();
+      photoTransition = undefined;
+      setSlideX(0);
+      setCarouselSlideX(0);
+      carouselSlide.classList.remove('is-carousel-active');
       carouselImage.removeAttribute('src');
-      void image.offsetWidth;
-      image.classList.remove('is-carousel-resetting');
+      preparedIndex = undefined;
+      preparedDirection = undefined;
     };
 
-    const showPhoto = async (index: number, direction?: 'next' | 'previous') => {
-      if (!openers.length) return;
-      if (direction && isPhotoTransitioning) return;
+    const prepareCarouselPhoto = (index: number, direction: 'next' | 'previous') => {
+      const resolvedIndex = resolveIndex(index);
+      if (preparedIndex === resolvedIndex && preparedDirection === direction) return resolvedIndex;
 
-      const resolvedIndex = (index + openers.length) % openers.length;
-      const opener = openers[resolvedIndex];
-      const source = opener.dataset.lightboxSrc ?? '';
-      const sequence = ++photoTransitionSequence;
-      const shouldAnimate = Boolean(
-        direction
-        && dialog.open
-        && !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-      );
+      preparedIndex = resolvedIndex;
+      preparedDirection = direction;
+      carouselImage.src = photoSource(resolvedIndex);
+      carouselSlide.classList.add('is-carousel-active');
+      void preloadPhoto(resolvedIndex);
+      setCarouselSlideX((direction === 'next' ? 1 : -1) * stage.clientWidth);
+      return resolvedIndex;
+    };
 
+    const finishPhotoTransition = (index: number) => {
+      setSlideX(0);
+      applyPhoto(index);
+      carouselSlide.classList.remove('is-carousel-active');
+      carouselImage.removeAttribute('src');
+      setCarouselSlideX(0);
+      preparedIndex = undefined;
+      preparedDirection = undefined;
+      photoTransition = undefined;
+      isPhotoTransitioning = false;
+    };
+
+    const animatePhotoTransition = (
+      index: number,
+      direction: 'next' | 'previous',
+      movementX = 0,
+    ) => {
+      const resolvedIndex = prepareCarouselPhoto(index, direction);
+      const stageWidth = stage.clientWidth;
+      const directionSign = direction === 'next' ? 1 : -1;
+      const destinationX = -directionSign * stageWidth;
+      const remainingDistance = Math.abs(destinationX - movementX);
+      const duration = Math.max(0.18, photoTransitionDuration * remainingDistance / stageWidth);
+
+      isPhotoTransitioning = true;
       requestedIndex = resolvedIndex;
-      clearPhotoTransition();
+      resetZoom();
+      photoTransition?.kill();
+      photoTransition = gsap.to([slide, carouselSlide], {
+        x: (elementIndex) => elementIndex === 0 ? destinationX : 0,
+        duration,
+        ease: 'power3.out',
+        overwrite: true,
+        onComplete: () => finishPhotoTransition(resolvedIndex),
+      });
+    };
 
-      if (!shouldAnimate) {
-        applyPhoto(resolvedIndex);
+    const resetSwipePosition = (direction: 'next' | 'previous') => {
+      const stageWidth = stage.clientWidth;
+      const directionSign = direction === 'next' ? 1 : -1;
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        clearPhotoTransition();
         return;
       }
 
       isPhotoTransitioning = true;
-      resetZoom();
-      await preloadPhoto(source);
-      if (sequence !== photoTransitionSequence) return;
-
-      const leavingClass = `is-carousel-leaving-${direction}`;
-      const incomingClass = `is-carousel-from-${direction}`;
-      carouselImage.src = source;
-      carouselImage.classList.add('is-carousel-active', incomingClass);
-
-      await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      photoTransition = gsap.to([slide, carouselSlide], {
+        x: (elementIndex) => elementIndex === 0 ? 0 : directionSign * stageWidth,
+        duration: 0.22,
+        ease: 'power3.out',
+        overwrite: true,
+        onComplete: () => {
+          clearPhotoTransition();
+          isPhotoTransitioning = false;
+        },
       });
-      if (sequence !== photoTransitionSequence) return;
+    };
 
-      image.classList.add(leavingClass);
-      carouselImage.classList.remove(incomingClass);
-      await wait(photoTransitionDuration);
-      if (sequence !== photoTransitionSequence) return;
+    const showPhoto = (index: number, direction?: 'next' | 'previous') => {
+      if (!openers.length) return;
+      if (direction && isPhotoTransitioning) return;
 
-      image.classList.add('is-carousel-resetting');
-      applyPhoto(resolvedIndex);
-      image.classList.remove(leavingClass);
-      void image.offsetWidth;
-      image.classList.remove('is-carousel-resetting');
-      carouselImage.classList.remove(...incomingTransitionClasses);
-      carouselImage.removeAttribute('src');
-      isPhotoTransitioning = false;
+      const resolvedIndex = resolveIndex(index);
+      requestedIndex = resolvedIndex;
+      clearPhotoTransition();
+
+      if (
+        !direction
+        || !dialog.open
+        || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ) {
+        applyPhoto(resolvedIndex);
+        return;
+      }
+
+      animatePhotoTransition(resolvedIndex, direction);
     };
 
     openers.forEach((opener, index) => {
       opener.addEventListener('click', () => {
         returnFocus = opener;
-        void showPhoto(index);
+        preloadAround(index);
+        showPhoto(index);
         dialog.showModal();
         requestAnimationFrame(() => close.focus());
       });
+      opener.addEventListener('pointerenter', () => preloadAround(index), { once: true });
+      opener.addEventListener('focus', () => preloadAround(index), { once: true });
+      opener.addEventListener('touchstart', () => preloadAround(index), { once: true, passive: true });
     });
 
     zoomOut.addEventListener('click', () => setScale(scale - 0.25));
     zoomIn.addEventListener('click', () => setScale(scale + 0.25));
     zoomDisplay.addEventListener('click', resetZoom);
-    previous.addEventListener('click', () => void showPhoto(requestedIndex - 1, 'previous'));
-    next.addEventListener('click', () => void showPhoto(requestedIndex + 1, 'next'));
+    previous.addEventListener('click', () => showPhoto(requestedIndex - 1, 'previous'));
+    next.addEventListener('click', () => showPhoto(requestedIndex + 1, 'next'));
     close.addEventListener('click', () => dialog.close());
 
     stage.addEventListener('click', (event) => {
@@ -297,6 +365,62 @@ const labels = lang === 'en'
       setScale(scale + (event.deltaY < 0 ? 0.25 : -0.25));
     }, { passive: false });
 
+    const beginSwipe = (clientX: number, clientY: number) => {
+      if (scale > initialScale || isPhotoTransitioning) return false;
+
+      swipeTracking = true;
+      swipeStartX = clientX;
+      swipeStartY = clientY;
+      swipeStartTime = performance.now();
+      swipeDirection = undefined;
+      preloadAround(currentIndex);
+      return true;
+    };
+
+    const moveSwipe = (clientX: number, clientY: number) => {
+      if (!swipeTracking) return;
+
+      const movementX = clientX - swipeStartX;
+      const movementY = clientY - swipeStartY;
+      if (Math.abs(movementX) <= 8 || Math.abs(movementX) <= Math.abs(movementY)) return;
+
+      suppressBackdropClickUntil = performance.now() + 400;
+      swipeDirection = movementX < 0 ? 'next' : 'previous';
+      const targetIndex = swipeDirection === 'next' ? currentIndex + 1 : currentIndex - 1;
+      prepareCarouselPhoto(targetIndex, swipeDirection);
+      const directionSign = swipeDirection === 'next' ? 1 : -1;
+      setSlideX(movementX);
+      setCarouselSlideX(movementX + directionSign * stage.clientWidth);
+    };
+
+    const finishSwipe = (clientX: number, clientY: number, cancelled = false) => {
+      if (!swipeTracking) return;
+
+      const movementX = clientX - swipeStartX;
+      const movementY = clientY - swipeStartY;
+      const elapsed = performance.now() - swipeStartTime;
+      const swipeThreshold = Math.max(48, Math.min(96, stage.clientWidth * 0.12));
+      const swipeVelocity = Math.abs(movementX) / Math.max(elapsed, 1);
+      const isHorizontalSwipe = !cancelled
+        && Math.abs(movementX) > Math.abs(movementY) * 1.25
+        && (Math.abs(movementX) >= swipeThreshold || (Math.abs(movementX) >= 24 && swipeVelocity >= 0.45));
+      const completedDirection = swipeDirection;
+
+      swipeTracking = false;
+      swipeDirection = undefined;
+
+      if (isHorizontalSwipe && completedDirection) {
+        suppressBackdropClickUntil = performance.now() + 400;
+        animatePhotoTransition(
+          completedDirection === 'next' ? currentIndex + 1 : currentIndex - 1,
+          completedDirection,
+          movementX,
+        );
+      } else if (completedDirection) {
+        resetSwipePosition(completedDirection);
+      }
+    };
+
     const touchDistance = (touches: TouchList) => {
       const first = touches[0];
       const second = touches[1];
@@ -309,20 +433,13 @@ const labels = lang === 'en'
     });
 
     stage.addEventListener('touchstart', (event) => {
-      if (event.touches.length === 1) {
-        swipeTracking = scale <= initialScale;
-        if (swipeTracking) {
-          swipeStartX = event.touches[0].clientX;
-          swipeStartY = event.touches[0].clientY;
-          swipeStartTime = performance.now();
-        }
-        return;
-      }
-
+      if (event.touches.length === 1) return;
       if (event.touches.length !== 2) return;
       event.preventDefault();
 
+      if (swipeDirection) clearPhotoTransition();
       swipeTracking = false;
+      swipeDirection = undefined;
       const midpoint = touchMidpoint(event.touches);
       pinchStartDistance = touchDistance(event.touches);
       pinchStartScale = scale;
@@ -332,20 +449,12 @@ const labels = lang === 'en'
       pinchStartMidpointY = midpoint.y;
       suppressBackdropClickUntil = performance.now() + 400;
       activePointer = undefined;
+      pointerGesture = undefined;
       stage.classList.remove('is-dragging');
     }, { passive: false });
 
     stage.addEventListener('touchmove', (event) => {
-      if (event.touches.length === 1 && swipeTracking) {
-        const movementX = event.touches[0].clientX - swipeStartX;
-        const movementY = event.touches[0].clientY - swipeStartY;
-        if (Math.abs(movementX) > 8 && Math.abs(movementX) > Math.abs(movementY)) {
-          event.preventDefault();
-          suppressBackdropClickUntil = performance.now() + 400;
-        }
-        return;
-      }
-
+      if (event.touches.length === 1) return;
       if (event.touches.length !== 2 || pinchStartDistance === 0) return;
       event.preventDefault();
       suppressBackdropClickUntil = performance.now() + 400;
@@ -374,27 +483,6 @@ const labels = lang === 'en'
     }, { passive: false });
 
     const stopTouchGesture = (event: TouchEvent) => {
-      if (swipeTracking && event.touches.length === 0 && event.changedTouches.length) {
-        const touch = event.changedTouches[0];
-        const movementX = touch.clientX - swipeStartX;
-        const movementY = touch.clientY - swipeStartY;
-        const elapsed = performance.now() - swipeStartTime;
-        const swipeThreshold = Math.max(48, Math.min(96, stage.clientWidth * 0.12));
-        const isHorizontalSwipe = Math.abs(movementX) >= swipeThreshold
-          && Math.abs(movementX) > Math.abs(movementY) * 1.25
-          && elapsed < 700;
-
-        if (isHorizontalSwipe) {
-          suppressBackdropClickUntil = performance.now() + 400;
-          const direction = movementX < 0 ? 'next' : 'previous';
-          void showPhoto(
-            direction === 'next' ? requestedIndex + 1 : requestedIndex - 1,
-            direction,
-          );
-        }
-      }
-
-      if (event.touches.length === 0) swipeTracking = false;
       if (event.touches.length < 2) pinchStartDistance = 0;
     };
 
@@ -402,8 +490,18 @@ const labels = lang === 'en'
     stage.addEventListener('touchcancel', stopTouchGesture);
 
     stage.addEventListener('pointerdown', (event) => {
+      if (!event.isPrimary) return;
+
+      if (beginSwipe(event.clientX, event.clientY)) {
+        activePointer = event.pointerId;
+        pointerGesture = 'swipe';
+        stage.setPointerCapture(event.pointerId);
+        return;
+      }
+
       if (scale <= initialScale) return;
       activePointer = event.pointerId;
+      pointerGesture = 'pan';
       lastPointerX = event.clientX;
       lastPointerY = event.clientY;
       stage.setPointerCapture(event.pointerId);
@@ -412,6 +510,11 @@ const labels = lang === 'en'
 
     stage.addEventListener('pointermove', (event) => {
       if (activePointer !== event.pointerId) return;
+      if (pointerGesture === 'swipe') {
+        moveSwipe(event.clientX, event.clientY);
+        return;
+      }
+
       const movementX = event.clientX - lastPointerX;
       const movementY = event.clientY - lastPointerY;
       if (Math.abs(movementX) + Math.abs(movementY) > 2) {
@@ -424,14 +527,18 @@ const labels = lang === 'en'
       renderTransform();
     });
 
-    const stopDragging = (event: PointerEvent) => {
+    const stopDragging = (event: PointerEvent, cancelled = false) => {
       if (activePointer !== event.pointerId) return;
+      if (pointerGesture === 'swipe') {
+        finishSwipe(event.clientX, event.clientY, cancelled);
+      }
       activePointer = undefined;
+      pointerGesture = undefined;
       stage.classList.remove('is-dragging');
     };
 
     stage.addEventListener('pointerup', stopDragging);
-    stage.addEventListener('pointercancel', stopDragging);
+    stage.addEventListener('pointercancel', (event) => stopDragging(event, true));
 
     dialog.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
@@ -439,17 +546,15 @@ const labels = lang === 'en'
         dialog.close();
         return;
       }
-      if (event.key === 'ArrowLeft') void showPhoto(requestedIndex - 1, 'previous');
-      if (event.key === 'ArrowRight') void showPhoto(requestedIndex + 1, 'next');
+      if (event.key === 'ArrowLeft') showPhoto(requestedIndex - 1, 'previous');
+      if (event.key === 'ArrowRight') showPhoto(requestedIndex + 1, 'next');
       if (event.key === '+' || event.key === '=') setScale(scale + 0.25);
       if (event.key === '-' || event.key === '_') setScale(scale - 0.25);
       if (event.key === '0') resetZoom();
     });
 
     dialog.addEventListener('close', () => {
-      photoTransitionSequence += 1;
       isPhotoTransitioning = false;
-      image.classList.remove(...outgoingTransitionClasses);
       clearPhotoTransition();
       resetZoom();
       returnFocus?.focus();
