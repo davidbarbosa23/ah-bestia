@@ -151,7 +151,14 @@ const t = copy[lang];
       const frame = group.querySelector<HTMLElement>('.photo-frame');
       if (!frame) return;
 
-      const targetTime = Number(marqueeTween.totalTime()) + direction * (frame.offsetWidth / 24);
+      const stepTime = frame.offsetWidth / 24;
+      const loopDuration = marqueeTween.duration();
+      let currentTime = Number(marqueeTween.totalTime());
+      if (direction < 0 && currentTime - stepTime < 0) {
+        currentTime += loopDuration;
+        marqueeTween.totalTime(currentTime);
+      }
+      const targetTime = currentTime + direction * stepTime;
       marqueeTween.pause();
       marqueeControlTween?.kill();
       marqueeControlTween = gsap.to(marqueeTween, {
