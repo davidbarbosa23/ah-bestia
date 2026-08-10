@@ -304,6 +304,7 @@ export interface UiCopy {
     utilityNavigation: string;
     homeLabel: string;
     switchLanguage: string;
+    opensInNewTab: string;
     close: string;
     backToTop: string;
     top: string;
@@ -316,6 +317,7 @@ export interface UiCopy {
   };
   header: {
     searchPlaceholder: string;
+    searchNoResults: string;
   };
   developer: {
     sourceCardLabel: string;
@@ -386,6 +388,7 @@ export const ui = {
       utilityNavigation: 'Utility navigation',
       homeLabel: 'David Barbosa — home',
       switchLanguage: 'Cambiar a español',
+      opensInNewTab: 'opens in a new tab',
       close: 'Close',
       backToTop: 'Back to top',
       top: 'Top',
@@ -398,6 +401,7 @@ export const ui = {
     },
     header: {
       searchPlaceholder: 'Labs, about, contact…',
+      searchNoResults: 'No matching destinations',
     },
     developer: {
       sourceCardLabel: 'Developer profile as TypeScript',
@@ -482,6 +486,7 @@ export const ui = {
       utilityNavigation: 'Navegación de utilidades',
       homeLabel: 'David Barbosa — inicio',
       switchLanguage: 'Switch to English',
+      opensInNewTab: 'se abre en una pestaña nueva',
       close: 'Cerrar',
       backToTop: 'Volver arriba',
       top: 'Inicio',
@@ -494,6 +499,7 @@ export const ui = {
     },
     header: {
       searchPlaceholder: 'Labs, acerca, contacto…',
+      searchNoResults: 'No hay destinos que coincidan',
     },
     developer: {
       sourceCardLabel: 'Perfil del desarrollador como TypeScript',

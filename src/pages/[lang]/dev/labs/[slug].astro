@@ -47,7 +47,7 @@ const content = project.content[lang];
         <dl class="lab-hero__meta">
           <div><dt>{ui[lang].labs.status}</dt><dd>{content.status}</dd></div>
           <div><dt>{t.builtWith}</dt><dd>{project.tags.join(' · ')}</dd></div>
-          <div><dt>{t.reference}</dt><dd><a href="https://www.surplace.fr/ffgc/" target="_blank" rel="noreferrer">{t.referenceText} ↗</a></dd></div>
+          <div><dt>{t.reference}</dt><dd><a href="https://www.surplace.fr/ffgc/" target="_blank" rel="noreferrer">{t.referenceText} <span aria-hidden="true">↗</span><span class="sr-only"> ({ui[lang].common.opensInNewTab})</span></a></dd></div>
         </dl>
       </header>
 

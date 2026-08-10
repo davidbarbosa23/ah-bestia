@@ -1,17 +1,18 @@
 ---
-import { copy, type Lang } from '../i18n/content';
+import { copy, ui, type Lang } from '../i18n/content';
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const t = copy[lang];
+const labels = ui[lang];
 ---
 
-<footer class="site-footer" id="contact">
+<footer class="site-footer">
   <div class="site-footer__meta">
     <span>{t.footer.copyright} · {new Date().getFullYear()}</span>
     <div>
       <a href="mailto:davidbarbosa.dev@gmail.com">Email</a>
-      <a href="https://github.com/davidbarbosa23" rel="me noreferrer" target="_blank">GitHub ↗</a>
-      <a href="https://www.linkedin.com/in/davidbarbosar/" rel="me noreferrer" target="_blank">LinkedIn ↗</a>
+      <a href="https://github.com/davidbarbosa23" rel="me noreferrer" target="_blank">GitHub <span aria-hidden="true">↗</span><span class="sr-only"> ({labels.common.opensInNewTab})</span></a>
+      <a href="https://www.linkedin.com/in/davidbarbosar/" rel="me noreferrer" target="_blank">LinkedIn <span aria-hidden="true">↗</span><span class="sr-only"> ({labels.common.opensInNewTab})</span></a>
     </div>
   </div>
 </footer>

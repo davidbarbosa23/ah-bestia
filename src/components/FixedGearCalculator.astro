@@ -24,7 +24,14 @@ const tires = [
 const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
 ---
 
-<fixed-gear-calculator class="fg-calculator" data-combination-label={labels.combination}>
+<fixed-gear-calculator
+  class="fg-calculator"
+  data-combination-label={labels.combination}
+  data-live-message={labels.live}
+  data-ratio-label={labels.ratio}
+  data-patches-label={labels.patches}
+  data-rollout-label={labels.rollout}
+>
   <header class="fg-calculator__header">
     <div>
       <p class="mono-label">001 / live.client</p>
@@ -112,7 +119,7 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
       <p class="mono-label">output.json</p>
       <h3 id="fg-analysis-title">{labels.analysis}</h3>
     </div>
-    <div class="fg-metrics" aria-live="polite">
+    <div class="fg-metrics">
       <article>
         <p>{labels.ratio}</p>
         <strong data-ratio>2.82</strong>
@@ -137,7 +144,7 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
       <h3>{labels.equivalent}</h3>
       <p>{labels.equivalentHelp}</p>
     </div>
-    <div class="fg-equivalents" data-equivalents aria-live="polite"></div>
+    <div class="fg-equivalents" data-equivalents></div>
   </section>
 
   <section class="fg-data-section fg-data-section--cadence">
@@ -154,7 +161,7 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
       ))}
     </div>
   </section>
-  <p class="sr-only" role="status" aria-live="polite" data-live-status>{labels.live}</p>
+  <p class="sr-only" role="status" aria-atomic="true" data-live-status></p>
 </fixed-gear-calculator>
 
 <script>
@@ -165,7 +172,7 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
       this.controller?.abort();
       this.controller = new AbortController();
       const form = this.querySelector('[data-fg-form]');
-      form?.addEventListener('change', () => this.update(), { signal: this.controller.signal });
+      form?.addEventListener('change', () => this.update(true), { signal: this.controller.signal });
       this.addEventListener('click', (event) => {
         const target = event.target instanceof Element
           ? event.target.closest<HTMLButtonElement>('[data-equivalent-ring]')
@@ -176,7 +183,7 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
         if (!chainring || !sprocket) return;
         chainring.value = target.dataset.equivalentRing ?? chainring.value;
         sprocket.value = target.dataset.equivalentCog ?? sprocket.value;
-        this.update();
+        this.update(true);
         chainring.focus({ preventScroll: true });
       }, { signal: this.controller.signal });
       this.update();
@@ -190,7 +197,7 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
       return b === 0 ? a : this.gcd(b, a % b);
     }
 
-    private update() {
+    private update(announce = false) {
       const chainring = Number(this.querySelector<HTMLSelectElement>('[data-chainring]')?.value ?? 48);
       const sprocket = Number(this.querySelector<HTMLSelectElement>('[data-sprocket]')?.value ?? 17);
       const circumferenceMm = Number(this.querySelector<HTMLSelectElement>('[data-tire]')?.value ?? 2105);
@@ -214,11 +221,15 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
 
       const rollout = this.querySelector<HTMLElement>('[data-rollout]');
       const rolloutUnit = this.querySelector<HTMLElement>('[data-rollout-unit]');
+      let rolloutText = '';
+      let rolloutUnitText = '';
       if (rollout && rolloutUnit) {
-        rollout.textContent = units === 'metric'
+        rolloutText = units === 'metric'
           ? rolloutM.toFixed(2)
           : (rolloutM * 39.3701).toFixed(1);
-        rolloutUnit.textContent = units === 'metric' ? 'm' : 'in';
+        rolloutUnitText = units === 'metric' ? 'm' : 'in';
+        rollout.textContent = rolloutText;
+        rolloutUnit.textContent = rolloutUnitText;
       }
 
       const skidRing = this.querySelector<SVGCircleElement>('[data-skid-ring]');
@@ -259,6 +270,18 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
           ? `${kmh.toFixed(1)} km/h`
           : `${(kmh / 1.609344).toFixed(1)} mph`;
       });
+
+      if (announce) {
+        const status = this.querySelector<HTMLElement>('[data-live-status]');
+        if (status) {
+          status.textContent = [
+            this.dataset.liveMessage,
+            `${this.dataset.ratioLabel}: ${ratio.toFixed(2)}`,
+            `${this.dataset.patchesLabel}: ${patches}`,
+            `${this.dataset.rolloutLabel}: ${rolloutText} ${rolloutUnitText}`,
+          ].filter(Boolean).join('. ');
+        }
+      }
     }
   }
 

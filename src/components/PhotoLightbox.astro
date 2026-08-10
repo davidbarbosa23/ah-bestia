@@ -9,7 +9,7 @@ const { lang } = Astro.props;
 const labels = ui[lang].photography.lightbox;
 ---
 
-<dialog class="photo-lightbox" data-photo-lightbox aria-label={labels.viewer}>
+<dialog class="photo-lightbox" id="photo-lightbox" data-photo-lightbox aria-label={labels.viewer}>
   <div class="photo-lightbox__stage" data-lightbox-stage>
     <div class="photo-lightbox__slide" data-lightbox-slide>
       <img data-lightbox-image alt="" draggable="false" />
