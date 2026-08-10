@@ -98,6 +98,7 @@ const labels = lang === 'en'
     let requestedIndex = 0;
     let isPhotoTransitioning = false;
     let photoTransition: gsap.core.Tween | undefined;
+    let photoTransitionSequence = 0;
     let preparedIndex: number | undefined;
     let preparedDirection: 'next' | 'previous' | undefined;
     let scale = initialScale;
@@ -221,6 +222,7 @@ const labels = lang === 'en'
     };
 
     const clearPhotoTransition = () => {
+      photoTransitionSequence += 1;
       photoTransition?.kill();
       photoTransition = undefined;
       setSlideX(0);
@@ -244,9 +246,24 @@ const labels = lang === 'en'
       return resolvedIndex;
     };
 
-    const finishPhotoTransition = (index: number) => {
+    const waitForImagePaint = async (target: HTMLImageElement) => {
+      try {
+        await target.decode();
+      } catch {
+        // Keep the visible carousel layer in place through the next paint.
+      }
+
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      });
+    };
+
+    const finishPhotoTransition = async (index: number, sequence: number) => {
       setSlideX(0);
       applyPhoto(index);
+      await waitForImagePaint(image);
+      if (sequence !== photoTransitionSequence || !dialog.open) return;
+
       carouselSlide.classList.remove('is-carousel-active');
       carouselImage.removeAttribute('src');
       setCarouselSlideX(0);
@@ -272,12 +289,13 @@ const labels = lang === 'en'
       requestedIndex = resolvedIndex;
       resetZoom();
       photoTransition?.kill();
+      const sequence = ++photoTransitionSequence;
       photoTransition = gsap.to([slide, carouselSlide], {
         x: (elementIndex) => elementIndex === 0 ? destinationX : 0,
         duration,
         ease: 'power3.out',
         overwrite: true,
-        onComplete: () => finishPhotoTransition(resolvedIndex),
+        onComplete: () => void finishPhotoTransition(resolvedIndex, sequence),
       });
     };
 
