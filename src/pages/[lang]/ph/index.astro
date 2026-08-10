@@ -111,7 +111,8 @@ const t = copy[lang];
     const hero = document.querySelector('.photo-hero');
     if (!hero) return;
 
-    const allowMotion = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+    const allowMotion = document.documentElement.dataset.languageTransition !== 'true'
+      && window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
     if (allowMotion) {
       const easing = 'cubic-bezier(0.16, 1, 0.3, 1)';
       const animateIntro = (selector: string, transform: string, duration: number, delay: number, stagger = 0) => {
@@ -149,5 +150,5 @@ const t = copy[lang];
     horizontalObserver.observe(section);
   };
 
-  setupPhotographyAnimations();
+  document.addEventListener('astro:page-load', setupPhotographyAnimations);
 </script>

@@ -1,14 +1,21 @@
 ---
+import { getImage } from 'astro:assets';
+import background from '../assets/bg_dark.jpg';
 import { copy, ui, type Lang } from '../i18n/content';
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const t = copy[lang].dev;
 const labels = ui[lang].developer;
+const backgroundImage = await getImage({ src: background, format: 'webp', quality: 82 });
 ---
 
 <div class="experience experience--developer" data-experience-panel="developer">
   <main id="main">
-    <section class="dev-hero" aria-labelledby="developer-title">
+    <section
+      class="dev-hero"
+      aria-labelledby="developer-title"
+      style={`--dev-hero-background: url(${backgroundImage.src})`}
+    >
       <div class="dev-hero__inner page-shell">
         <div class="dev-hero__copy">
           <p class="status-line"><span></span>{t.status}</p>
