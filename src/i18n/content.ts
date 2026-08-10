@@ -28,10 +28,10 @@ export const copy = {
     },
     theme: { light: 'Use light theme', dark: 'Use dark theme' },
     dev: {
-      status: 'Available for thoughtful collaborations',
+      status: 'Available for selected collaborations',
       title: 'I make software\nfeel considered.',
       intro:
-        'I’m David Barbosa, a software engineer in Bogotá. I work where product thinking, frontend craft, and reliable systems meet.',
+        'I’m David Barbosa, a senior software engineer in Bogotá. I turn complex product problems into clear web interfaces and dependable systems.',
       primaryCta: 'Explore Labs',
       secondaryCta: 'Email David',
       codeLabel: 'david.ts',
@@ -162,10 +162,10 @@ export const copy = {
     },
     theme: { light: 'Usar tema claro', dark: 'Usar tema oscuro' },
     dev: {
-      status: 'Disponible para colaboraciones con propósito',
-      title: 'Hago que el software\nse sienta pensado.',
+      status: 'Disponible para colaboraciones seleccionadas',
+      title: 'Construyo software que\nse siente bien pensado.',
       intro:
-        'Soy David Barbosa, ingeniero de software en Bogotá. Trabajo donde se encuentran el producto, el cuidado del frontend y los sistemas confiables.',
+        'Soy David Barbosa, ingeniero de software senior en Bogotá. Convierto problemas complejos de producto en interfaces web claras y sistemas confiables.',
       primaryCta: 'Explorar Labs',
       secondaryCta: 'Escribirle a David',
       codeLabel: 'david.ts',
