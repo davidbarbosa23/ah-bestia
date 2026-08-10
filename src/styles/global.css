@@ -497,7 +497,7 @@ html[data-theme='dark'] .theme-icon--moon {
       var(--color-hero-scrim-soft),
       var(--color-hero-scrim-strong)
     ),
-    url('../assets/bg_dark.jpg') center / cover no-repeat;
+    var(--dev-hero-background) center / cover no-repeat;
   color: var(--color-on-dark);
 }
 

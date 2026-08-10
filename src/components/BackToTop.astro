@@ -51,7 +51,10 @@ const t = ui[lang].common;
     scrollFrame = window.requestAnimationFrame(updateBackToTop);
   };
 
-  observeFooter();
+  document.addEventListener('astro:page-load', () => {
+    observeFooter();
+    updateBackToTop();
+  });
   window.addEventListener('scroll', queueBackToTopUpdate, { passive: true });
   window.addEventListener('resize', queueBackToTopUpdate, { passive: true });
 

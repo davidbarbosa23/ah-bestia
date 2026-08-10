@@ -30,6 +30,8 @@
   --color-viewer-divider: oklch(100% 0 0 / 0.14);
   --color-viewer-hover: oklch(100% 0 0 / 0.12);
 
+  --dev-hero-background: none;
+
   --font-display: 'Space Grotesk Variable', 'Arial Narrow', sans-serif;
   --font-body: 'Inter Variable', 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono Variable', 'Cascadia Code', monospace;

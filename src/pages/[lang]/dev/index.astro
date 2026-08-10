@@ -33,7 +33,8 @@ const t = copy[lang];
   const setupDeveloperAnimations = () => {
     teardownDeveloperAnimations();
     const hero = document.querySelector('.dev-hero');
-    if (!hero || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const isLanguageTransition = document.documentElement.dataset.languageTransition === 'true';
+    if (!hero || isLanguageTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const easing = 'cubic-bezier(0.16, 1, 0.3, 1)';
     const animateIntro = (
@@ -78,5 +79,5 @@ const t = copy[lang];
     document.querySelectorAll<HTMLElement>('.reveal-item').forEach((item) => revealObserver?.observe(item));
   };
 
-  setupDeveloperAnimations();
+  document.addEventListener('astro:page-load', setupDeveloperAnimations);
 </script>

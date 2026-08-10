@@ -4,6 +4,7 @@ import '../styles/fonts.css';
 import { ui, type Lang } from '../i18n/content';
 import type { ImageMetadata } from 'astro';
 import { getImage } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
 import portrait from '../assets/portrait.jpg';
 import BackToTop from '../components/BackToTop.astro';
 
@@ -106,7 +107,7 @@ const structuredData = {
 ---
 
 <!doctype html>
-<html lang={lang} data-theme="light">
+<html lang={lang} data-theme="light" transition:name="root" transition:animate="none">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -147,10 +148,63 @@ const structuredData = {
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
       })();
     </script>
+    <ClientRouter fallback="swap" />
   </head>
   <body data-experience={experience}>
     <a class="skip-link" href="#main">{labels.common.skipToContent}</a>
     <slot />
     <BackToTop lang={lang} />
+    <script>
+      let languageScrollPosition: { left: number; top: number } | undefined;
+
+      const keepOtherLinksOnNativeNavigation = () => {
+        document.querySelectorAll<HTMLAnchorElement>('a[href]:not([data-language-link])').forEach((link) => {
+          const destination = new URL(link.href, window.location.href);
+          if (destination.origin !== window.location.origin) return;
+          link.dataset.astroReload = '';
+          link.dataset.astroPrefetch = 'false';
+        });
+      };
+
+      keepOtherLinksOnNativeNavigation();
+
+      document.addEventListener('click', (event) => {
+        if (!(event.target instanceof Element)) return;
+        const link = event.target.closest('a[data-language-link]');
+        if (!link) return;
+
+        languageScrollPosition = {
+          left: window.scrollX,
+          top: window.scrollY,
+        };
+      });
+
+      document.addEventListener('astro:before-swap', (event) => {
+        const theme = document.documentElement.dataset.theme ?? 'light';
+        event.newDocument.documentElement.dataset.theme = theme;
+        if (languageScrollPosition) {
+          event.newDocument.documentElement.dataset.languageTransition = 'true';
+        }
+      });
+
+      const restoreLanguageScrollPosition = () => {
+        if (!languageScrollPosition) return;
+        window.scrollTo({ ...languageScrollPosition, behavior: 'instant' });
+      };
+
+      document.addEventListener('astro:after-swap', restoreLanguageScrollPosition);
+
+      document.addEventListener('astro:page-load', () => {
+        const completedLanguageTransition = Boolean(languageScrollPosition);
+        keepOtherLinksOnNativeNavigation();
+        restoreLanguageScrollPosition();
+        languageScrollPosition = undefined;
+        if (completedLanguageTransition) {
+          window.requestAnimationFrame(() => {
+            delete document.documentElement.dataset.languageTransition;
+          });
+        }
+      });
+    </script>
   </body>
 </html>

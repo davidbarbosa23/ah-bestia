@@ -39,7 +39,14 @@ const labels = ui[lang].photography.lightbox;
 </dialog>
 
 <script>
+  let photoLightboxResizeHandler: (() => void) | undefined;
+
   const setupPhotoLightbox = () => {
+    if (photoLightboxResizeHandler) {
+      window.removeEventListener('resize', photoLightboxResizeHandler);
+      photoLightboxResizeHandler = undefined;
+    }
+
     const dialog = document.querySelector('[data-photo-lightbox]');
     if (!(dialog instanceof HTMLDialogElement) || dialog.dataset.ready === 'true') return;
 
@@ -584,8 +591,9 @@ const labels = ui[lang].photography.lightbox;
       returnFocus?.focus();
     });
 
-    window.addEventListener('resize', renderTransform);
+    photoLightboxResizeHandler = renderTransform;
+    window.addEventListener('resize', photoLightboxResizeHandler);
   };
 
-  setupPhotoLightbox();
+  document.addEventListener('astro:page-load', setupPhotoLightbox);
 </script>
