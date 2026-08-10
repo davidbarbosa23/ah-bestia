@@ -1,17 +1,22 @@
 ---
-import { alternatePath, copy, type Lang } from '../i18n/content';
+import { alternatePath, copy, ui, type Lang } from '../i18n/content';
 
-interface Props { lang: Lang; experience?: 'developer' | 'photographer'; }
-const { lang, experience } = Astro.props;
+interface Props {
+  lang: Lang;
+  experience?: 'developer' | 'photographer';
+  languageHref?: string;
+}
+const { lang, experience, languageHref } = Astro.props;
 const t = copy[lang];
+const labels = ui[lang];
 const altLang = lang === 'en' ? 'es' : 'en';
-const altPath = alternatePath(Astro.url.pathname, lang);
+const altPath = languageHref ?? alternatePath(Astro.url.pathname, lang);
 const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
 ---
 
 <header class="site-header" data-site-header>
   <div class="site-header__inner">
-    <a class="wordmark" href={homePath} aria-label="David Barbosa — home">
+    <a class="wordmark" href={homePath} aria-label={labels.common.homeLabel}>
       <span aria-hidden="true">db/</span><span>David Barbosa</span>
     </a>
 
@@ -26,55 +31,76 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
       </nav>
     )}
 
-    <nav class="site-tools" aria-label="Utility navigation">
-      {experience === 'developer' && <button class="jump-button" type="button" data-command-open aria-label={`${t.nav.search} (Ctrl K)`}>
-        <span>{t.nav.search}</span><kbd>⌘K</kbd>
+    <nav class="site-tools" aria-label={labels.common.utilityNavigation}>
+      {experience === 'developer' && <button class="jump-button" type="button" data-command-open aria-label={`${t.nav.search} (Ctrl K)`} aria-haspopup="dialog" aria-controls="command-dialog" aria-expanded="false">
+        <span>{t.nav.search}</span><kbd>Ctrl K</kbd>
       </button>}
-      <button class="theme-button" type="button" data-theme-toggle aria-label={t.theme.dark} title={t.theme.dark}>
+      <button class="theme-button" type="button" data-theme-toggle data-theme-light-label={t.theme.light} data-theme-dark-label={t.theme.dark} aria-label={t.theme.dark} title={t.theme.dark}>
         <svg class="theme-icon theme-icon--sun" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path></svg>
         <svg class="theme-icon theme-icon--moon" aria-hidden="true" viewBox="0 0 24 24"><path d="M20.5 15.5A8.5 8.5 0 0 1 8.5 3.5a8.5 8.5 0 1 0 12 12Z"></path></svg>
       </button>
-      <a class="language-link" href={altPath} hreflang={altLang} lang={lang} aria-label={altLang === 'es' ? 'Cambiar a español' : 'Switch to English'} title={altLang === 'es' ? 'Cambiar a español' : 'Switch to English'} data-language-link>{lang.toUpperCase()}</a>
+      <a class="language-link" href={altPath} hreflang={altLang} lang={altLang} aria-label={labels.common.switchLanguage} title={labels.common.switchLanguage} data-language-link>{altLang.toUpperCase()}</a>
     </nav>
   </div>
 </header>
 
 {experience === 'developer' && (
-  <dialog class="command" data-command aria-label={t.nav.search}>
+  <dialog class="command" id="command-dialog" data-command aria-label={t.nav.search}>
     <form method="dialog" class="command__surface">
       <div class="command__field">
         <label for="command-search">{t.nav.search}</label>
-        <input id="command-search" type="search" autocomplete="off" placeholder={lang === 'en' ? 'Labs, about, contact…' : 'Labs, acerca, contacto…'} data-command-input />
-        <button class="command__close" value="close" aria-label="Close">ESC</button>
+        <input id="command-search" type="search" autocomplete="off" placeholder={labels.header.searchPlaceholder} aria-controls="command-results" data-command-input />
+        <button class="command__close" value="close" aria-label={labels.common.close}>ESC</button>
       </div>
-      <div class="command__results" data-command-results>
-        <a href="#work" data-command-item>{t.nav.work}<span>↵</span></a>
-        <a href="#about" data-command-item>{t.nav.about}<span>↵</span></a>
-        <a href="#contact" data-command-item>{t.nav.contact}<span>↵</span></a>
-        <a href={`/${lang}/dev/labs/`} data-command-item>{t.dev.primaryCta}<span>↗</span></a>
+      <div class="command__results" id="command-results" data-command-results>
+        <a href={`/${lang}/dev/#work`} data-command-item>{t.nav.work}<span aria-hidden="true">↵</span></a>
+        <a href={`/${lang}/dev/#about`} data-command-item>{t.nav.about}<span aria-hidden="true">↵</span></a>
+        <a href={`/${lang}/dev/#contact`} data-command-item>{t.nav.contact}<span aria-hidden="true">↵</span></a>
+        <a href={`/${lang}/dev/labs/`} data-command-item>{t.dev.primaryCta}<span aria-hidden="true">↗</span></a>
+        <p class="command__empty" role="status" aria-atomic="true" hidden data-command-empty>{labels.header.searchNoResults}</p>
       </div>
     </form>
   </dialog>
 )}
 
 <script>
+  let commandReturnFocus: HTMLElement | null = null;
+
   const syncThemeLabel = () => {
     const root = document.documentElement;
     const themeButton = document.querySelector('[data-theme-toggle]');
     if (!(themeButton instanceof HTMLElement)) return;
     const dark = root.dataset.theme === 'dark';
-    const nextLabel = dark ? (document.documentElement.lang === 'es' ? 'Usar tema claro' : 'Use light theme') : (document.documentElement.lang === 'es' ? 'Usar tema oscuro' : 'Use dark theme');
+    const nextLabel = dark
+      ? themeButton.dataset.themeLightLabel
+      : themeButton.dataset.themeDarkLabel;
+    if (!nextLabel) return;
     themeButton.setAttribute('aria-label', nextLabel);
     themeButton.setAttribute('title', nextLabel);
   };
   syncThemeLabel();
-  document.addEventListener('astro:page-load', syncThemeLabel);
 
   const openCommand = () => {
     const dialog = document.querySelector('[data-command]');
     const input = document.querySelector('[data-command-input]');
     if (!(dialog instanceof HTMLDialogElement)) return;
+    commandReturnFocus = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : document.querySelector<HTMLElement>('[data-command-open]');
+    if (dialog.dataset.focusReturnReady !== 'true') {
+      dialog.dataset.focusReturnReady = 'true';
+      dialog.addEventListener('close', () => {
+        document.querySelector('[data-command-open]')?.setAttribute('aria-expanded', 'false');
+        commandReturnFocus?.focus();
+        commandReturnFocus = null;
+      });
+    }
+    document.querySelectorAll<HTMLElement>('[data-command-item]').forEach((item) => { item.hidden = false; });
+    const empty = document.querySelector<HTMLElement>('[data-command-empty]');
+    if (empty) empty.hidden = true;
+    if (input instanceof HTMLInputElement) input.value = '';
     dialog.showModal();
+    document.querySelector('[data-command-open]')?.setAttribute('aria-expanded', 'true');
     requestAnimationFrame(() => (input instanceof HTMLInputElement) && input.focus());
   };
 
@@ -100,6 +126,13 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
   });
 
   document.addEventListener('keydown', (event) => {
+    const dialog = document.querySelector('[data-command]');
+    if (event.key === 'Escape' && dialog instanceof HTMLDialogElement && dialog.open) {
+      event.preventDefault();
+      dialog.close();
+      return;
+    }
+
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
       event.preventDefault();
       openCommand();
@@ -111,8 +144,13 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
     if (!(input instanceof HTMLInputElement) || !input.matches('[data-command-input]')) return;
     const query = input.value.toLowerCase();
     const items = [...document.querySelectorAll('[data-command-item]')];
+    let matches = 0;
     items.forEach((item) => {
-      if (item instanceof HTMLElement) item.hidden = !item.textContent?.toLowerCase().includes(query);
+      if (!(item instanceof HTMLElement)) return;
+      item.hidden = !item.textContent?.toLowerCase().includes(query);
+      if (!item.hidden) matches += 1;
     });
+    const empty = document.querySelector<HTMLElement>('[data-command-empty]');
+    if (empty) empty.hidden = matches > 0;
   });
 </script>

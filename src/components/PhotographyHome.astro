@@ -1,21 +1,19 @@
 ---
 import { Image } from 'astro:assets';
-import { copy, type Lang } from '../i18n/content';
+import { copy, ui, type Lang } from '../i18n/content';
 import { photoGalleries } from '../data/photoGalleries';
 import photographerHero from '../assets/photography/photographer-hero.jpg';
 
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const t = copy[lang].photo;
-const heroAlt = lang === 'en'
-  ? 'A Fujifilm X100VI camera emerging from deep shadow'
-  : 'Una cámara Fujifilm X100VI emergiendo de una sombra profunda';
+const labels = ui[lang];
 ---
 
 <div class="experience experience--photographer" data-experience-panel="photographer">
   <main id="main">
     <section class="photo-hero" aria-labelledby="photo-title">
-      <Image src={photographerHero} widths={[480, 720, 1080, 1400, 1800, 2100]} sizes="100vw" quality={88} fetchpriority="high" alt={heroAlt} />
+      <Image src={photographerHero} widths={[480, 720, 1080, 1400, 1800, 2100]} sizes="100vw" quality={82} priority alt={labels.metadata.photographerHeroAlt} />
       <div class="photo-hero__shade"></div>
       <div class="photo-hero__copy page-shell">
         <p class="status-line status-line--photo"><span></span>{t.status}</p>
@@ -33,21 +31,25 @@ const heroAlt = lang === 'en'
       <div class="photo-track" data-photo-track>
         {photoGalleries.map((gallery, index) => {
           const content = gallery.content[lang];
+          const isWide = index % 3 === 1;
+          const sizes = isWide
+            ? '(min-width: 90rem) 54rem, (min-width: 60rem) 62vw, (min-width: 40rem) 82vw, 84vw'
+            : '(min-width: 90rem) 39rem, (min-width: 60rem) 48vw, (min-width: 40rem) 72vw, 84vw';
           return (
-            <figure class:list={['photo-frame', index % 3 === 1 && 'photo-frame--wide', index % 3 === 2 && 'photo-frame--short']}>
+            <figure class:list={['photo-frame', isWide && 'photo-frame--wide', index % 3 === 2 && 'photo-frame--short']}>
               <a href={`/${lang}/ph/${gallery.slug}/`} aria-label={`${t.openNote}: ${content.cardTitle}`}>
                 <Image
                   src={gallery.cover}
                   widths={[420, 640, 900, 1080]}
-                  sizes="(min-width: 60rem) 29rem, 84vw"
-                  quality={86}
+                  sizes={sizes}
+                  quality={80}
                   loading="lazy"
                   alt={`${content.cardTitle}. ${content.description}`}
                 />
                   <span class="photo-frame__open">{t.openNote} ↗</span>
                 </a>
               <figcaption>
-                <span><strong>{content.cardTitle}</strong>{content.location} · {gallery.images.length} {lang === 'en' ? 'photographs' : 'fotografías'}</span>
+                <span><strong>{content.cardTitle}</strong>{content.location} · {gallery.images.length} {labels.photography.photographs}</span>
                 <span class="photo-frame__credit">© David Barbosa</span>
               </figcaption>
             </figure>

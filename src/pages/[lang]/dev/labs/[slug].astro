@@ -3,7 +3,7 @@ import SiteLayout from '../../../../layouts/SiteLayout.astro';
 import SiteHeader from '../../../../components/SiteHeader.astro';
 import SiteFooter from '../../../../components/SiteFooter.astro';
 import FixedGearCalculator from '../../../../components/FixedGearCalculator.astro';
-import { languages, type Lang } from '../../../../i18n/content';
+import { languages, ui, type Lang } from '../../../../i18n/content';
 import { labProjects, labsCopy, type LabProject } from '../../../../data/labs';
 
 export function getStaticPaths() {
@@ -29,6 +29,7 @@ const content = project.content[lang];
   title={`${content.title} — ${t.metaTitle}`}
   description={content.summary}
   pageType="article"
+  schemaType="Article"
 >
   <SiteHeader lang={lang} experience="developer" />
   <main class="lab-article" id="main">
@@ -44,9 +45,9 @@ const content = project.content[lang];
         <h1>{content.title}</h1>
         <p class="lab-hero__lede">{content.lede}</p>
         <dl class="lab-hero__meta">
-          <div><dt>{lang === 'en' ? 'Status' : 'Estado'}</dt><dd>{content.status}</dd></div>
+          <div><dt>{ui[lang].labs.status}</dt><dd>{content.status}</dd></div>
           <div><dt>{t.builtWith}</dt><dd>{project.tags.join(' · ')}</dd></div>
-          <div><dt>{t.reference}</dt><dd><a href="https://www.surplace.fr/ffgc/" target="_blank" rel="noreferrer">{t.referenceText} ↗</a></dd></div>
+          <div><dt>{t.reference}</dt><dd><a href="https://www.surplace.fr/ffgc/" target="_blank" rel="noreferrer">{t.referenceText} <span aria-hidden="true">↗</span><span class="sr-only"> ({ui[lang].common.opensInNewTab})</span></a></dd></div>
         </dl>
       </header>
 

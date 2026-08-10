@@ -1,18 +1,26 @@
 ---
 import '../styles/global.css';
-import type { Lang } from '../i18n/content';
-import { ClientRouter } from 'astro:transitions';
+import '../styles/fonts.css';
+import { ui, type Lang } from '../i18n/content';
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
 import portrait from '../assets/portrait.jpg';
 import BackToTop from '../components/BackToTop.astro';
+
+type SchemaType = 'WebPage' | 'ProfilePage' | 'CollectionPage' | 'Article' | 'ImageGallery';
 
 interface Props {
   lang: Lang;
   experience?: 'developer' | 'photographer';
   title: string;
   description: string;
-  image?: string;
+  image?: ImageMetadata | string;
   imageAlt?: string;
   pageType?: 'website' | 'article';
+  schemaType?: SchemaType;
+  indexable?: boolean;
+  localized?: boolean;
+  includeStructuredData?: boolean;
 }
 
 const {
@@ -20,23 +28,80 @@ const {
   experience = 'developer',
   title,
   description,
-  image = portrait.src,
+  image = portrait,
   imageAlt = 'David Barbosa',
   pageType = 'website',
+  schemaType = 'WebPage',
+  indexable = true,
+  localized = true,
+  includeStructuredData = true,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const enPath = Astro.url.pathname.replace(/^\/(en|es)(?=\/|$)/, '/en');
 const esPath = Astro.url.pathname.replace(/^\/(en|es)(?=\/|$)/, '/es');
-const socialImage = new URL(image, Astro.site);
+const imageMetadata = typeof image === 'string' ? undefined : image;
+const socialImageAsset = imageMetadata
+  ? await getImage({
+      src: imageMetadata,
+      width: Math.min(1200, imageMetadata.width),
+      format: 'jpg',
+      quality: 82,
+    })
+  : undefined;
+const personImageAsset = await getImage({ src: portrait, width: 800, format: 'jpg', quality: 82 });
+const socialImageSource = socialImageAsset?.src ?? (typeof image === 'string' ? image : image.src);
+const socialImage = new URL(socialImageSource, Astro.site);
+const labels = ui[lang];
+const alternateLang = lang === 'en' ? 'es' : 'en';
+const siteUrl = new URL('/', Astro.site);
+const personId = `${siteUrl}#person`;
+const websiteId = `${siteUrl}#website`;
+const webpageId = `${canonical}#webpage`;
+const primaryImage = {
+  '@type': 'ImageObject',
+  contentUrl: socialImage.toString(),
+  caption: imageAlt,
+  ...(socialImageAsset && {
+    width: socialImageAsset.attributes.width,
+    height: socialImageAsset.attributes.height,
+  }),
+};
+const pageStructuredData = {
+  '@type': schemaType,
+  '@id': webpageId,
+  url: canonical.toString(),
+  name: title,
+  description,
+  inLanguage: lang,
+  isPartOf: { '@id': websiteId },
+  primaryImageOfPage: primaryImage,
+  ...(schemaType === 'ProfilePage'
+    ? { mainEntity: { '@id': personId } }
+    : { creator: { '@id': personId } }),
+};
 const structuredData = {
   '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: 'David Barbosa',
-  url: 'https://ahbestia.com',
-  image: new URL(portrait.src, Astro.site).toString(),
-  jobTitle: lang === 'en' ? 'Software Engineer' : 'Ingeniero de Software',
-  sameAs: ['https://github.com/davidbarbosa23', 'https://www.linkedin.com/in/davidbarbosar/'],
-  address: { '@type': 'PostalAddress', addressLocality: 'Bogotá', addressCountry: 'CO' },
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': personId,
+      name: 'David Barbosa',
+      url: siteUrl.toString(),
+      image: new URL(personImageAsset.src, Astro.site).toString(),
+      jobTitle: labels.metadata.jobTitle,
+      sameAs: ['https://github.com/davidbarbosa23', 'https://www.linkedin.com/in/davidbarbosar/'],
+      address: { '@type': 'PostalAddress', addressLocality: 'Bogotá', addressCountry: 'CO' },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': websiteId,
+      url: siteUrl.toString(),
+      name: 'David Barbosa',
+      inLanguage: ['en', 'es'],
+      creator: { '@id': personId },
+    },
+    pageStructuredData,
+  ],
 };
 ---
 
@@ -50,27 +115,31 @@ const structuredData = {
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="author" content="David Barbosa" />
-    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="robots" content={indexable ? 'index,follow,max-image-preview:large' : 'noindex,follow'} />
     <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="en" href={new URL(enPath, Astro.site)} />
-    <link rel="alternate" hreflang="es" href={new URL(esPath, Astro.site)} />
-    <link rel="alternate" hreflang="x-default" href={new URL(enPath, Astro.site)} />
+    {localized && <link rel="alternate" hreflang="en" href={new URL(enPath, Astro.site)} />}
+    {localized && <link rel="alternate" hreflang="es" href={new URL(esPath, Astro.site)} />}
+    {localized && <link rel="alternate" hreflang="x-default" href={new URL(enPath, Astro.site)} />}
+    <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <meta property="og:type" content={pageType} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={socialImage} />
     <meta property="og:image:alt" content={imageAlt} />
-    <meta property="og:locale" content={lang === 'en' ? 'en_US' : 'es_CO'} />
+    {socialImageAsset && <meta property="og:image:width" content={String(socialImageAsset.attributes.width)} />}
+    {socialImageAsset && <meta property="og:image:height" content={String(socialImageAsset.attributes.height)} />}
+    {socialImageAsset && <meta property="og:image:type" content="image/jpeg" />}
+    <meta property="og:site_name" content="David Barbosa" />
+    <meta property="og:locale" content={labels.metadata.locale} />
+    <meta property="og:locale:alternate" content={ui[alternateLang].metadata.locale} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
-    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+    {includeStructuredData && <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
     <script is:inline>
       (() => {
         const saved = localStorage.getItem('theme');
@@ -78,37 +147,10 @@ const structuredData = {
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
       })();
     </script>
-    <ClientRouter fallback="swap" />
   </head>
   <body data-experience={experience}>
-    <a class="skip-link" href="#main">{lang === 'en' ? 'Skip to content' : 'Saltar al contenido'}</a>
+    <a class="skip-link" href="#main">{labels.common.skipToContent}</a>
     <slot />
     <BackToTop lang={lang} />
   </body>
 </html>
-
-<script>
-  let languageScrollPosition: { left: number; top: number } | undefined;
-
-  document.addEventListener('click', (event) => {
-    if (!(event.target instanceof Element)) return;
-    const link = event.target.closest('a[data-language-link]');
-    if (!link) return;
-
-    languageScrollPosition = {
-      left: window.scrollX,
-      top: window.scrollY,
-    };
-  });
-
-  document.addEventListener('astro:before-swap', (event) => {
-    const theme = document.documentElement.dataset.theme ?? 'light';
-    event.newDocument.documentElement.dataset.theme = theme;
-  });
-
-  document.addEventListener('astro:after-swap', () => {
-    if (!languageScrollPosition) return;
-    window.scrollTo({ ...languageScrollPosition, behavior: 'instant' });
-    languageScrollPosition = undefined;
-  });
-</script>

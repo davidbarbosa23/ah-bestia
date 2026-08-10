@@ -1,10 +1,10 @@
 ---
-import { Image } from 'astro:assets';
+import { getImage, Image } from 'astro:assets';
 import SiteLayout from '../../../layouts/SiteLayout.astro';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
 import PhotoLightbox from '../../../components/PhotoLightbox.astro';
-import { languages, type Lang } from '../../../i18n/content';
+import { languages, ui, type Lang } from '../../../i18n/content';
 import {
   getNextGallery,
   getPreviousGallery,
@@ -32,42 +32,34 @@ const previousGallery = getPreviousGallery(gallery.slug);
 const nextGallery = getNextGallery(gallery.slug);
 const previousContent = previousGallery.content[lang];
 const nextContent = nextGallery.content[lang];
-const expandLabel = lang === 'en' ? 'Open full-screen view' : 'Abrir vista de pantalla completa';
+const labels = ui[lang].photography.series;
 const galleryImages = [
   ...gallery.images.filter(({ filename }) => filename === gallery.coverFilename),
   ...gallery.images.filter(({ filename }) => filename !== gallery.coverFilename),
 ];
-const labels = lang === 'en'
-  ? {
-      back: 'Back to all series',
-      kicker: 'Photographic series',
-      photographs: 'photographs',
-      source: 'Archive folder',
-      previous: 'Previous series',
-      next: 'Next series',
-      photo: 'Photograph',
-      from: 'from',
-    }
-  : {
-      back: 'Volver a todas las series',
-      kicker: 'Serie fotográfica',
-      photographs: 'fotografías',
-      source: 'Carpeta del archivo',
-      previous: 'Serie anterior',
-      next: 'Siguiente serie',
-      photo: 'Fotografía',
-      from: 'de',
-    };
+const galleryViewerImages = await Promise.all(
+  galleryImages.map(async ({ image, filename }) => ({
+    image,
+    filename,
+    viewer: await getImage({
+      src: image,
+      width: Math.min(1600, image.width),
+      format: 'webp',
+      quality: 80,
+    }),
+  })),
+);
 ---
 
 <SiteLayout
   lang={lang}
   experience="photographer"
-  title={`${content.title} — David Barbosa`}
+  title={`${content.title} — ${ui[lang].photography.metaTitleSuffix}`}
   description={content.description}
-  image={gallery.cover.src}
+  image={gallery.cover}
   imageAlt={`${content.cardTitle}. ${content.description}`}
   pageType="article"
+  schemaType="ImageGallery"
 >
   <SiteHeader lang={lang} experience="photographer" />
   <main class="article-page series-page" id="main">
@@ -80,8 +72,8 @@ const labels = lang === 'en'
         src={gallery.cover}
         widths={[480, 720, 1080, 1400]}
         sizes="100vw"
-        quality={88}
-        fetchpriority="high"
+        quality={82}
+        priority
         alt={`${content.cardTitle}. ${content.description}`}
       />
       <div class="article-hero__copy page-shell">
@@ -105,7 +97,7 @@ const labels = lang === 'en'
             </svg>
             <span class="series-body__tooltip" aria-hidden="true">{previousContent.title}</span>
           </a>
-          <p><strong>{gallery.images.length}</strong> {labels.photographs}</p>
+          <p><strong>{gallery.images.length}</strong> {ui[lang].photography.photographs}</p>
         </div>
         <div class="series-body__meta-group series-body__meta-group--next">
           <p>
@@ -127,28 +119,30 @@ const labels = lang === 'en'
       </nav>
 
       <div class="series-gallery">
-        {galleryImages.map(({ image, filename }, index) => {
+        {galleryViewerImages.map(({ image, filename, viewer }, index) => {
           const number = index + 1;
           const alt = `${labels.photo} ${number} ${labels.from} ${content.title}`;
           const isLandscape = image.width > image.height;
+          const isWide = isLandscape || index % 9 === 7;
 
           return (
-            <figure class:list={['series-photo', (isLandscape || index % 9 === 7) && 'series-photo--wide']}>
+            <figure class:list={['series-photo', isWide && 'series-photo--wide']}>
               <button
                 class="series-photo__open"
                 type="button"
-                aria-label={`${expandLabel}: ${alt}`}
+                aria-label={`${labels.openFullscreen}: ${alt}`}
                 aria-haspopup="dialog"
+                aria-controls="photo-lightbox"
                 data-lightbox-open
-                data-lightbox-src={image.src}
+                data-lightbox-src={viewer.src}
                 data-lightbox-alt={alt}
                 data-lightbox-filename={filename}
               >
                 <Image
                   src={image}
                   widths={[480, 800, 1200, 1600]}
-                  sizes={isLandscape ? '100vw' : '(min-width: 40rem) 50vw, 100vw'}
-                  quality={86}
+                  sizes={isWide ? '(min-width: 92rem) 92rem, 100vw' : '(min-width: 92rem) 46rem, (min-width: 40rem) 50vw, 100vw'}
+                  quality={80}
                   loading="lazy"
                   alt={alt}
                 />

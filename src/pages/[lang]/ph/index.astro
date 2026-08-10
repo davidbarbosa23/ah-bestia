@@ -3,7 +3,7 @@ import SiteLayout from '../../../layouts/SiteLayout.astro';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
 import PhotographyHome from '../../../components/PhotographyHome.astro';
-import { copy, languages, type Lang } from '../../../i18n/content';
+import { copy, languages, ui, type Lang } from '../../../i18n/content';
 import photographerHero from '../../../assets/photography/photographer-hero.jpg';
 
 export function getStaticPaths() {
@@ -14,65 +14,140 @@ const lang = Astro.params.lang as Lang;
 const t = copy[lang];
 ---
 
-<SiteLayout lang={lang} experience="photographer" title={t.meta.homeTitle} description={t.meta.homeDescription} image={photographerHero.src} imageAlt={lang === 'en' ? 'A Fujifilm X100VI camera emerging from shadow' : 'Una cámara Fujifilm X100VI emergiendo de la sombra'}>
+<SiteLayout lang={lang} experience="photographer" title={t.meta.photoTitle} description={t.meta.photoDescription} image={photographerHero} imageAlt={ui[lang].metadata.photographerHeroSocialAlt} schemaType="CollectionPage">
   <SiteHeader lang={lang} experience="photographer" />
   <PhotographyHome lang={lang} />
   <SiteFooter lang={lang} />
 </SiteLayout>
 
 <script>
-  import gsap from 'gsap';
-  import ScrollTrigger from 'gsap/ScrollTrigger';
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  let mm: ReturnType<typeof gsap.matchMedia> | undefined;
+  let horizontalContext: {
+    add: (query: string, callback: () => void | (() => void)) => unknown;
+    revert: () => void;
+  } | undefined;
+  let horizontalObserver: IntersectionObserver | undefined;
+  let photographyAnimations: Animation[] = [];
+  let photographySetupVersion = 0;
 
   const teardownPhotographyAnimations = () => {
-    mm?.revert();
-    mm = undefined;
+    photographySetupVersion += 1;
+    horizontalObserver?.disconnect();
+    horizontalObserver = undefined;
+    horizontalContext?.revert();
+    horizontalContext = undefined;
+    photographyAnimations.forEach((animation) => animation.cancel());
+    photographyAnimations = [];
+  };
+
+  const enhanceHorizontalGallery = async (
+    section: HTMLElement,
+    track: HTMLElement,
+    setupVersion: number,
+  ) => {
+    const [{ default: gsap }, { default: ScrollTrigger }] = await Promise.all([
+      import('gsap'),
+      import('gsap/ScrollTrigger'),
+    ]);
+    if (setupVersion !== photographySetupVersion || !section.isConnected) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+    horizontalContext = gsap.matchMedia();
+    horizontalContext.add(
+      '(min-width: 60rem) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)',
+      () => {
+        section.dataset.scrollEnhanced = 'true';
+
+        const travelDistance = () => Math.max(0, track.scrollWidth - window.innerWidth);
+        const horizontalTween = gsap.to(track, {
+          x: () => -travelDistance(),
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top top',
+            end: () => `+=${travelDistance()}`,
+            pin: true,
+            scrub: 0.35,
+            invalidateOnRefresh: true,
+            anticipatePin: 1,
+          },
+        });
+
+        const revealFocusedCard = (event: FocusEvent) => {
+          const link = event.target instanceof HTMLElement
+            ? event.target.closest<HTMLElement>('.photo-frame > a')
+            : null;
+          const frame = link?.closest<HTMLElement>('.photo-frame');
+          const trigger = horizontalTween.scrollTrigger;
+          const distance = travelDistance();
+          if (!link || !frame || !trigger || !link.matches(':focus-visible') || distance <= 0) return;
+
+          const targetOffset = gsap.utils.clamp(
+            0,
+            distance,
+            frame.offsetLeft + frame.offsetWidth / 2 - window.innerWidth / 2,
+          );
+          const progress = targetOffset / distance;
+          const scrollPosition = trigger.start + progress * (trigger.end - trigger.start);
+
+          window.scrollTo({ top: scrollPosition, behavior: 'auto' });
+          ScrollTrigger.update();
+          trigger.getTween()?.progress(1);
+          horizontalTween.progress(progress);
+        };
+
+        track.addEventListener('focusin', revealFocusedCard);
+
+        return () => {
+          track.removeEventListener('focusin', revealFocusedCard);
+          section.removeAttribute('data-scroll-enhanced');
+          gsap.set(track, { clearProps: 'transform' });
+        };
+      },
+    );
   };
 
   const setupPhotographyAnimations = () => {
     teardownPhotographyAnimations();
-    if (!document.querySelector('.photo-hero')) return;
+    const hero = document.querySelector('.photo-hero');
+    if (!hero) return;
 
-    mm = gsap.matchMedia();
-    mm.add({
-      allowMotion: '(prefers-reduced-motion: no-preference)',
-      desktop: '(min-width: 60rem)',
-    }, (context) => {
-      const { allowMotion, desktop } = context.conditions as { allowMotion: boolean; desktop: boolean };
-      if (!allowMotion) return;
+    const allowMotion = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+    if (allowMotion) {
+      const easing = 'cubic-bezier(0.16, 1, 0.3, 1)';
+      const animateIntro = (selector: string, transform: string, duration: number, delay: number, stagger = 0) => {
+        document.querySelectorAll<HTMLElement>(selector).forEach((element, index) => {
+          const animation = element.animate(
+            [
+              { opacity: 0, transform },
+              { opacity: 1, transform: 'none' },
+            ],
+            { duration, delay: delay + index * stagger, easing, fill: 'backwards' },
+          );
+          photographyAnimations.push(animation);
+        });
+      };
 
-      const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
-      intro
-        .from('.photo-hero .status-line', { autoAlpha: 0, y: 10, duration: 0.36 })
-        .from('.photo-hero h1 span', { autoAlpha: 0, yPercent: 24, duration: 0.72, stagger: 0.08 }, '<0.08')
-        .from('.photo-hero__copy > p:last-child', { autoAlpha: 0, y: 12, duration: 0.48 }, '<0.18');
+      animateIntro('.photo-hero .status-line', 'translateY(10px)', 360, 0);
+      animateIntro('.photo-hero h1 span', 'translateY(24%)', 720, 80, 80);
+      animateIntro('.photo-hero__copy > p:last-child', 'translateY(12px)', 480, 260);
+    }
 
-      if (desktop) {
-        const section = document.querySelector('[data-horizontal-section]');
-        const track = document.querySelector('[data-photo-track]');
-        if (section instanceof HTMLElement && track instanceof HTMLElement) {
-          const distance = () => Math.max(0, track.scrollWidth - window.innerWidth + 64);
-          gsap.to(track, {
-            x: () => -distance(),
-            ease: 'none',
-            scrollTrigger: {
-              trigger: section,
-              start: 'top top',
-              end: () => `+=${distance()}`,
-              pin: true,
-              scrub: 0.8,
-              invalidateOnRefresh: true,
-            },
-          });
-        }
-      }
-    });
+    const section = document.querySelector<HTMLElement>('[data-horizontal-section]');
+    const track = section?.querySelector<HTMLElement>('[data-photo-track]');
+    const supportsEnhancement = window.matchMedia(
+      '(min-width: 60rem) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)',
+    ).matches;
+    if (!section || !track || !supportsEnhancement) return;
+
+    const setupVersion = photographySetupVersion;
+    horizontalObserver = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      horizontalObserver?.disconnect();
+      horizontalObserver = undefined;
+      void enhanceHorizontalGallery(section, track, setupVersion);
+    }, { rootMargin: '75% 0px' });
+    horizontalObserver.observe(section);
   };
 
-  document.addEventListener('astro:page-load', setupPhotographyAnimations);
-  document.addEventListener('astro:before-swap', teardownPhotographyAnimations);
+  setupPhotographyAnimations();
 </script>

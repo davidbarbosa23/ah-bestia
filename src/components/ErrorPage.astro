@@ -3,73 +3,42 @@ import { Image } from 'astro:assets';
 import background from '../assets/bg_dark.jpg';
 import SiteFooter from './SiteFooter.astro';
 import SiteHeader from './SiteHeader.astro';
-import { copy } from '../i18n/content';
+import { copy, ui, type ErrorCode, type Lang, type UiCopy } from '../i18n/content';
 import SiteLayout from '../layouts/SiteLayout.astro';
 
 interface Props {
-  code: '404' | '500';
+  code: ErrorCode;
 }
 
 const { code } = Astro.props;
 const isNotFound = code === '404';
+type ErrorTranslation = {
+  ui: UiCopy;
+  modes: { developer: string; photographer: string };
+  theme: { light: string; dark: string };
+};
+const getErrorTranslation = (language: Lang): ErrorTranslation => ({
+  ui: ui[language],
+  modes: copy[language].modes,
+  theme: copy[language].theme,
+});
 const translations = {
-  en: {
-    '404': {
-      title: 'This page took a wrong turn.',
-      description:
-        'The address may have changed, or the page may no longer be here. Choose a place to continue.',
-      primary: 'Back home',
-    },
-    '500': {
-      title: 'Something got tangled.',
-      description:
-        'This page could not load right now. Try again, or choose another place to continue.',
-      primary: 'Try again',
-    },
-    actionsLabel: 'Choose where to continue',
-    developer: copy.en.modes.developer,
-    photography: copy.en.modes.photographer,
-    skip: 'Skip to content',
-    utilityNav: 'Utility navigation',
-    homeLabel: 'David Barbosa — home',
-    switchLanguage: 'Cambiar a español',
-    backToTop: 'Back to top',
-    top: 'Top',
-    themeLight: copy.en.theme.light,
-    themeDark: copy.en.theme.dark,
-  },
-  es: {
-    '404': {
-      title: 'Esta página tomó un desvío.',
-      description:
-        'La dirección puede haber cambiado o la página ya no está aquí. Elige dónde continuar.',
-      primary: 'Volver al inicio',
-    },
-    '500': {
-      title: 'Algo se enredó.',
-      description:
-        'Esta página no pudo cargar ahora. Inténtalo de nuevo o elige otro lugar para continuar.',
-      primary: 'Intentar de nuevo',
-    },
-    actionsLabel: 'Elige dónde continuar',
-    developer: copy.es.modes.developer,
-    photography: copy.es.modes.photographer,
-    skip: 'Saltar al contenido',
-    utilityNav: 'Navegación de utilidades',
-    homeLabel: 'David Barbosa — inicio',
-    switchLanguage: 'Switch to English',
-    backToTop: 'Volver arriba',
-    top: 'Inicio',
-    themeLight: copy.es.theme.light,
-    themeDark: copy.es.theme.dark,
-  },
-} as const;
-const initial = translations.en[code];
+  en: getErrorTranslation('en'),
+  es: getErrorTranslation('es'),
+} satisfies Record<Lang, ErrorTranslation>;
+const initial = translations.en.ui.error.errors[code];
 const pageTitle = `${code} — ${initial.title} — David Barbosa`;
 ---
 
-<SiteLayout lang="en" title={pageTitle} description={initial.description}>
-  <SiteHeader lang="en" />
+<SiteLayout
+  lang="en"
+  title={pageTitle}
+  description={initial.description}
+  indexable={false}
+  localized={false}
+  includeStructuredData={false}
+>
+  <SiteHeader lang="en" languageHref="?lang=es" />
 
   <main
     id="main"
@@ -92,14 +61,14 @@ const pageTitle = `${code} — ${initial.title} — David Barbosa`;
       <h1 id="error-title" data-error-title>{initial.title}</h1>
       <p class="error-page__message" data-error-message>{initial.description}</p>
 
-      <nav class="error-page__actions" aria-label={translations.en.actionsLabel} data-error-actions>
+      <nav class="error-page__actions" aria-label={translations.en.ui.error.actionsLabel} data-error-actions>
         {isNotFound ? (
           <a class="button" href="/en/dev/" data-error-primary>{initial.primary}</a>
         ) : (
           <button class="button" type="button" data-error-primary data-error-retry>{initial.primary}</button>
         )}
-        {!isNotFound && <a class="text-link" href="/en/dev/" data-error-developer>{translations.en.developer}</a>}
-        <a class="text-link" href="/en/ph/" data-error-photography>{translations.en.photography}</a>
+        {!isNotFound && <a class="text-link" href="/en/dev/" data-error-developer>{translations.en.modes.developer}</a>}
+        <a class="text-link" href="/en/ph/" data-error-photography>{translations.en.modes.photographer}</a>
       </nav>
     </section>
   </main>
@@ -108,24 +77,12 @@ const pageTitle = `${code} — ${initial.title} — David Barbosa`;
 </SiteLayout>
 
 <script>
-  type ErrorLanguage = 'en' | 'es';
-  type ErrorCode = '404' | '500';
+  import type { ErrorCode, Lang as ErrorLanguage, UiCopy } from '../i18n/content';
 
   interface ErrorTranslation {
-    '404': { title: string; description: string; primary: string };
-    '500': { title: string; description: string; primary: string };
-    actionsLabel: string;
-    developer: string;
-    photography: string;
-    footer: string;
-    skip: string;
-    utilityNav: string;
-    homeLabel: string;
-    switchLanguage: string;
-    backToTop: string;
-    top: string;
-    themeLight: string;
-    themeDark: string;
+    ui: UiCopy;
+    modes: { developer: string; photographer: string };
+    theme: { light: string; dark: string };
   }
 
   const isErrorLanguage = (value: string | null): value is ErrorLanguage =>
@@ -173,7 +130,7 @@ const pageTitle = `${code} — ${initial.title} — David Barbosa`;
       ErrorTranslation
     >;
     const locale = translations[language];
-    const error = locale?.[code];
+    const error = locale?.ui.error.errors[code];
     if (!locale || !error) return;
 
     document.documentElement.lang = language;
@@ -183,18 +140,18 @@ const pageTitle = `${code} — ${initial.title} — David Barbosa`;
     setText('[data-error-title]', error.title);
     setText('[data-error-message]', error.description);
     setText('[data-error-primary]', error.primary);
-    setText('[data-error-developer]', locale.developer);
-    setText('[data-error-photography]', locale.photography);
-    setText('.skip-link', locale.skip);
-    setText('.back-to-top span', locale.top);
+    setText('[data-error-developer]', locale.modes.developer);
+    setText('[data-error-photography]', locale.modes.photographer);
+    setText('.skip-link', locale.ui.common.skipToContent);
+    setText('.back-to-top span', locale.ui.common.top);
 
-    document.querySelector('[data-error-actions]')?.setAttribute('aria-label', locale.actionsLabel);
-    document.querySelector('.site-tools')?.setAttribute('aria-label', locale.utilityNav);
+    document.querySelector('[data-error-actions]')?.setAttribute('aria-label', locale.ui.error.actionsLabel);
+    document.querySelector('.site-tools')?.setAttribute('aria-label', locale.ui.common.utilityNavigation);
 
     const homeLink = document.querySelector<HTMLAnchorElement>('.wordmark');
     if (homeLink) {
       homeLink.href = `/${language}/dev/`;
-      homeLink.setAttribute('aria-label', locale.homeLabel);
+      homeLink.setAttribute('aria-label', locale.ui.common.homeLabel);
     }
 
     const primaryLink = document.querySelector<HTMLAnchorElement>('a[data-error-primary]');
@@ -211,26 +168,28 @@ const pageTitle = `${code} — ${initial.title} — David Barbosa`;
       const nextLanguage = language === 'en' ? 'es' : 'en';
       languageLink.href = getAlternateErrorUrl(nextLanguage);
       languageLink.hreflang = nextLanguage;
-      languageLink.lang = language;
-      languageLink.textContent = language.toUpperCase();
-      languageLink.setAttribute('aria-label', locale.switchLanguage);
-      languageLink.title = locale.switchLanguage;
+      languageLink.lang = nextLanguage;
+      languageLink.textContent = nextLanguage.toUpperCase();
+      languageLink.setAttribute('aria-label', locale.ui.common.switchLanguage);
+      languageLink.title = locale.ui.common.switchLanguage;
       languageLink.removeAttribute('data-language-link');
     }
 
     const themeButton = document.querySelector<HTMLElement>('[data-theme-toggle]');
     if (themeButton) {
+      themeButton.dataset.themeLightLabel = locale.theme.light;
+      themeButton.dataset.themeDarkLabel = locale.theme.dark;
       const themeLabel = document.documentElement.dataset.theme === 'dark'
-        ? locale.themeLight
-        : locale.themeDark;
+        ? locale.theme.light
+        : locale.theme.dark;
       themeButton.setAttribute('aria-label', themeLabel);
       themeButton.title = themeLabel;
     }
 
     const backToTop = document.querySelector<HTMLElement>('[data-back-to-top]');
     if (backToTop) {
-      backToTop.setAttribute('aria-label', locale.backToTop);
-      backToTop.title = locale.backToTop;
+      backToTop.setAttribute('aria-label', locale.ui.common.backToTop);
+      backToTop.title = locale.ui.common.backToTop;
     }
   };
 
@@ -253,6 +212,6 @@ const pageTitle = `${code} — ${initial.title} — David Barbosa`;
     applyErrorLanguage(nextLanguage);
   });
 
-  document.addEventListener('astro:page-load', localizeErrorPage);
+  localizeErrorPage();
   localizeErrorPage();
 </script>

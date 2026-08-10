@@ -1,19 +1,19 @@
 ---
-import type { Lang } from '../i18n/content';
+import { ui, type Lang } from '../i18n/content';
 
 interface Props {
   lang: Lang;
 }
 
 const { lang } = Astro.props;
-const label = lang === 'en' ? 'Back to top' : 'Volver arriba';
+const t = ui[lang].common;
 ---
 
-<button class="back-to-top" type="button" aria-label={label} title={label} data-back-to-top>
+<button class="back-to-top" type="button" aria-label={t.backToTop} title={t.backToTop} data-back-to-top>
   <svg viewBox="0 0 24 24" aria-hidden="true">
     <path d="M12 19V5m0 0L6.5 10.5M12 5l5.5 5.5"></path>
   </svg>
-  <span>{lang === 'en' ? 'Top' : 'Inicio'}</span>
+  <span>{t.top}</span>
 </button>
 
 <script>
@@ -28,10 +28,8 @@ const label = lang === 'en' ? 'Back to top' : 'Volver arriba';
     const button = document.querySelector<HTMLElement>('[data-back-to-top]');
     if (!button) return;
 
-    const scrollableDistance = document.documentElement.scrollHeight - window.innerHeight;
     const showAfter = Math.max(360, window.innerHeight * 0.7);
-    const isUseful = scrollableDistance > window.innerHeight * 0.75;
-    button.classList.toggle('is-visible', isUseful && window.scrollY > showAfter && !footerIsVisible);
+    button.classList.toggle('is-visible', window.scrollY > showAfter && !footerIsVisible);
   };
 
   const observeFooter = () => {
@@ -39,14 +37,7 @@ const label = lang === 'en' ? 'Back to top' : 'Volver arriba';
     footerIsVisible = false;
 
     const footer = document.querySelector<HTMLElement>('.site-footer');
-    if (!footer) {
-      updateBackToTop();
-      return;
-    }
-
-    const footerRect = footer.getBoundingClientRect();
-    footerIsVisible = footerRect.top < window.innerHeight && footerRect.bottom > 0;
-    updateBackToTop();
+    if (!footer) return;
 
     footerObserver = new IntersectionObserver(([entry]) => {
       footerIsVisible = entry?.isIntersecting ?? false;
@@ -60,7 +51,7 @@ const label = lang === 'en' ? 'Back to top' : 'Volver arriba';
     scrollFrame = window.requestAnimationFrame(updateBackToTop);
   };
 
-  document.addEventListener('astro:page-load', observeFooter);
+  observeFooter();
   window.addEventListener('scroll', queueBackToTopUpdate, { passive: true });
   window.addEventListener('resize', queueBackToTopUpdate, { passive: true });
 
@@ -80,22 +71,22 @@ const label = lang === 'en' ? 'Back to top' : 'Volver arriba';
     position: fixed;
     inset-inline-end: max(var(--space-lg), env(safe-area-inset-right));
     inset-block-end: max(var(--space-lg), env(safe-area-inset-bottom));
-    z-index: 190;
-    width: 3.5rem;
-    height: 3.5rem;
-    padding: 0.45rem 0.35rem 0.3rem;
+    z-index: var(--layer-back-to-top);
+    width: var(--size-back-to-top);
+    height: var(--size-back-to-top);
+    padding: var(--back-to-top-padding);
     border: var(--rule-hair) solid var(--color-ink);
     border-radius: var(--radius-sm);
     background: var(--color-ink);
-    box-shadow: 0.3rem 0.3rem 0 var(--color-accent);
+    box-shadow: var(--shadow-back-to-top-offset) var(--color-accent);
     color: var(--color-paper);
     cursor: pointer;
     display: grid;
     place-items: center;
-    gap: 0.05rem;
+    gap: var(--back-to-top-label-gap);
     opacity: 0;
     pointer-events: none;
-    transform: translateY(1rem) scale(0.94);
+    transform: translateY(var(--space-md)) scale(var(--back-to-top-rest-scale));
     visibility: hidden;
     transition:
       opacity var(--dur-short) var(--ease-out),
@@ -114,8 +105,8 @@ const label = lang === 'en' ? 'Back to top' : 'Volver arriba';
   }
 
   .back-to-top svg {
-    width: 1.35rem;
-    height: 1.35rem;
+    width: var(--size-back-to-top-icon);
+    height: var(--size-back-to-top-icon);
     fill: none;
     stroke: currentColor;
     stroke-linecap: square;
@@ -125,31 +116,31 @@ const label = lang === 'en' ? 'Back to top' : 'Volver arriba';
 
   .back-to-top span {
     font-family: var(--font-mono);
-    font-size: 0.55rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    line-height: 1;
+    font-size: var(--size-back-to-top-label);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-label);
+    line-height: var(--leading-none);
     text-transform: uppercase;
   }
 
   @media (hover: hover) and (pointer: fine) {
     .back-to-top:hover {
-      box-shadow: 0.16rem 0.16rem 0 var(--color-accent);
-      transform: translate(0.14rem, 0.14rem);
+      box-shadow: var(--shadow-back-to-top-hover-offset) var(--color-accent);
+      transform: translate(var(--back-to-top-hover-offset), var(--back-to-top-hover-offset));
     }
   }
 
   .back-to-top:active {
-    box-shadow: 0 0 0 var(--color-accent);
-    transform: translate(0.3rem, 0.3rem);
+    box-shadow: var(--shadow-back-to-top-active-offset) var(--color-accent);
+    transform: translate(var(--back-to-top-active-offset), var(--back-to-top-active-offset));
   }
 
   @media (max-width: 39.99rem) {
     .back-to-top {
       inset-inline-end: max(var(--space-md), env(safe-area-inset-right));
       inset-block-end: max(var(--space-md), env(safe-area-inset-bottom));
-      width: 3.25rem;
-      height: 3.25rem;
+      width: var(--size-back-to-top-compact);
+      height: var(--size-back-to-top-compact);
     }
   }
 
