@@ -1,21 +1,19 @@
 ---
 import { Image } from 'astro:assets';
-import { copy, type Lang } from '../i18n/content';
+import { copy, ui, type Lang } from '../i18n/content';
 import { photoGalleries } from '../data/photoGalleries';
 import photographerHero from '../assets/photography/photographer-hero.jpg';
 
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const t = copy[lang].photo;
-const heroAlt = lang === 'en'
-  ? 'A Fujifilm X100VI camera emerging from deep shadow'
-  : 'Una cámara Fujifilm X100VI emergiendo de una sombra profunda';
+const labels = ui[lang];
 ---
 
 <div class="experience experience--photographer" data-experience-panel="photographer">
   <main id="main">
     <section class="photo-hero" aria-labelledby="photo-title">
-      <Image src={photographerHero} widths={[480, 720, 1080, 1400, 1800, 2100]} sizes="100vw" quality={88} fetchpriority="high" alt={heroAlt} />
+      <Image src={photographerHero} widths={[480, 720, 1080, 1400, 1800, 2100]} sizes="100vw" quality={88} fetchpriority="high" alt={labels.metadata.photographerHeroAlt} />
       <div class="photo-hero__shade"></div>
       <div class="photo-hero__copy page-shell">
         <p class="status-line status-line--photo"><span></span>{t.status}</p>
@@ -47,7 +45,7 @@ const heroAlt = lang === 'en'
                   <span class="photo-frame__open">{t.openNote} ↗</span>
                 </a>
               <figcaption>
-                <span><strong>{content.cardTitle}</strong>{content.location} · {gallery.images.length} {lang === 'en' ? 'photographs' : 'fotografías'}</span>
+                <span><strong>{content.cardTitle}</strong>{content.location} · {gallery.images.length} {labels.photography.photographs}</span>
                 <span class="photo-frame__credit">© David Barbosa</span>
               </figcaption>
             </figure>

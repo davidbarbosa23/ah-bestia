@@ -1,64 +1,10 @@
 ---
-import type { Lang } from '../i18n/content';
+import { ui, type Lang } from '../i18n/content';
 
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 
-const labels = lang === 'en'
-  ? {
-      title: 'Fixed gear calculator',
-      subtitle: 'Change the setup. The analysis updates immediately.',
-      setup: 'Setup',
-      chainring: 'Chainring',
-      sprocket: 'Rear sprocket',
-      tire: 'Tire',
-      skid: 'Count both leading feet',
-      skidHelp: 'Use both left-foot-forward and right-foot-forward skid positions.',
-      units: 'Units',
-      metric: 'Metric',
-      imperial: 'Imperial',
-      analysis: 'Analysis',
-      ratio: 'Ratio',
-      ratioHelp: 'Rear-wheel turns for every complete turn of the cranks.',
-      patches: 'Skid patches',
-      patchesHelp: 'Distinct tire positions that touch the road while skidding.',
-      rollout: 'Rollout',
-      rolloutHelp: 'Distance travelled by one complete turn of the cranks.',
-      equivalent: 'Equivalent gears within 2%',
-      equivalentHelp: 'Choose a combination to load it into the calculator.',
-      cadence: 'Cadence / speed',
-      rpm: 'rpm',
-      teeth: 'teeth',
-      combination: 'Use gear combination',
-      live: 'Calculator results updated',
-    }
-  : {
-      title: 'Calculadora de piñón fijo',
-      subtitle: 'Cambia la configuración. El análisis se actualiza de inmediato.',
-      setup: 'Configuración',
-      chainring: 'Plato',
-      sprocket: 'Piñón trasero',
-      tire: 'Cubierta',
-      skid: 'Contar ambas piernas dominantes',
-      skidHelp: 'Incluye skids con el pie izquierdo y el derecho adelante.',
-      units: 'Unidades',
-      metric: 'Métrico',
-      imperial: 'Imperial',
-      analysis: 'Análisis',
-      ratio: 'Relación',
-      ratioHelp: 'Vueltas de la rueda trasera por cada vuelta completa de las bielas.',
-      patches: 'Skid patches',
-      patchesHelp: 'Posiciones distintas de la cubierta que tocan el suelo al derrapar.',
-      rollout: 'Desarrollo',
-      rolloutHelp: 'Distancia recorrida por cada vuelta completa de las bielas.',
-      equivalent: 'Relaciones equivalentes dentro del 2%',
-      equivalentHelp: 'Elige una combinación para cargarla en la calculadora.',
-      cadence: 'Cadencia / velocidad',
-      rpm: 'rpm',
-      teeth: 'dientes',
-      combination: 'Usar combinación',
-      live: 'Resultados de la calculadora actualizados',
-    };
+const labels = ui[lang].calculator;
 
 const chainrings = Array.from({ length: 33 }, (_, index) => index + 28);
 const sprockets = Array.from({ length: 15 }, (_, index) => index + 9);
@@ -78,7 +24,7 @@ const tires = [
 const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
 ---
 
-<fixed-gear-calculator class="fg-calculator" data-lang={lang}>
+<fixed-gear-calculator class="fg-calculator" data-combination-label={labels.combination}>
   <header class="fg-calculator__header">
     <div>
       <p class="mono-label">001 / live.client</p>
@@ -136,7 +82,7 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
     </form>
 
     <section class="fg-visual" aria-label={labels.analysis}>
-      <svg class="fg-wheel" viewBox="0 0 520 390" role="img" aria-label="Rear wheel, chainring, and skid patch diagram">
+      <svg class="fg-wheel" viewBox="0 0 520 390" role="img" aria-label={labels.diagram}>
         <g class="fg-wheel__rear" data-wheel-rotation>
           <circle class="fg-wheel__tire" cx="230" cy="195" r="151" />
           <circle class="fg-wheel__rim" cx="230" cy="195" r="137" />
@@ -250,7 +196,7 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
       const circumferenceMm = Number(this.querySelector<HTMLSelectElement>('[data-tire]')?.value ?? 2105);
       const ambidextrous = this.querySelector<HTMLInputElement>('[data-ambidextrous]')?.checked ?? false;
       const units = this.querySelector<HTMLInputElement>('[data-units]:checked')?.value ?? 'metric';
-      const lang = this.dataset.lang === 'es' ? 'es' : 'en';
+      const combinationLabel = this.dataset.combinationLabel ?? '';
       const ratio = chainring / sprocket;
       const divisor = this.gcd(chainring, sprocket);
       const basePatches = sprocket / divisor;
@@ -297,7 +243,7 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
           button.type = 'button';
           button.dataset.equivalentRing = String(ring);
           button.dataset.equivalentCog = String(cog);
-          button.setAttribute('aria-label', `${lang === 'es' ? 'Usar combinación' : 'Use gear combination'} ${ring} × ${cog}`);
+          button.setAttribute('aria-label', `${combinationLabel} ${ring} × ${cog}`);
           button.textContent = `${ring} × ${cog}`;
           if (ring === chainring && cog === sprocket) button.setAttribute('aria-current', 'true');
           return button;

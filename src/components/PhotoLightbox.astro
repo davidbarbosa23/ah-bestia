@@ -1,32 +1,12 @@
 ---
-import type { Lang } from '../i18n/content';
+import { ui, type Lang } from '../i18n/content';
 
 interface Props {
   lang: Lang;
 }
 
 const { lang } = Astro.props;
-const labels = lang === 'en'
-  ? {
-      viewer: 'Full-screen photo viewer',
-      previous: 'Previous photograph',
-      next: 'Next photograph',
-      zoomOut: 'Zoom out',
-      zoomIn: 'Zoom in',
-      reset: 'Reset zoom',
-      close: 'Close full-screen viewer',
-      hint: 'Swipe to browse. Pinch, scroll, or use + / - to zoom.',
-    }
-  : {
-      viewer: 'Visor de fotos en pantalla completa',
-      previous: 'Fotografía anterior',
-      next: 'Fotografía siguiente',
-      zoomOut: 'Alejar',
-      zoomIn: 'Acercar',
-      reset: 'Restablecer zoom',
-      close: 'Cerrar visor de pantalla completa',
-      hint: 'Desliza para navegar. Pellizca, desplázate o usa + / - para ampliar.',
-    };
+const labels = ui[lang].photography.lightbox;
 ---
 
 <dialog class="photo-lightbox" data-photo-lightbox aria-label={labels.viewer}>

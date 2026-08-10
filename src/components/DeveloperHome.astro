@@ -1,8 +1,9 @@
 ---
-import { copy, type Lang } from '../i18n/content';
+import { copy, ui, type Lang } from '../i18n/content';
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const t = copy[lang].dev;
+const labels = ui[lang].developer;
 ---
 
 <div class="experience experience--developer" data-experience-panel="developer">
@@ -18,7 +19,7 @@ const t = copy[lang].dev;
         </div>
       </div>
 
-      <figure class="source-card" aria-label={lang === 'en' ? 'Developer profile as TypeScript' : 'Perfil del desarrollador como TypeScript'}>
+      <figure class="source-card" aria-label={labels.sourceCardLabel}>
         <figcaption>{t.codeLabel}<span>UTF-8 · TS</span></figcaption>
         <pre><code><span class="tok-key">export const</span> david = {'{'}
   role: <span class="tok-string">'software-engineer'</span>,
@@ -30,7 +31,7 @@ const t = copy[lang].dev;
   ],
   status: <span class="tok-function">build</span>(<span class="tok-string">'with-care'</span>)
 {'}'} <span class="tok-cursor" aria-hidden="true"></span></code></pre>
-        <p class="source-card__result"><span>●</span> {lang === 'en' ? 'compiled without noise' : 'compilado sin ruido'}</p>
+        <p class="source-card__result"><span>●</span> {labels.sourceCardResult}</p>
       </figure>
     </section>
 

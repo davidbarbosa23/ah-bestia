@@ -287,6 +287,290 @@ export const copy = {
   },
 } as const;
 
+export type ErrorCode = '404' | '500';
+
+interface ErrorPageCopy {
+  errors: Record<ErrorCode, {
+    title: string;
+    description: string;
+    primary: string;
+  }>;
+  actionsLabel: string;
+}
+
+export interface UiCopy {
+  common: {
+    skipToContent: string;
+    utilityNavigation: string;
+    homeLabel: string;
+    switchLanguage: string;
+    close: string;
+    backToTop: string;
+    top: string;
+  };
+  metadata: {
+    locale: string;
+    jobTitle: string;
+    photographerHeroAlt: string;
+    photographerHeroSocialAlt: string;
+  };
+  header: {
+    searchPlaceholder: string;
+  };
+  developer: {
+    sourceCardLabel: string;
+    sourceCardResult: string;
+  };
+  photography: {
+    photographs: string;
+    series: {
+      back: string;
+      kicker: string;
+      source: string;
+      previous: string;
+      next: string;
+      photo: string;
+      from: string;
+      openFullscreen: string;
+    };
+    lightbox: {
+      viewer: string;
+      previous: string;
+      next: string;
+      zoomOut: string;
+      zoomIn: string;
+      reset: string;
+      close: string;
+      hint: string;
+    };
+  };
+  labs: {
+    status: string;
+  };
+  calculator: {
+    title: string;
+    subtitle: string;
+    setup: string;
+    chainring: string;
+    sprocket: string;
+    tire: string;
+    skid: string;
+    skidHelp: string;
+    units: string;
+    metric: string;
+    imperial: string;
+    analysis: string;
+    diagram: string;
+    ratio: string;
+    ratioHelp: string;
+    patches: string;
+    patchesHelp: string;
+    rollout: string;
+    rolloutHelp: string;
+    equivalent: string;
+    equivalentHelp: string;
+    cadence: string;
+    rpm: string;
+    teeth: string;
+    combination: string;
+    live: string;
+  };
+  error: ErrorPageCopy;
+}
+
+export const ui = {
+  en: {
+    common: {
+      skipToContent: 'Skip to content',
+      utilityNavigation: 'Utility navigation',
+      homeLabel: 'David Barbosa — home',
+      switchLanguage: 'Cambiar a español',
+      close: 'Close',
+      backToTop: 'Back to top',
+      top: 'Top',
+    },
+    metadata: {
+      locale: 'en_US',
+      jobTitle: 'Software Engineer',
+      photographerHeroAlt: 'A Fujifilm X100VI camera emerging from deep shadow',
+      photographerHeroSocialAlt: 'A Fujifilm X100VI camera emerging from shadow',
+    },
+    header: {
+      searchPlaceholder: 'Labs, about, contact…',
+    },
+    developer: {
+      sourceCardLabel: 'Developer profile as TypeScript',
+      sourceCardResult: 'compiled without noise',
+    },
+    photography: {
+      photographs: 'photographs',
+      series: {
+        back: 'Back to all series',
+        kicker: 'Photographic series',
+        source: 'Archive folder',
+        previous: 'Previous series',
+        next: 'Next series',
+        photo: 'Photograph',
+        from: 'from',
+        openFullscreen: 'Open full-screen view',
+      },
+      lightbox: {
+        viewer: 'Full-screen photo viewer',
+        previous: 'Previous photograph',
+        next: 'Next photograph',
+        zoomOut: 'Zoom out',
+        zoomIn: 'Zoom in',
+        reset: 'Reset zoom',
+        close: 'Close full-screen viewer',
+        hint: 'Swipe to browse. Pinch, scroll, or use + / - to zoom.',
+      },
+    },
+    labs: {
+      status: 'Status',
+    },
+    calculator: {
+      title: 'Fixed gear calculator',
+      subtitle: 'Change the setup. The analysis updates immediately.',
+      setup: 'Setup',
+      chainring: 'Chainring',
+      sprocket: 'Rear sprocket',
+      tire: 'Tire',
+      skid: 'Count both leading feet',
+      skidHelp: 'Use both left-foot-forward and right-foot-forward skid positions.',
+      units: 'Units',
+      metric: 'Metric',
+      imperial: 'Imperial',
+      analysis: 'Analysis',
+      diagram: 'Rear wheel, chainring, and skid patch diagram',
+      ratio: 'Ratio',
+      ratioHelp: 'Rear-wheel turns for every complete turn of the cranks.',
+      patches: 'Skid patches',
+      patchesHelp: 'Distinct tire positions that touch the road while skidding.',
+      rollout: 'Rollout',
+      rolloutHelp: 'Distance travelled by one complete turn of the cranks.',
+      equivalent: 'Equivalent gears within 2%',
+      equivalentHelp: 'Choose a combination to load it into the calculator.',
+      cadence: 'Cadence / speed',
+      rpm: 'rpm',
+      teeth: 'teeth',
+      combination: 'Use gear combination',
+      live: 'Calculator results updated',
+    },
+    error: {
+      errors: {
+        '404': {
+          title: 'This page took a wrong turn.',
+          description:
+            'The address may have changed, or the page may no longer be here. Choose a place to continue.',
+          primary: 'Back home',
+        },
+        '500': {
+          title: 'Something got tangled.',
+          description:
+            'This page could not load right now. Try again, or choose another place to continue.',
+          primary: 'Try again',
+        },
+      },
+      actionsLabel: 'Choose where to continue',
+    },
+  },
+  es: {
+    common: {
+      skipToContent: 'Saltar al contenido',
+      utilityNavigation: 'Navegación de utilidades',
+      homeLabel: 'David Barbosa — inicio',
+      switchLanguage: 'Switch to English',
+      close: 'Cerrar',
+      backToTop: 'Volver arriba',
+      top: 'Inicio',
+    },
+    metadata: {
+      locale: 'es_CO',
+      jobTitle: 'Ingeniero de Software',
+      photographerHeroAlt: 'Una cámara Fujifilm X100VI emergiendo de una sombra profunda',
+      photographerHeroSocialAlt: 'Una cámara Fujifilm X100VI emergiendo de la sombra',
+    },
+    header: {
+      searchPlaceholder: 'Labs, acerca, contacto…',
+    },
+    developer: {
+      sourceCardLabel: 'Perfil del desarrollador como TypeScript',
+      sourceCardResult: 'compilado sin ruido',
+    },
+    photography: {
+      photographs: 'fotografías',
+      series: {
+        back: 'Volver a todas las series',
+        kicker: 'Serie fotográfica',
+        source: 'Carpeta del archivo',
+        previous: 'Serie anterior',
+        next: 'Siguiente serie',
+        photo: 'Fotografía',
+        from: 'de',
+        openFullscreen: 'Abrir vista de pantalla completa',
+      },
+      lightbox: {
+        viewer: 'Visor de fotos en pantalla completa',
+        previous: 'Fotografía anterior',
+        next: 'Fotografía siguiente',
+        zoomOut: 'Alejar',
+        zoomIn: 'Acercar',
+        reset: 'Restablecer zoom',
+        close: 'Cerrar visor de pantalla completa',
+        hint: 'Desliza para navegar. Pellizca, desplázate o usa + / - para ampliar.',
+      },
+    },
+    labs: {
+      status: 'Estado',
+    },
+    calculator: {
+      title: 'Calculadora de piñón fijo',
+      subtitle: 'Cambia la configuración. El análisis se actualiza de inmediato.',
+      setup: 'Configuración',
+      chainring: 'Plato',
+      sprocket: 'Piñón trasero',
+      tire: 'Cubierta',
+      skid: 'Contar ambas piernas dominantes',
+      skidHelp: 'Incluye skids con el pie izquierdo y el derecho adelante.',
+      units: 'Unidades',
+      metric: 'Métrico',
+      imperial: 'Imperial',
+      analysis: 'Análisis',
+      diagram: 'Diagrama de rueda trasera, plato y puntos de derrape',
+      ratio: 'Relación',
+      ratioHelp: 'Vueltas de la rueda trasera por cada vuelta completa de las bielas.',
+      patches: 'Skid patches',
+      patchesHelp: 'Posiciones distintas de la cubierta que tocan el suelo al derrapar.',
+      rollout: 'Desarrollo',
+      rolloutHelp: 'Distancia recorrida por cada vuelta completa de las bielas.',
+      equivalent: 'Relaciones equivalentes dentro del 2%',
+      equivalentHelp: 'Elige una combinación para cargarla en la calculadora.',
+      cadence: 'Cadencia / velocidad',
+      rpm: 'rpm',
+      teeth: 'dientes',
+      combination: 'Usar combinación',
+      live: 'Resultados de la calculadora actualizados',
+    },
+    error: {
+      errors: {
+        '404': {
+          title: 'Esta página tomó un desvío.',
+          description:
+            'La dirección puede haber cambiado o la página ya no está aquí. Elige dónde continuar.',
+          primary: 'Volver al inicio',
+        },
+        '500': {
+          title: 'Algo se enredó.',
+          description:
+            'Esta página no pudo cargar ahora. Inténtalo de nuevo o elige otro lugar para continuar.',
+          primary: 'Intentar de nuevo',
+        },
+      },
+      actionsLabel: 'Elige dónde continuar',
+    },
+  },
+} as const satisfies Record<Lang, UiCopy>;
+
 export const alternatePath = (pathname: string, lang: Lang) => {
   const target = lang === 'en' ? 'es' : 'en';
   return pathname.replace(/^\/(en|es)(?=\/|$)/, `/${target}`);

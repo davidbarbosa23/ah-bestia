@@ -1,19 +1,19 @@
 ---
-import type { Lang } from '../i18n/content';
+import { ui, type Lang } from '../i18n/content';
 
 interface Props {
   lang: Lang;
 }
 
 const { lang } = Astro.props;
-const label = lang === 'en' ? 'Back to top' : 'Volver arriba';
+const t = ui[lang].common;
 ---
 
-<button class="back-to-top" type="button" aria-label={label} title={label} data-back-to-top>
+<button class="back-to-top" type="button" aria-label={t.backToTop} title={t.backToTop} data-back-to-top>
   <svg viewBox="0 0 24 24" aria-hidden="true">
     <path d="M12 19V5m0 0L6.5 10.5M12 5l5.5 5.5"></path>
   </svg>
-  <span>{lang === 'en' ? 'Top' : 'Inicio'}</span>
+  <span>{t.top}</span>
 </button>
 
 <script>

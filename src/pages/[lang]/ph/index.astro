@@ -3,7 +3,7 @@ import SiteLayout from '../../../layouts/SiteLayout.astro';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
 import PhotographyHome from '../../../components/PhotographyHome.astro';
-import { copy, languages, type Lang } from '../../../i18n/content';
+import { copy, languages, ui, type Lang } from '../../../i18n/content';
 import photographerHero from '../../../assets/photography/photographer-hero.jpg';
 
 export function getStaticPaths() {
@@ -14,7 +14,7 @@ const lang = Astro.params.lang as Lang;
 const t = copy[lang];
 ---
 
-<SiteLayout lang={lang} experience="photographer" title={t.meta.homeTitle} description={t.meta.homeDescription} image={photographerHero.src} imageAlt={lang === 'en' ? 'A Fujifilm X100VI camera emerging from shadow' : 'Una cámara Fujifilm X100VI emergiendo de la sombra'}>
+<SiteLayout lang={lang} experience="photographer" title={t.meta.homeTitle} description={t.meta.homeDescription} image={photographerHero.src} imageAlt={ui[lang].metadata.photographerHeroSocialAlt}>
   <SiteHeader lang={lang} experience="photographer" />
   <PhotographyHome lang={lang} />
   <SiteFooter lang={lang} />
