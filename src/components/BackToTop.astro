@@ -80,22 +80,22 @@ const t = ui[lang].common;
     position: fixed;
     inset-inline-end: max(var(--space-lg), env(safe-area-inset-right));
     inset-block-end: max(var(--space-lg), env(safe-area-inset-bottom));
-    z-index: 190;
-    width: 3.5rem;
-    height: 3.5rem;
-    padding: 0.45rem 0.35rem 0.3rem;
+    z-index: var(--layer-back-to-top);
+    width: var(--size-back-to-top);
+    height: var(--size-back-to-top);
+    padding: var(--back-to-top-padding);
     border: var(--rule-hair) solid var(--color-ink);
     border-radius: var(--radius-sm);
     background: var(--color-ink);
-    box-shadow: 0.3rem 0.3rem 0 var(--color-accent);
+    box-shadow: var(--shadow-back-to-top);
     color: var(--color-paper);
     cursor: pointer;
     display: grid;
     place-items: center;
-    gap: 0.05rem;
+    gap: var(--back-to-top-label-gap);
     opacity: 0;
     pointer-events: none;
-    transform: translateY(1rem) scale(0.94);
+    transform: translateY(var(--space-md)) scale(var(--back-to-top-rest-scale));
     visibility: hidden;
     transition:
       opacity var(--dur-short) var(--ease-out),
@@ -114,8 +114,8 @@ const t = ui[lang].common;
   }
 
   .back-to-top svg {
-    width: 1.35rem;
-    height: 1.35rem;
+    width: var(--size-back-to-top-icon);
+    height: var(--size-back-to-top-icon);
     fill: none;
     stroke: currentColor;
     stroke-linecap: square;
@@ -125,31 +125,31 @@ const t = ui[lang].common;
 
   .back-to-top span {
     font-family: var(--font-mono);
-    font-size: 0.55rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    line-height: 1;
+    font-size: var(--size-back-to-top-label);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-label);
+    line-height: var(--leading-none);
     text-transform: uppercase;
   }
 
   @media (hover: hover) and (pointer: fine) {
     .back-to-top:hover {
-      box-shadow: 0.16rem 0.16rem 0 var(--color-accent);
-      transform: translate(0.14rem, 0.14rem);
+      box-shadow: var(--shadow-back-to-top-hover);
+      transform: translate(var(--back-to-top-hover-offset), var(--back-to-top-hover-offset));
     }
   }
 
   .back-to-top:active {
-    box-shadow: 0 0 0 var(--color-accent);
-    transform: translate(0.3rem, 0.3rem);
+    box-shadow: var(--shadow-back-to-top-active);
+    transform: translate(var(--back-to-top-active-offset), var(--back-to-top-active-offset));
   }
 
   @media (max-width: 39.99rem) {
     .back-to-top {
       inset-inline-end: max(var(--space-md), env(safe-area-inset-right));
       inset-block-end: max(var(--space-md), env(safe-area-inset-bottom));
-      width: 3.25rem;
-      height: 3.25rem;
+      width: var(--size-back-to-top-compact);
+      height: var(--size-back-to-top-compact);
     }
   }
 

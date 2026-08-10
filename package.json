@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "check": "astro check",
+    "check": "astro check && npm run check:tokens",
+    "check:tokens": "node scripts/check-css-tokens.mjs",
     "deploy:gh-page": "node scripts/deploy-gh-page.mjs",
     "preview": "astro preview",
     "astro": "astro"
