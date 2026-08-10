@@ -25,7 +25,7 @@ export const labsCopy = {
   en: {
     metaTitle: 'Developer Labs — David Barbosa',
     metaDescription:
-      'Small web tools and interface experiments by David Barbosa, documented from problem to working result.',
+      'I build small web tools and interface experiments, documenting each one from problem to working result.',
     back: 'Back home',
     label: 'Developer archive · 2026',
     title: 'Labs.',
@@ -47,7 +47,7 @@ export const labsCopy = {
   es: {
     metaTitle: 'Labs de desarrollo — David Barbosa',
     metaDescription:
-      'Pequeñas herramientas web y experimentos de interfaz de David Barbosa, documentados desde el problema hasta un resultado funcional.',
+      'Construyo pequeñas herramientas web y experimentos de interfaz, documentando cada uno desde el problema hasta un resultado funcional.',
     back: 'Volver al inicio',
     label: 'Archivo de desarrollo · 2026',
     title: 'Labs.',

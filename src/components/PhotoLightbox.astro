@@ -1,5 +1,6 @@
 ---
 import { ui, type Lang } from '../i18n/content';
+import Icon from './Icon.astro';
 
 interface Props {
   lang: Lang;
@@ -26,15 +27,15 @@ const labels = ui[lang].photography.lightbox;
     </div>
 
     <div class="photo-lightbox__controls">
-      <button type="button" data-lightbox-zoom-out aria-label={labels.zoomOut} title={labels.zoomOut}>−</button>
+      <button type="button" data-lightbox-zoom-out aria-label={labels.zoomOut} title={labels.zoomOut}><Icon name="minus" /></button>
       <button class="photo-lightbox__zoom" type="button" data-lightbox-reset aria-label={labels.reset} title={labels.reset}>100%</button>
-      <button type="button" data-lightbox-zoom-in aria-label={labels.zoomIn} title={labels.zoomIn}>+</button>
-      <button type="button" data-lightbox-close aria-label={labels.close} title={labels.close}>×</button>
+      <button type="button" data-lightbox-zoom-in aria-label={labels.zoomIn} title={labels.zoomIn}><Icon name="plus" /></button>
+      <button type="button" data-lightbox-close aria-label={labels.close} title={labels.close}><Icon name="x" /></button>
     </div>
   </div>
 
-  <button class="photo-lightbox__nav photo-lightbox__nav--previous" type="button" data-lightbox-previous aria-label={labels.previous}>←</button>
-  <button class="photo-lightbox__nav photo-lightbox__nav--next" type="button" data-lightbox-next aria-label={labels.next}>→</button>
+  <button class="photo-lightbox__nav photo-lightbox__nav--previous" type="button" data-lightbox-previous aria-label={labels.previous}><Icon name="chevron-left" /></button>
+  <button class="photo-lightbox__nav photo-lightbox__nav--next" type="button" data-lightbox-next aria-label={labels.next}><Icon name="chevron-right" /></button>
   <p class="photo-lightbox__hint">{labels.hint}</p>
 </dialog>
 

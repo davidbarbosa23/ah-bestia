@@ -140,8 +140,11 @@ const t = copy[lang];
     toggle?.addEventListener('click', () => {
       userPaused = !userPaused;
       toggle.setAttribute('aria-pressed', String(userPaused));
-      toggle.querySelector<HTMLElement>('[data-pause-label]')!.hidden = userPaused;
-      toggle.querySelector<HTMLElement>('[data-play-label]')!.hidden = !userPaused;
+      toggle.setAttribute('aria-label', userPaused
+        ? toggle.dataset.playLabel ?? ''
+        : toggle.dataset.pauseLabel ?? '');
+      toggle.querySelector('[data-pause-icon]')?.toggleAttribute('data-icon-hidden', userPaused);
+      toggle.querySelector('[data-play-icon]')?.toggleAttribute('data-icon-hidden', !userPaused);
       if (userPaused) marqueeTween?.pause();
       else marqueeTween?.resume();
     }, { signal });

@@ -19,6 +19,7 @@
   --color-error: oklch(58% 0.2 28);
   --color-overlay: oklch(10% 0.012 258 / 0.68);
   --color-hero-scrim-soft: oklch(9% 0.012 258 / 0.2);
+  --color-photo-hero-scrim: oklch(9% 0.012 258 / 0.38);
   --color-hero-scrim-strong: oklch(9% 0.012 258 / 0.62);
   --color-viewer-canvas: oklch(10% 0.005 258);
   --color-viewer-surface: oklch(9% 0.006 258 / 0.72);
@@ -112,6 +113,8 @@
   --size-field: 3rem;
   --size-header-compact: 3.25rem;
   --size-header-wide: 4.75rem;
+  --size-photo-hero: clamp(15rem, 28svh, 20rem);
+  --size-photo-series-hero: clamp(18rem, 34svh, 26rem);
   --size-back-to-top: 3.5rem;
   --size-back-to-top-compact: 3.25rem;
   --size-back-to-top-icon: 1.35rem;

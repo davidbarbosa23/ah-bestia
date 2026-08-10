@@ -9,10 +9,10 @@ export const copy = {
         'Senior software engineer in Bogotá focused on product-minded web platforms, clear interfaces, and maintainable systems.',
       projectsTitle: 'Labs — David Barbosa',
       projectsDescription:
-        'Small web tools and interface experiments by David Barbosa, documented from problem to working result.',
+        'I build small web tools and interface experiments, documenting each one from problem to working result.',
       photoTitle: 'Photography — David Barbosa',
       photoDescription:
-        'Independent photography by David Barbosa exploring machines, animals, streets, movement, and light.',
+        'My independent photography explores machines, animals, streets, movement, and light.',
     },
     nav: {
       work: 'Work',
@@ -33,7 +33,7 @@ export const copy = {
       intro:
         'I’m David Barbosa, a senior software engineer in Bogotá. I turn complex product problems into clear web interfaces and dependable systems.',
       primaryCta: 'Explore Labs',
-      secondaryCta: 'Email David',
+      secondaryCta: 'Contact me',
       codeLabel: 'david.ts',
       aboutTitle: 'Pragmatic by default. Curious on purpose.',
       aboutBody:
@@ -104,7 +104,7 @@ export const copy = {
         ],
       ],
       creditNote:
-        'All photographs by David Barbosa. Selected from an ongoing personal archive.',
+        'All photographs are mine, selected from an ongoing personal archive.',
     },
     projects: {
       back: 'Back home',
@@ -145,10 +145,10 @@ export const copy = {
         'Ingeniero de software senior en Bogotá enfocado en plataformas web, interfaces claras y sistemas mantenibles.',
       projectsTitle: 'Labs — David Barbosa',
       projectsDescription:
-        'Pequeñas herramientas web y experimentos de interfaz de David Barbosa, documentados desde el problema hasta un resultado funcional.',
+        'Construyo pequeñas herramientas web y experimentos de interfaz, documentando cada uno desde el problema hasta un resultado funcional.',
       photoTitle: 'Fotografía — David Barbosa',
       photoDescription:
-        'Fotografía independiente de David Barbosa sobre máquinas, animales, calles, movimiento y luz.',
+        'Mi fotografía independiente explora máquinas, animales, calles, movimiento y luz.',
     },
     nav: {
       work: 'Trabajo',
@@ -169,7 +169,7 @@ export const copy = {
       intro:
         'Soy David Barbosa, ingeniero de software senior en Bogotá. Convierto problemas complejos de producto en interfaces web claras y sistemas confiables.',
       primaryCta: 'Explorar Labs',
-      secondaryCta: 'Escribirle a David',
+      secondaryCta: 'Contáctame',
       codeLabel: 'david.ts',
       aboutTitle: 'Pragmático por defecto. Curioso a propósito.',
       aboutBody:
@@ -254,7 +254,7 @@ export const copy = {
         ],
       ],
       creditNote:
-        'Todas las fotografías son de David Barbosa. Selección de un archivo personal en proceso.',
+        'Todas las fotografías son mías, seleccionadas de un archivo personal en proceso.',
     },
     projects: {
       back: 'Volver al inicio',

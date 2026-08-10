@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import { copy, ui, type Lang } from '../i18n/content';
 import { photoGalleries } from '../data/photoGalleries';
 import photographerHero from '../assets/photography/photographer-hero.jpg';
+import Icon from './Icon.astro';
 
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
@@ -26,24 +27,34 @@ const labels = ui[lang];
       <div class="photo-gallery__intro page-shell">
         <h2 id="gallery-title">{t.galleryTitle}</h2>
         <div class="photo-gallery__controls">
-          <p>{t.galleryHint}<span aria-hidden="true">→</span></p>
-          <div class="photo-gallery__actions">
-            <button class="photo-gallery__toggle" type="button" data-marquee-toggle aria-pressed="false">
-              <span data-pause-label>{t.pauseGallery}</span>
-              <span data-play-label hidden>{t.playGallery}</span>
+          <p>{t.galleryHint}<Icon name="arrow-right" /></p>
+          <div class="photo-gallery__nav" role="group" aria-label={t.galleryTitle}>
+            <button type="button" data-carousel-direction="-1" aria-label={labels.photography.series.previous}>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m15 5-7 7 7 7"></path>
+              </svg>
             </button>
-            <div class="photo-gallery__nav" role="group" aria-label={t.galleryTitle}>
-              <button type="button" data-carousel-direction="-1" aria-label={labels.photography.series.previous}>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="m15 5-7 7 7 7"></path>
-                </svg>
-              </button>
-              <button type="button" data-carousel-direction="1" aria-label={labels.photography.series.next}>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="m9 5 7 7-7 7"></path>
-                </svg>
-              </button>
-            </div>
+            <button
+              class="photo-gallery__toggle"
+              type="button"
+              data-marquee-toggle
+              data-pause-label={t.pauseGallery}
+              data-play-label={t.playGallery}
+              aria-label={t.pauseGallery}
+              aria-pressed="false"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" data-pause-icon>
+                <path d="M9 7v10M15 7v10"></path>
+              </svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true" data-play-icon data-icon-hidden>
+                <path d="m9 6 9 6-9 6Z"></path>
+              </svg>
+            </button>
+            <button type="button" data-carousel-direction="1" aria-label={labels.photography.series.next}>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m9 5 7 7-7 7"></path>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -63,7 +74,7 @@ const labels = ui[lang];
                       loading="lazy"
                       alt={`${content.cardTitle}. ${content.description}`}
                     />
-                    <span class="photo-frame__open">{t.openNote} ↗</span>
+                    <span class="photo-frame__open">{t.openNote}<Icon name="arrow-up-right" /></span>
                   </a>
                   <figcaption>
                     <span><strong>{content.cardTitle}</strong>{content.location}</span>

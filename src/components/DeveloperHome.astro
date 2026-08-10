@@ -2,6 +2,7 @@
 import { getImage } from 'astro:assets';
 import background from '../assets/bg_dark.jpg';
 import { copy, ui, type Lang } from '../i18n/content';
+import Icon from './Icon.astro';
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const t = copy[lang].dev;
@@ -22,8 +23,8 @@ const backgroundImage = await getImage({ src: background, format: 'webp', qualit
           <h1 id="developer-title">{t.title.split('\n').map((line) => <span>{line}{' '}</span>)}</h1>
           <p class="dev-hero__intro">{t.intro}</p>
           <div class="dev-hero__actions">
-            <a class="button button--primary" href={`/${lang}/dev/labs/`}>{t.primaryCta}<span aria-hidden="true">↗</span></a>
-            <a class="text-link" href="mailto:davidbarbosa.dev@gmail.com">{t.secondaryCta}<span aria-hidden="true">↗</span></a>
+            <a class="button button--primary" href={`/${lang}/dev/labs/`}>{t.primaryCta}<Icon name="arrow-up-right" /></a>
+            <a class="text-link" href="mailto:davidbarbosa.dev@gmail.com">{t.secondaryCta}<Icon name="arrow-up-right" /></a>
           </div>
         </div>
 
@@ -39,7 +40,7 @@ const backgroundImage = await getImage({ src: background, format: 'webp', qualit
   ],
   status: <span class="tok-function">build</span>(<span class="tok-string">'with-care'</span>)
 {'}'} <span class="tok-cursor" aria-hidden="true"></span></code></pre>
-          <p class="source-card__result"><span>●</span> {labels.sourceCardResult}</p>
+          <p class="source-card__result"><Icon name="status" /> {labels.sourceCardResult}</p>
         </figure>
       </div>
     </section>
@@ -86,7 +87,7 @@ const backgroundImage = await getImage({ src: background, format: 'webp', qualit
           <p class="mono-label">{t.projectMeta}</p>
           <h3>{t.projectName}</h3>
           <p>{t.projectDesc}</p>
-          <span class="text-link">{t.projectLink}<span aria-hidden="true">↗</span></span>
+          <span class="text-link">{t.projectLink}<Icon name="arrow-up-right" /></span>
         </div>
       </a>
     </section>
@@ -95,7 +96,7 @@ const backgroundImage = await getImage({ src: background, format: 'webp', qualit
       <h2 id="contact-title">{t.contactTitle}</h2>
       <div>
         <p>{t.contactBody}</p>
-        <a class="button button--primary" href="mailto:davidbarbosa.dev@gmail.com">{t.contactLink}<span aria-hidden="true">↗</span></a>
+        <a class="button button--primary" href="mailto:davidbarbosa.dev@gmail.com">{t.contactLink}<Icon name="arrow-up-right" /></a>
       </div>
     </section>
   </main>

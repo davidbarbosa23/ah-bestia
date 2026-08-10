@@ -1,5 +1,6 @@
 ---
 import { alternatePath, copy, ui, type Lang } from '../i18n/content';
+import Icon from './Icon.astro';
 
 interface Props {
   lang: Lang;
@@ -53,10 +54,10 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
         <button class="command__close" value="close" aria-label={labels.common.close}>ESC</button>
       </div>
       <div class="command__results" id="command-results" data-command-results>
-        <a href={`/${lang}/dev/#work`} data-command-item>{t.nav.work}<span aria-hidden="true">↵</span></a>
-        <a href={`/${lang}/dev/#about`} data-command-item>{t.nav.about}<span aria-hidden="true">↵</span></a>
-        <a href={`/${lang}/dev/#contact`} data-command-item>{t.nav.contact}<span aria-hidden="true">↵</span></a>
-        <a href={`/${lang}/dev/labs/`} data-command-item>{t.dev.primaryCta}<span aria-hidden="true">↗</span></a>
+        <a href={`/${lang}/dev/#work`} data-command-item>{t.nav.work}<Icon name="enter" /></a>
+        <a href={`/${lang}/dev/#about`} data-command-item>{t.nav.about}<Icon name="enter" /></a>
+        <a href={`/${lang}/dev/#contact`} data-command-item>{t.nav.contact}<Icon name="enter" /></a>
+        <a href={`/${lang}/dev/labs/`} data-command-item>{t.dev.primaryCta}<Icon name="arrow-up-right" /></a>
         <p class="command__empty" role="status" aria-atomic="true" hidden data-command-empty>{labels.header.searchNoResults}</p>
       </div>
     </form>
