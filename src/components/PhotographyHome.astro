@@ -20,41 +20,45 @@ const labels = ui[lang];
         <h1 id="photo-title">{t.title.split('\n').map((line) => <span>{line}{' '}</span>)}</h1>
         <p>{t.intro}</p>
       </div>
-      <p class="photo-hero__caption">Fujifilm X100VI · © David Barbosa</p>
     </section>
 
     <section class="photo-gallery" aria-labelledby="gallery-title" data-horizontal-section>
       <div class="photo-gallery__intro page-shell">
         <h2 id="gallery-title">{t.galleryTitle}</h2>
-        <p>{t.galleryHint}<span aria-hidden="true">→</span></p>
+        <div class="photo-gallery__controls">
+          <p>{t.galleryHint}<span aria-hidden="true">→</span></p>
+          <button class="photo-gallery__toggle" type="button" data-marquee-toggle aria-pressed="false">
+            <span data-pause-label>{t.pauseGallery}</span>
+            <span data-play-label hidden>{t.playGallery}</span>
+          </button>
+        </div>
       </div>
-      <div class="photo-track" data-photo-track>
-        {photoGalleries.map((gallery, index) => {
-          const content = gallery.content[lang];
-          const isWide = index % 3 === 1;
-          const sizes = isWide
-            ? '(min-width: 90rem) 54rem, (min-width: 60rem) 62vw, (min-width: 40rem) 82vw, 84vw'
-            : '(min-width: 90rem) 39rem, (min-width: 60rem) 48vw, (min-width: 40rem) 72vw, 84vw';
-          return (
-            <figure class:list={['photo-frame', isWide && 'photo-frame--wide', index % 3 === 2 && 'photo-frame--short']}>
-              <a href={`/${lang}/ph/${gallery.slug}/`} aria-label={`${t.openNote}: ${content.cardTitle}`}>
-                <Image
-                  src={gallery.cover}
-                  widths={[420, 640, 900, 1080]}
-                  sizes={sizes}
-                  quality={80}
-                  loading="lazy"
-                  alt={`${content.cardTitle}. ${content.description}`}
-                />
-                  <span class="photo-frame__open">{t.openNote} ↗</span>
-                </a>
-              <figcaption>
-                <span><strong>{content.cardTitle}</strong>{content.location} · {gallery.images.length} {labels.photography.photographs}</span>
-                <span class="photo-frame__credit">© David Barbosa</span>
-              </figcaption>
-            </figure>
-          );
-        })}
+      <div class="photo-marquee" data-photo-marquee>
+        <div class="photo-track" data-photo-track>
+          <div class="photo-track__group" data-photo-group>
+            {photoGalleries.map((gallery) => {
+              const content = gallery.content[lang];
+              return (
+                <figure class="photo-frame" data-gallery-slug={gallery.slug}>
+                  <a href={`/${lang}/ph/${gallery.slug}/`} aria-label={`${t.openNote}: ${content.cardTitle}`}>
+                    <Image
+                      src={gallery.cover}
+                      widths={[360, 520, 720, 900]}
+                      sizes="(min-width: 60rem) 24vw, (min-width: 40rem) 52vw, 82vw"
+                      quality={80}
+                      loading="lazy"
+                      alt={`${content.cardTitle}. ${content.description}`}
+                    />
+                    <span class="photo-frame__open">{t.openNote} ↗</span>
+                  </a>
+                  <figcaption>
+                    <span><strong>{content.cardTitle}</strong>{content.location}</span>
+                  </figcaption>
+                </figure>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </section>
 

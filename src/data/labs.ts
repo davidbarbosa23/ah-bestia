@@ -25,12 +25,12 @@ export const labsCopy = {
   en: {
     metaTitle: 'Developer Labs — David Barbosa',
     metaDescription:
-      'Small web experiments by David Barbosa, documented with working interfaces and plain-language notes.',
+      'Small web tools and interface experiments by David Barbosa, documented from problem to working result.',
     back: 'Back home',
     label: 'Developer archive · 2026',
     title: 'Labs.',
     intro:
-      'Small web projects, interface studies, and useful calculations. Each entry is documented like a note and, when it fits, runs directly in the page.',
+      'Small web tools and interface experiments, each documented from the problem and decisions through to a working result.',
     count: 'project',
     live: 'Live in the page',
     open: 'Open experiment',
@@ -41,16 +41,18 @@ export const labsCopy = {
     referenceText: 'Fantastic Fixed Gear Calculator by Surplace',
     next: 'Next lab',
     nextText: 'The next question is still open.',
+    inputLabel: '01 / input',
+    outputLabel: '02 / output',
   },
   es: {
     metaTitle: 'Labs de desarrollo — David Barbosa',
     metaDescription:
-      'Pequeños experimentos web de David Barbosa, documentados con interfaces funcionales y notas en lenguaje claro.',
+      'Pequeñas herramientas web y experimentos de interfaz de David Barbosa, documentados desde el problema hasta un resultado funcional.',
     back: 'Volver al inicio',
     label: 'Archivo de desarrollo · 2026',
     title: 'Labs.',
     intro:
-      'Pequeños proyectos web, estudios de interfaz y cálculos útiles. Cada entrada se documenta como una nota y, cuando tiene sentido, funciona directamente en la página.',
+      'Pequeñas herramientas web y experimentos de interfaz, documentados desde el problema y las decisiones hasta un resultado funcional.',
     count: 'proyecto',
     live: 'Funciona en la página',
     open: 'Abrir experimento',
@@ -61,6 +63,8 @@ export const labsCopy = {
     referenceText: 'Fantastic Fixed Gear Calculator de Surplace',
     next: 'Siguiente lab',
     nextText: 'La siguiente pregunta sigue abierta.',
+    inputLabel: '01 / entrada',
+    outputLabel: '02 / resultado',
   },
 } as const satisfies Record<Lang, Record<string, string>>;
 
@@ -91,7 +95,7 @@ export const labProjects: LabProject[] = [
       es: {
         title: 'Piñón fijo, explicado.',
         summary:
-          'Una calculadora que convierte plato, piñón, cubierta y cadencia en relación, skid patches, desarrollo y velocidad.',
+          'Una calculadora que convierte plato, piñón, cubierta y cadencia en relación, puntos de derrape, desarrollo y velocidad.',
         lede:
           'La calculadora original de Surplace concentra una cantidad notable de conocimiento ciclista en una interfaz muy pequeña. Esta versión conserva esa franqueza y hace que la aritmética sea más fácil de leer, comparar y aprender.',
         question: 'La pregunta',
@@ -99,7 +103,7 @@ export const labProjects: LabProject[] = [
           '¿Qué cambia cuando un diente pasa del plato al piñón y cómo puede una persona entender el resultado sin descifrar una hoja de cálculo?',
         approach: 'El enfoque',
         approachBody:
-          'Mantener todos los controles visibles, actualizar el análisis de inmediato y acompañar cada cifra con una definición clara. El diagrama de la rueda muestra el desgaste por skid como parte del cálculo, no como decoración.',
+          'Mantener todos los controles visibles, actualizar el análisis de inmediato y acompañar cada cifra con una definición clara. El diagrama de la rueda muestra los puntos de derrape como parte del cálculo, no como decoración.',
         result: 'La respuesta funcional',
         resultBody:
           'Una calculadora pequeña del lado del cliente, sin cuenta, estado guardado ni trabajo oculto en el servidor. Al cambiar un valor se recalculan la relación, el desarrollo, las combinaciones equivalentes y la tabla de cadencia.',

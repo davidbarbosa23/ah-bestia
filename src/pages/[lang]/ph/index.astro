@@ -21,89 +21,112 @@ const t = copy[lang];
 </SiteLayout>
 
 <script>
-  let horizontalContext: {
-    add: (query: string, callback: () => void | (() => void)) => unknown;
-    revert: () => void;
+  let marqueeObserver: IntersectionObserver | undefined;
+  let marqueeTween: {
+    kill: () => void;
+    pause: () => void;
+    resume: () => void;
   } | undefined;
-  let horizontalObserver: IntersectionObserver | undefined;
+  let marqueeController: AbortController | undefined;
   let photographyAnimations: Animation[] = [];
   let photographySetupVersion = 0;
 
   const teardownPhotographyAnimations = () => {
     photographySetupVersion += 1;
-    horizontalObserver?.disconnect();
-    horizontalObserver = undefined;
-    horizontalContext?.revert();
-    horizontalContext = undefined;
+    marqueeObserver?.disconnect();
+    marqueeObserver = undefined;
+    marqueeController?.abort();
+    marqueeController = undefined;
+    marqueeTween?.kill();
+    marqueeTween = undefined;
+    document.querySelector('[data-photo-group][data-marquee-clone]')?.remove();
+    document.querySelector('[data-horizontal-section]')?.removeAttribute('data-marquee-enhanced');
+    document.querySelector('[data-photo-track]')?.removeAttribute('style');
     photographyAnimations.forEach((animation) => animation.cancel());
     photographyAnimations = [];
   };
 
-  const enhanceHorizontalGallery = async (
+  const enhancePhotoMarquee = async (
     section: HTMLElement,
     track: HTMLElement,
+    group: HTMLElement,
     setupVersion: number,
   ) => {
-    const [{ default: gsap }, { default: ScrollTrigger }] = await Promise.all([
-      import('gsap'),
-      import('gsap/ScrollTrigger'),
-    ]);
+    const { default: gsap } = await import('gsap');
     if (setupVersion !== photographySetupVersion || !section.isConnected) return;
 
-    gsap.registerPlugin(ScrollTrigger);
-    horizontalContext = gsap.matchMedia();
-    horizontalContext.add(
-      '(min-width: 60rem) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)',
-      () => {
-        section.dataset.scrollEnhanced = 'true';
+    const clone = group.cloneNode(true) as HTMLElement;
+    clone.dataset.marqueeClone = '';
+    clone.setAttribute('aria-hidden', 'true');
+    clone.querySelectorAll<HTMLAnchorElement>('a').forEach((link) => link.tabIndex = -1);
+    track.append(clone);
+    section.dataset.marqueeEnhanced = 'true';
 
-        const travelDistance = () => Math.max(0, track.scrollWidth - window.innerWidth);
-        const horizontalTween = gsap.to(track, {
-          x: () => -travelDistance(),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top top',
-            end: () => `+=${travelDistance()}`,
-            pin: true,
-            scrub: 0.35,
-            invalidateOnRefresh: true,
-            anticipatePin: 1,
-          },
+    const distance = group.scrollWidth;
+    marqueeTween = gsap.to(track, {
+      x: -distance,
+      duration: distance / 24,
+      ease: 'none',
+      repeat: -1,
+    });
+
+    marqueeController = new AbortController();
+    const { signal } = marqueeController;
+    let activeFrame: HTMLElement | undefined;
+    let userPaused = false;
+
+    const setActiveFrame = (frame?: HTMLElement) => {
+      if (activeFrame === frame) return;
+      activeFrame?.removeAttribute('data-active');
+      activeFrame = frame;
+      activeFrame?.setAttribute('data-active', 'true');
+      if (!userPaused) {
+        gsap.to(marqueeTween!, {
+          timeScale: frame ? 0.12 : 1,
+          duration: 0.55,
+          ease: 'power2.out',
+          overwrite: true,
         });
+      }
+    };
 
-        const revealFocusedCard = (event: FocusEvent) => {
-          const link = event.target instanceof HTMLElement
-            ? event.target.closest<HTMLElement>('.photo-frame > a')
-            : null;
-          const frame = link?.closest<HTMLElement>('.photo-frame');
-          const trigger = horizontalTween.scrollTrigger;
-          const distance = travelDistance();
-          if (!link || !frame || !trigger || !link.matches(':focus-visible') || distance <= 0) return;
+    track.addEventListener('pointerover', (event) => {
+      if (!(event.target instanceof Element)) return;
+      setActiveFrame(event.target.closest<HTMLElement>('.photo-frame') ?? undefined);
+    }, { signal });
 
-          const targetOffset = gsap.utils.clamp(
-            0,
-            distance,
-            frame.offsetLeft + frame.offsetWidth / 2 - window.innerWidth / 2,
-          );
-          const progress = targetOffset / distance;
-          const scrollPosition = trigger.start + progress * (trigger.end - trigger.start);
+    track.addEventListener('pointerout', (event) => {
+      if (!(event.target instanceof Element)) return;
+      const frame = event.target.closest<HTMLElement>('.photo-frame');
+      if (!frame || (event.relatedTarget instanceof Node && frame.contains(event.relatedTarget))) return;
+      setActiveFrame(undefined);
+    }, { signal });
 
-          window.scrollTo({ top: scrollPosition, behavior: 'auto' });
-          ScrollTrigger.update();
-          trigger.getTween()?.progress(1);
-          horizontalTween.progress(progress);
-        };
+    track.addEventListener('focusin', (event) => {
+      if (!(event.target instanceof Element)) return;
+      const frame = event.target.closest<HTMLElement>('.photo-frame');
+      if (!frame) return;
+      setActiveFrame(frame);
+      marqueeTween?.pause();
+    }, { signal });
 
-        track.addEventListener('focusin', revealFocusedCard);
+    track.addEventListener('focusout', () => {
+      window.requestAnimationFrame(() => {
+        if (track.contains(document.activeElement)) return;
+        setActiveFrame(undefined);
+        if (!userPaused) marqueeTween?.resume();
+      });
+    }, { signal });
 
-        return () => {
-          track.removeEventListener('focusin', revealFocusedCard);
-          section.removeAttribute('data-scroll-enhanced');
-          gsap.set(track, { clearProps: 'transform' });
-        };
-      },
-    );
+    const toggle = section.querySelector<HTMLButtonElement>('[data-marquee-toggle]');
+    toggle?.addEventListener('click', () => {
+      userPaused = !userPaused;
+      toggle.setAttribute('aria-pressed', String(userPaused));
+      toggle.querySelector<HTMLElement>('[data-pause-label]')!.hidden = userPaused;
+      toggle.querySelector<HTMLElement>('[data-play-label]')!.hidden = !userPaused;
+      if (userPaused) marqueeTween?.pause();
+      else marqueeTween?.resume();
+    }, { signal });
   };
 
   const setupPhotographyAnimations = () => {
@@ -135,19 +158,20 @@ const t = copy[lang];
 
     const section = document.querySelector<HTMLElement>('[data-horizontal-section]');
     const track = section?.querySelector<HTMLElement>('[data-photo-track]');
+    const group = track?.querySelector<HTMLElement>('[data-photo-group]');
     const supportsEnhancement = window.matchMedia(
       '(min-width: 60rem) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)',
     ).matches;
-    if (!section || !track || !supportsEnhancement) return;
+    if (!section || !track || !group || !supportsEnhancement) return;
 
     const setupVersion = photographySetupVersion;
-    horizontalObserver = new IntersectionObserver((entries) => {
+    marqueeObserver = new IntersectionObserver((entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
-      horizontalObserver?.disconnect();
-      horizontalObserver = undefined;
-      void enhanceHorizontalGallery(section, track, setupVersion);
-    }, { rootMargin: '75% 0px' });
-    horizontalObserver.observe(section);
+      marqueeObserver?.disconnect();
+      marqueeObserver = undefined;
+      void enhancePhotoMarquee(section, track, group, setupVersion);
+    }, { rootMargin: '50% 0px' });
+    marqueeObserver.observe(section);
   };
 
   document.addEventListener('astro:page-load', setupPhotographyAnimations);
