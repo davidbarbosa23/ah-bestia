@@ -22,6 +22,9 @@ const t = copy[lang];
 
 <script>
   import gsap from 'gsap';
+  import ScrollTrigger from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
 
   let mm: ReturnType<typeof gsap.matchMedia> | undefined;
 
@@ -41,8 +44,75 @@ const t = copy[lang];
         .from('.photo-hero .status-line', { autoAlpha: 0, y: 10, duration: 0.36 })
         .from('.photo-hero h1 span', { autoAlpha: 0, yPercent: 24, duration: 0.72, stagger: 0.08 }, '<0.08')
         .from('.photo-hero__copy > p:last-child', { autoAlpha: 0, y: 12, duration: 0.48 }, '<0.18');
-
     });
+
+    mm.add(
+      {
+        desktop: '(min-width: 60rem)',
+        finePointer: '(hover: hover) and (pointer: fine)',
+        allowMotion: '(prefers-reduced-motion: no-preference)',
+      },
+      (context) => {
+        const { desktop, finePointer, allowMotion } = context.conditions as {
+          desktop: boolean;
+          finePointer: boolean;
+          allowMotion: boolean;
+        };
+        if (!desktop || !finePointer || !allowMotion) return;
+
+        const section = document.querySelector<HTMLElement>('[data-horizontal-section]');
+        const track = section?.querySelector<HTMLElement>('[data-photo-track]');
+        if (!section || !track) return;
+
+        section.dataset.scrollEnhanced = 'true';
+
+        const travelDistance = () => Math.max(0, track.scrollWidth - window.innerWidth);
+        const horizontalTween = gsap.to(track, {
+          x: () => -travelDistance(),
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top top',
+            end: () => `+=${travelDistance()}`,
+            pin: true,
+            scrub: 0.35,
+            invalidateOnRefresh: true,
+            anticipatePin: 1,
+          },
+        });
+
+        const revealFocusedCard = (event: FocusEvent) => {
+          const link = event.target instanceof HTMLElement
+            ? event.target.closest<HTMLElement>('.photo-frame > a')
+            : null;
+          const frame = link?.closest<HTMLElement>('.photo-frame');
+          const trigger = horizontalTween.scrollTrigger;
+          const distance = travelDistance();
+          if (!link || !frame || !trigger || !link.matches(':focus-visible') || distance <= 0) return;
+
+          const targetOffset = gsap.utils.clamp(
+            0,
+            distance,
+            frame.offsetLeft + frame.offsetWidth / 2 - window.innerWidth / 2,
+          );
+          const progress = targetOffset / distance;
+          const scrollPosition = trigger.start + progress * (trigger.end - trigger.start);
+
+          window.scrollTo({ top: scrollPosition, behavior: 'auto' });
+          ScrollTrigger.update();
+          trigger.getTween()?.progress(1);
+          horizontalTween.progress(progress);
+        };
+
+        track.addEventListener('focusin', revealFocusedCard);
+
+        return () => {
+          track.removeEventListener('focusin', revealFocusedCard);
+          section.removeAttribute('data-scroll-enhanced');
+          gsap.set(track, { clearProps: 'transform' });
+        };
+      },
+    );
   };
 
   document.addEventListener('astro:page-load', setupPhotographyAnimations);
