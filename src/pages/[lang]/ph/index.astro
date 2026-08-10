@@ -23,10 +23,16 @@ const t = copy[lang];
 <script>
   let marqueeObserver: IntersectionObserver | undefined;
   let marqueeTween: {
+    duration: () => number;
     kill: () => void;
     pause: () => void;
+    progress: (value?: number) => number | unknown;
     resume: () => void;
+    totalTime: (value?: number) => number | unknown;
   } | undefined;
+  let marqueeControlTween: { kill: () => void } | undefined;
+  let marqueeDrag: { kill: () => void } | undefined;
+  let marqueeShift: ((direction: number) => void) | undefined;
   let marqueeController: AbortController | undefined;
   let photographyAnimations: Animation[] = [];
   let photographySetupVersion = 0;
@@ -39,8 +45,15 @@ const t = copy[lang];
     marqueeController = undefined;
     marqueeTween?.kill();
     marqueeTween = undefined;
+    marqueeControlTween?.kill();
+    marqueeControlTween = undefined;
+    marqueeDrag?.kill();
+    marqueeDrag = undefined;
+    marqueeShift = undefined;
+    document.querySelector('[data-marquee-drag-proxy]')?.remove();
     document.querySelector('[data-photo-group][data-marquee-clone]')?.remove();
     document.querySelector('[data-horizontal-section]')?.removeAttribute('data-marquee-enhanced');
+    document.querySelector('[data-photo-track]')?.removeAttribute('data-dragging');
     document.querySelector('[data-photo-track]')?.removeAttribute('style');
     photographyAnimations.forEach((animation) => animation.cancel());
     photographyAnimations = [];
@@ -52,8 +65,12 @@ const t = copy[lang];
     group: HTMLElement,
     setupVersion: number,
   ) => {
-    const { default: gsap } = await import('gsap');
+    const [{ default: gsap }, { Draggable }] = await Promise.all([
+      import('gsap'),
+      import('gsap/Draggable'),
+    ]);
     if (setupVersion !== photographySetupVersion || !section.isConnected) return;
+    gsap.registerPlugin(Draggable);
 
     const clone = group.cloneNode(true) as HTMLElement;
     clone.dataset.marqueeClone = '';
@@ -69,9 +86,10 @@ const t = copy[lang];
       ease: 'none',
       repeat: -1,
     });
+    marqueeTween.totalTime(marqueeTween.duration());
 
-    marqueeController = new AbortController();
-    const { signal } = marqueeController;
+    const signal = marqueeController?.signal;
+    if (!signal) return;
     let activeFrame: HTMLElement | undefined;
     let userPaused = false;
 
@@ -127,6 +145,64 @@ const t = copy[lang];
       if (userPaused) marqueeTween?.pause();
       else marqueeTween?.resume();
     }, { signal });
+
+    marqueeShift = (direction) => {
+      if (!marqueeTween) return;
+      const frame = group.querySelector<HTMLElement>('.photo-frame');
+      if (!frame) return;
+
+      const targetTime = Number(marqueeTween.totalTime()) + direction * (frame.offsetWidth / 24);
+      marqueeTween.pause();
+      marqueeControlTween?.kill();
+      marqueeControlTween = gsap.to(marqueeTween, {
+        totalTime: targetTime,
+        duration: 0.55,
+        ease: 'power2.out',
+        overwrite: true,
+        onComplete: () => {
+          marqueeControlTween = undefined;
+          if (!userPaused && !track.matches(':focus-within')) marqueeTween?.resume();
+        },
+      });
+    };
+
+    const dragProxy = document.createElement('div');
+    dragProxy.dataset.marqueeDragProxy = '';
+    section.append(dragProxy);
+    let dragStartX = 0;
+    let dragStartProgress = 0;
+    let didDrag = false;
+
+    [marqueeDrag] = Draggable.create(dragProxy, {
+      type: 'x',
+      trigger: track,
+      dragClickables: true,
+      minimumMovement: 4,
+      onPress() {
+        marqueeControlTween?.kill();
+        marqueeControlTween = undefined;
+        dragStartX = this.x;
+        dragStartProgress = Number(marqueeTween?.progress() ?? 0);
+        didDrag = false;
+        marqueeTween?.pause();
+        track.dataset.dragging = 'true';
+      },
+      onDrag() {
+        didDrag = true;
+        const progress = dragStartProgress - (this.x - dragStartX) / distance;
+        marqueeTween?.progress(gsap.utils.wrap(0, 1, progress));
+      },
+      onRelease() {
+        const shouldResume = didDrag || !track.matches(':focus-within');
+        const focusedElement = document.activeElement;
+        if (didDrag && focusedElement instanceof HTMLElement && track.contains(focusedElement)) {
+          focusedElement.blur();
+        }
+        track.removeAttribute('data-dragging');
+        didDrag = false;
+        if (!userPaused && shouldResume) marqueeTween?.resume();
+      },
+    });
   };
 
   const setupPhotographyAnimations = () => {
@@ -159,10 +235,42 @@ const t = copy[lang];
     const section = document.querySelector<HTMLElement>('[data-horizontal-section]');
     const track = section?.querySelector<HTMLElement>('[data-photo-track]');
     const group = track?.querySelector<HTMLElement>('[data-photo-group]');
+    if (!section || !track || !group) return;
+
+    marqueeController = new AbortController();
+    const { signal } = marqueeController;
+    section.querySelectorAll<HTMLButtonElement>('[data-carousel-direction]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const direction = Number(button.dataset.carouselDirection);
+        if (marqueeShift) {
+          marqueeShift(direction);
+          return;
+        }
+
+        const frame = group.querySelector<HTMLElement>('.photo-frame');
+        if (!frame) return;
+        const gap = Number.parseFloat(getComputedStyle(group).columnGap) || 0;
+        const step = frame.offsetWidth + gap;
+        const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
+        const atStart = track.scrollLeft <= step / 2;
+        const atEnd = track.scrollLeft >= maxScroll - step / 2;
+        const target = direction < 0 && atStart
+          ? maxScroll
+          : direction > 0 && atEnd
+            ? 0
+            : track.scrollLeft + direction * step;
+
+        track.scrollTo({
+          left: target,
+          behavior: allowMotion ? 'smooth' : 'auto',
+        });
+      }, { signal });
+    });
+
     const supportsEnhancement = window.matchMedia(
       '(min-width: 60rem) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)',
     ).matches;
-    if (!section || !track || !group || !supportsEnhancement) return;
+    if (!supportsEnhancement) return;
 
     const setupVersion = photographySetupVersion;
     marqueeObserver = new IntersectionObserver((entries) => {

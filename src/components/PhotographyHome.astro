@@ -27,10 +27,24 @@ const labels = ui[lang];
         <h2 id="gallery-title">{t.galleryTitle}</h2>
         <div class="photo-gallery__controls">
           <p>{t.galleryHint}<span aria-hidden="true">→</span></p>
-          <button class="photo-gallery__toggle" type="button" data-marquee-toggle aria-pressed="false">
-            <span data-pause-label>{t.pauseGallery}</span>
-            <span data-play-label hidden>{t.playGallery}</span>
-          </button>
+          <div class="photo-gallery__actions">
+            <button class="photo-gallery__toggle" type="button" data-marquee-toggle aria-pressed="false">
+              <span data-pause-label>{t.pauseGallery}</span>
+              <span data-play-label hidden>{t.playGallery}</span>
+            </button>
+            <div class="photo-gallery__nav" role="group" aria-label={t.galleryTitle}>
+              <button type="button" data-carousel-direction="-1" aria-label={labels.photography.series.previous}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m15 5-7 7 7 7"></path>
+                </svg>
+              </button>
+              <button type="button" data-carousel-direction="1" aria-label={labels.photography.series.next}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m9 5 7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="photo-marquee" data-photo-marquee>
