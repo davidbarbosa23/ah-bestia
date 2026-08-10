@@ -157,21 +157,40 @@ const structuredData = {
     <script>
       let languageScrollPosition: { left: number; top: number } | undefined;
 
-      const keepOtherLinksOnNativeNavigation = () => {
+      const configureLinkNavigation = () => {
         document.querySelectorAll<HTMLAnchorElement>('a[href]:not([data-language-link])').forEach((link) => {
           const destination = new URL(link.href, window.location.href);
           if (destination.origin !== window.location.origin) return;
+
+          const isCurrentPage = destination.pathname === window.location.pathname
+            && destination.search === window.location.search
+            && !destination.hash;
+          if (isCurrentPage) {
+            delete link.dataset.astroReload;
+            delete link.dataset.astroPrefetch;
+            return;
+          }
+
           link.dataset.astroReload = '';
           link.dataset.astroPrefetch = 'false';
         });
       };
 
-      keepOtherLinksOnNativeNavigation();
+      configureLinkNavigation();
 
       document.addEventListener('click', (event) => {
         if (!(event.target instanceof Element)) return;
-        const link = event.target.closest('a[data-language-link]');
-        if (!link) return;
+        const link = event.target.closest<HTMLAnchorElement>('a[data-language-link]');
+        if (
+          !link
+          || event.button !== 0
+          || event.altKey
+          || event.ctrlKey
+          || event.metaKey
+          || event.shiftKey
+          || link.target === '_blank'
+          || link.hasAttribute('download')
+        ) return;
 
         languageScrollPosition = {
           left: window.scrollX,
@@ -196,11 +215,11 @@ const structuredData = {
 
       document.addEventListener('astro:page-load', () => {
         const completedLanguageTransition = Boolean(languageScrollPosition);
-        keepOtherLinksOnNativeNavigation();
-        restoreLanguageScrollPosition();
-        languageScrollPosition = undefined;
+        configureLinkNavigation();
         if (completedLanguageTransition) {
           window.requestAnimationFrame(() => {
+            restoreLanguageScrollPosition();
+            languageScrollPosition = undefined;
             delete document.documentElement.dataset.languageTransition;
           });
         }

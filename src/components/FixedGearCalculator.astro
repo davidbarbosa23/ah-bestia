@@ -1,5 +1,6 @@
 ---
 import { ui, type Lang } from '../i18n/content';
+import Icon from './Icon.astro';
 
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
@@ -50,6 +51,7 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
             <select name="chainring" data-chainring>
               {chainrings.map((value) => <option value={value} selected={value === 48}>{value}T</option>)}
             </select>
+            <Icon name="arrow-down" />
           </span>
         </label>
         <label class="fg-field">
@@ -58,6 +60,7 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
             <select name="sprocket" data-sprocket>
               {sprockets.map((value) => <option value={value} selected={value === 17}>{value}T</option>)}
             </select>
+            <Icon name="arrow-down" />
           </span>
         </label>
         <label class="fg-field">
@@ -68,6 +71,7 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
                 <option value={circumference} selected={circumference === 2105}>{name}</option>
               ))}
             </select>
+            <Icon name="arrow-down" />
           </span>
         </label>
         <label class="fg-check">

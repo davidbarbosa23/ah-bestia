@@ -2,6 +2,7 @@
 import SiteLayout from '../../../../layouts/SiteLayout.astro';
 import SiteHeader from '../../../../components/SiteHeader.astro';
 import SiteFooter from '../../../../components/SiteFooter.astro';
+import Icon from '../../../../components/Icon.astro';
 import { languages, type Lang } from '../../../../i18n/content';
 import { labProjects, labsCopy } from '../../../../data/labs';
 
@@ -23,7 +24,7 @@ const t = labsCopy[lang];
   <SiteHeader lang={lang} experience="developer" />
   <main class="labs-index page-shell" id="main">
     <a class="inner-page__back" href={`/${lang}/dev/`}>
-      <span aria-hidden="true">←</span>{t.back}
+      <Icon name="arrow-left" />{t.back}
     </a>
 
     <header class="labs-index__header">
@@ -54,7 +55,7 @@ const t = labsCopy[lang];
                 <span>{t.live}</span>
                 <span>{project.tags.join(' · ')}</span>
               </span>
-              <span class="labs-row__action">{t.open}<span aria-hidden="true">↗</span></span>
+              <span class="labs-row__action">{t.open}<Icon name="arrow-up-right" /></span>
             </a>
           </li>
         );
@@ -62,7 +63,7 @@ const t = labsCopy[lang];
     </ol>
 
     <aside class="labs-index__note">
-      <span aria-hidden="true">+</span>
+      <Icon name="plus" />
       <p>{t.nextText}</p>
     </aside>
   </main>

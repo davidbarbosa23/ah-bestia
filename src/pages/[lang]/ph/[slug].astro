@@ -4,6 +4,7 @@ import SiteLayout from '../../../layouts/SiteLayout.astro';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
 import PhotoLightbox from '../../../components/PhotoLightbox.astro';
+import Icon from '../../../components/Icon.astro';
 import { languages, ui, type Lang } from '../../../i18n/content';
 import {
   getNextGallery,
@@ -64,7 +65,7 @@ const galleryViewerImages = await Promise.all(
   <SiteHeader lang={lang} experience="photographer" />
   <main class="article-page series-page" id="main">
     <div class="page-shell">
-      <a class="inner-page__back" href={`/${lang}/ph/`}><span aria-hidden="true">←</span>{labels.back}</a>
+      <a class="inner-page__back" href={`/${lang}/ph/`}><Icon name="arrow-left" />{labels.back}</a>
     </div>
 
     <header class="article-hero series-hero">
@@ -146,7 +147,7 @@ const galleryViewerImages = await Promise.all(
                   loading="lazy"
                   alt={alt}
                 />
-                <span class="series-photo__expand" aria-hidden="true">↗</span>
+                <span class="series-photo__expand"><Icon name="arrow-up-right" /></span>
               </button>
               <figcaption>
                 <span>{String(number).padStart(2, '0')} / {String(gallery.images.length).padStart(2, '0')}</span>
@@ -159,7 +160,7 @@ const galleryViewerImages = await Promise.all(
 
       <a class="article-next" href={`/${lang}/ph/${nextGallery.slug}/`}>
         <span>{labels.next}</span>
-        <strong>{nextContent.title} <span aria-hidden="true">→</span></strong>
+        <strong>{nextContent.title} <Icon name="arrow-right" /></strong>
       </a>
     </article>
     <PhotoLightbox lang={lang} />

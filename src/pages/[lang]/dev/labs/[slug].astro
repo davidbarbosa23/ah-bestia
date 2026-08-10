@@ -3,6 +3,7 @@ import SiteLayout from '../../../../layouts/SiteLayout.astro';
 import SiteHeader from '../../../../components/SiteHeader.astro';
 import SiteFooter from '../../../../components/SiteFooter.astro';
 import FixedGearCalculator from '../../../../components/FixedGearCalculator.astro';
+import Icon from '../../../../components/Icon.astro';
 import { languages, ui, type Lang } from '../../../../i18n/content';
 import { labProjects, labsCopy, type LabProject } from '../../../../data/labs';
 
@@ -35,7 +36,7 @@ const content = project.content[lang];
   <main class="lab-article" id="main">
     <div class="page-shell">
       <a class="inner-page__back" href={`/${lang}/dev/labs/`}>
-        <span aria-hidden="true">←</span>{t.projectBack}
+        <Icon name="arrow-left" />{t.projectBack}
       </a>
     </div>
 
@@ -47,7 +48,7 @@ const content = project.content[lang];
         <dl class="lab-hero__meta">
           <div><dt>{ui[lang].labs.status}</dt><dd>{content.status}</dd></div>
           <div><dt>{t.builtWith}</dt><dd>{project.tags.join(' · ')}</dd></div>
-          <div><dt>{t.reference}</dt><dd><a href="https://www.surplace.fr/ffgc/" target="_blank" rel="noreferrer">{t.referenceText} <span aria-hidden="true">↗</span><span class="sr-only"> ({ui[lang].common.opensInNewTab})</span></a></dd></div>
+          <div><dt>{t.reference}</dt><dd><a href="https://www.surplace.fr/ffgc/" target="_blank" rel="noreferrer">{t.referenceText} <Icon name="arrow-up-right" /><span class="sr-only"> ({ui[lang].common.opensInNewTab})</span></a></dd></div>
         </dl>
       </header>
 
@@ -62,12 +63,12 @@ const content = project.content[lang];
 
       <div class="lab-notes page-shell">
         <section>
-          <p class="mono-label">01 / input</p>
+          <p class="mono-label">{t.inputLabel}</p>
           <h2>{content.approach}</h2>
           <p>{content.approachBody}</p>
         </section>
         <section>
-          <p class="mono-label">02 / output</p>
+          <p class="mono-label">{t.outputLabel}</p>
           <h2>{content.result}</h2>
           <p>{content.resultBody}</p>
         </section>

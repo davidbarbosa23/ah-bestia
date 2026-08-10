@@ -1,0 +1,51 @@
+---
+type IconName =
+  | 'arrow-down'
+  | 'arrow-left'
+  | 'arrow-right'
+  | 'arrow-up-right'
+  | 'chevron-left'
+  | 'chevron-right'
+  | 'enter'
+  | 'minus'
+  | 'plus'
+  | 'status'
+  | 'x';
+
+interface Props {
+  name: IconName;
+  class?: string;
+}
+
+const { name, class: className } = Astro.props;
+
+const paths: Record<IconName, string> = {
+  'arrow-down': 'M12 4.5v15m0 0 6-6m-6 6-6-6',
+  'arrow-left': 'M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18',
+  'arrow-right': 'M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3',
+  'arrow-up-right': 'M5 19 19 5M8 5h11v11',
+  'chevron-left': 'm15 18-6-6 6-6',
+  'chevron-right': 'm9 18 6-6-6-6',
+  enter: 'M9 10.5 4.5 15m0 0L9 19.5M4.5 15h10.75A4.75 4.75 0 0 0 20 10.25V4.5',
+  minus: 'M5 12h14',
+  plus: 'M12 5v14M5 12h14',
+  status: 'M12 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z',
+  x: 'm6 6 12 12M18 6 6 18',
+};
+---
+
+<svg
+  class:list={['icon', className]}
+  viewBox="0 0 24 24"
+  width="1em"
+  height="1em"
+  fill="none"
+  stroke="currentColor"
+  stroke-linecap="square"
+  stroke-linejoin="miter"
+  stroke-width="1.75"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path d={paths[name]} />
+</svg>

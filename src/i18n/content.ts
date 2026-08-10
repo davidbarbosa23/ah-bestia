@@ -4,15 +4,15 @@ export type Lang = (typeof languages)[number];
 export const copy = {
   en: {
     meta: {
-      homeTitle: 'David Barbosa — Software Engineer & Photographer',
+      homeTitle: 'David Barbosa — Senior Software Engineer',
       homeDescription:
-        'Software engineer in Bogotá building thoughtful web products, with an independent photography practice.',
+        'Senior software engineer in Bogotá focused on product-minded web platforms, clear interfaces, and maintainable systems.',
       projectsTitle: 'Labs — David Barbosa',
       projectsDescription:
-        'Small web experiments, interface studies, and product work by David Barbosa.',
+        'I build small web tools and interface experiments, documenting each one from problem to working result.',
       photoTitle: 'Photography — David Barbosa',
       photoDescription:
-        'Independent photography by David Barbosa exploring machines, animals, streets, movement, and light.',
+        'My independent photography explores machines, animals, streets, movement, and light.',
     },
     nav: {
       work: 'Work',
@@ -28,41 +28,41 @@ export const copy = {
     },
     theme: { light: 'Use light theme', dark: 'Use dark theme' },
     dev: {
-      status: 'Available for thoughtful collaborations',
+      status: 'Available for selected collaborations',
       title: 'I make software\nfeel considered.',
       intro:
-        'I’m David Barbosa, a software engineer in Bogotá. I work where product thinking, frontend craft, and reliable systems meet.',
+        'I’m David Barbosa, a senior software engineer in Bogotá. I turn complex product problems into clear web interfaces and dependable systems.',
       primaryCta: 'Explore Labs',
-      secondaryCta: 'Email David',
+      secondaryCta: 'Contact me',
       codeLabel: 'david.ts',
       aboutTitle: 'Pragmatic by default. Curious on purpose.',
       aboutBody:
-        'I turn ambiguous product questions into clear interfaces and maintainable systems. My background spans software engineering, web development, and graphic design—so I care about how a product works, reads, and feels.',
+        'I work from ambiguous requirements to shipped software: clarifying the problem, shaping the interface, and building systems teams can maintain. My background in graphic design helps me connect product intent, technical decisions, and the details users notice.',
       current: 'Currently',
-      currentValue: 'Software Engineer, Mercado Libre',
+      currentValue: 'Senior Software Engineer, Mercado Libre',
       location: 'Based in',
       locationValue: 'Bogotá, Colombia',
       focus: 'Working with',
       focusValue: 'TypeScript · React · Web platforms',
-      experienceTitle: 'A career built across the stack.',
+      experienceTitle: 'From web design to senior software engineering.',
       experience: [
         ['2021—NOW', 'Mercado Libre', 'Senior Software Engineer'],
-        ['2019—2020', 'Quantum Connexion', 'Software Engineer'],
+        ['2020', 'Quantum Connexion', 'Software Engineer'],
         ['2016—2019', 'Tradeview / iLikeWebSites', 'Web Developer & Designer'],
         ['2015—2016', 'Rampa / Data Solutions Group', 'Web Designer'],
       ],
-      projectsTitle: 'From the Labs.',
+      projectsTitle: 'Selected experiments.',
       projectsIntro:
-        'Small web projects documented through working interfaces, screenshots, and notes about how they were built.',
+        'Small web tools and interface experiments, documented from the problem and decisions through to a working result.',
       projectName: 'Fixed Gear Calculator',
       projectDesc:
         'A bilingual gearing calculator for track and fixed-gear riders, translating chainring and sprocket choices into ratios, skid patches, development, and speed.',
       projectMeta: 'Product experiment · Calculation UI',
-      projectLink: 'Open live experiment',
-      contactTitle: 'Have a hard problem and a clear reason to solve it?',
+      projectLink: 'Try the calculator',
+      contactTitle: 'Building something worth getting right?',
       contactBody:
-        'Write to me with the context, the constraints, and what success should look like.',
-      contactLink: 'Start a conversation',
+        'Send me the problem, the constraints, and the outcome you need. I’ll tell you where I can help.',
+      contactLink: 'Email me',
     },
     photo: {
       status: 'Independent photographic practice',
@@ -70,7 +70,9 @@ export const copy = {
       intro:
         'Machines, animals, streets, and the seconds when motion settles into form.',
       galleryTitle: 'Selected series from an ongoing archive.',
-      galleryHint: 'Scroll to move through the galleries',
+      galleryHint: 'Hover to focus. Swipe on touch.',
+      pauseGallery: 'Pause projects',
+      playGallery: 'Play projects',
       openNote: 'Open visual note',
       images: [
         [
@@ -102,13 +104,13 @@ export const copy = {
         ],
       ],
       creditNote:
-        'All photographs by David Barbosa. Selected from an ongoing personal archive.',
+        'All photographs are mine, selected from an ongoing personal archive.',
     },
     projects: {
       back: 'Back home',
-      title: 'Projects are questions with working answers.',
+      title: 'Questions with working answers.',
       intro:
-        'This archive starts with one published experiment and is structured to grow into full case studies.',
+        'Each experiment starts with a practical question and ends with a working interface, plus notes on the decisions behind it.',
       challenge: 'Question',
       challengeText:
         'How do gear choices change cadence, speed, and skid patches on a fixed-gear bicycle?',
@@ -138,15 +140,15 @@ export const copy = {
   },
   es: {
     meta: {
-      homeTitle: 'David Barbosa — Ingeniero de Software y Fotógrafo',
+      homeTitle: 'David Barbosa — Ingeniero de Software Senior',
       homeDescription:
-        'Ingeniero de software en Bogotá que construye productos web con criterio y desarrolla una práctica fotográfica independiente.',
+        'Ingeniero de software senior en Bogotá enfocado en plataformas web, interfaces claras y sistemas mantenibles.',
       projectsTitle: 'Labs — David Barbosa',
       projectsDescription:
-        'Pequeños experimentos web, estudios de interfaz y trabajo de producto de David Barbosa.',
+        'Construyo pequeñas herramientas web y experimentos de interfaz, documentando cada uno desde el problema hasta un resultado funcional.',
       photoTitle: 'Fotografía — David Barbosa',
       photoDescription:
-        'Fotografía independiente de David Barbosa sobre máquinas, animales, calles, movimiento y luz.',
+        'Mi fotografía independiente explora máquinas, animales, calles, movimiento y luz.',
     },
     nav: {
       work: 'Trabajo',
@@ -162,26 +164,26 @@ export const copy = {
     },
     theme: { light: 'Usar tema claro', dark: 'Usar tema oscuro' },
     dev: {
-      status: 'Disponible para colaboraciones con propósito',
-      title: 'Hago que el software\nse sienta pensado.',
+      status: 'Disponible para colaboraciones seleccionadas',
+      title: 'Construyo software que\nse siente bien pensado.',
       intro:
-        'Soy David Barbosa, ingeniero de software en Bogotá. Trabajo donde se encuentran el producto, el cuidado del frontend y los sistemas confiables.',
+        'Soy David Barbosa, ingeniero de software senior en Bogotá. Convierto problemas complejos de producto en interfaces web claras y sistemas confiables.',
       primaryCta: 'Explorar Labs',
-      secondaryCta: 'Escribirle a David',
+      secondaryCta: 'Contáctame',
       codeLabel: 'david.ts',
       aboutTitle: 'Pragmático por defecto. Curioso a propósito.',
       aboutBody:
-        'Convierto preguntas ambiguas de producto en interfaces claras y sistemas mantenibles. Mi experiencia abarca ingeniería de software, desarrollo web y diseño gráfico: me importa cómo funciona, se lee y se siente un producto.',
+        'Trabajo desde requisitos ambiguos hasta software en producción: aclaro el problema, doy forma a la interfaz y construyo sistemas que el equipo puede mantener. Mi formación en diseño gráfico me ayuda a conectar la intención del producto, las decisiones técnicas y los detalles que las personas perciben.',
       current: 'Actualmente',
-      currentValue: 'Ingeniero de Software, Mercado Libre',
+      currentValue: 'Ingeniero de Software Senior, Mercado Libre',
       location: 'Desde',
       locationValue: 'Bogotá, Colombia',
       focus: 'Trabajo con',
       focusValue: 'TypeScript · React · Plataformas web',
-      experienceTitle: 'Una carrera construida a través del stack.',
+      experienceTitle: 'Del diseño web a la ingeniería de software senior.',
       experience: [
         ['2021—HOY', 'Mercado Libre', 'Ingeniero de Software Senior'],
-        ['2019—2020', 'Quantum Connexion', 'Ingeniero de Software'],
+        ['2020', 'Quantum Connexion', 'Ingeniero de Software'],
         [
           '2016—2019',
           'Tradeview / iLikeWebSites',
@@ -189,19 +191,18 @@ export const copy = {
         ],
         ['2015—2016', 'Rampa / Data Solutions Group', 'Diseñador Web'],
       ],
-      projectsTitle: 'Desde Labs.',
+      projectsTitle: 'Experimentos seleccionados.',
       projectsIntro:
-        'Pequeños proyectos web documentados con interfaces funcionales, capturas y notas sobre cómo fueron construidos.',
+        'Pequeñas herramientas web y experimentos de interfaz, documentados desde el problema y las decisiones hasta un resultado funcional.',
       projectName: 'Calculadora de piñón fijo',
       projectDesc:
-        'Una calculadora bilingüe para ciclistas de pista y piñón fijo que traduce coronillas y piñones en proporciones, skid patches, desarrollo y velocidad.',
+        'Una calculadora bilingüe para ciclistas de pista y piñón fijo que convierte elecciones de plato, piñón, cubierta y cadencia en relación, puntos de derrape, desarrollo y velocidad.',
       projectMeta: 'Experimento de producto · Interfaz de cálculo',
-      projectLink: 'Abrir experimento',
-      contactTitle:
-        '¿Tienes un problema difícil y una buena razón para resolverlo?',
+      projectLink: 'Probar la calculadora',
+      contactTitle: '¿Estás construyendo algo que vale la pena hacer bien?',
       contactBody:
-        'Escríbeme con el contexto, las restricciones y cómo debería verse un buen resultado.',
-      contactLink: 'Iniciar una conversación',
+        'Cuéntame el problema, las restricciones y el resultado que necesitas. Te diré dónde puedo ayudar.',
+      contactLink: 'Escríbeme',
     },
     photo: {
       status: 'Práctica fotográfica independiente',
@@ -209,7 +210,9 @@ export const copy = {
       intro:
         'Máquinas, animales, calles y los segundos en que el movimiento encuentra una forma.',
       galleryTitle: 'Series seleccionadas de un archivo en proceso.',
-      galleryHint: 'Desplázate para recorrer las galerías',
+      galleryHint: 'Pasa el cursor para enfocar. Desliza en pantallas táctiles.',
+      pauseGallery: 'Pausar proyectos',
+      playGallery: 'Reproducir proyectos',
       openNote: 'Abrir nota visual',
       images: [
         [
@@ -251,16 +254,16 @@ export const copy = {
         ],
       ],
       creditNote:
-        'Todas las fotografías son de David Barbosa. Selección de un archivo personal en proceso.',
+        'Todas las fotografías son mías, seleccionadas de un archivo personal en proceso.',
     },
     projects: {
       back: 'Volver al inicio',
-      title: 'Los proyectos son preguntas con respuestas funcionales.',
+      title: 'Preguntas con respuestas funcionales.',
       intro:
-        'Este archivo comienza con un experimento publicado y está preparado para crecer en casos de estudio completos.',
+        'Cada experimento parte de una pregunta práctica y termina en una interfaz funcional, acompañada por notas sobre las decisiones detrás del resultado.',
       challenge: 'Pregunta',
       challengeText:
-        '¿Cómo cambian la cadencia, la velocidad y los skid patches según la relación de una bicicleta de piñón fijo?',
+        '¿Cómo cambian la cadencia, la velocidad y los puntos de derrape según la relación de una bicicleta de piñón fijo?',
       answer: 'Respuesta funcional',
       answerText:
         'Una calculadora compacta con unidades métricas e imperiales, rutas bilingües y resultados numéricos legibles.',
@@ -395,7 +398,7 @@ export const ui = {
     },
     metadata: {
       locale: 'en_US',
-      jobTitle: 'Software Engineer',
+      jobTitle: 'Senior Software Engineer',
       photographerHeroAlt: 'A Fujifilm X100VI camera emerging from deep shadow',
       photographerHeroSocialAlt: 'A Fujifilm X100VI camera emerging from shadow',
     },
@@ -493,7 +496,7 @@ export const ui = {
     },
     metadata: {
       locale: 'es_CO',
-      jobTitle: 'Ingeniero de Software',
+      jobTitle: 'Ingeniero de Software Senior',
       photographerHeroAlt: 'Una cámara Fujifilm X100VI emergiendo de una sombra profunda',
       photographerHeroSocialAlt: 'Una cámara Fujifilm X100VI emergiendo de la sombra',
     },
