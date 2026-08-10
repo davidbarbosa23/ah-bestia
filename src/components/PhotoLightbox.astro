@@ -39,8 +39,6 @@ const labels = ui[lang].photography.lightbox;
 </dialog>
 
 <script>
-  import gsap from 'gsap';
-
   const setupPhotoLightbox = () => {
     const dialog = document.querySelector('[data-photo-lightbox]');
     if (!(dialog instanceof HTMLDialogElement) || dialog.dataset.ready === 'true') return;
@@ -72,12 +70,16 @@ const labels = ui[lang].photography.lightbox;
     const initialScale = 1;
     const photoTransitionDuration = 0.34;
     const photoPreloads = new Map<string, Promise<void>>();
-    const setSlideX = gsap.quickSetter(slide, 'x', 'px');
-    const setCarouselSlideX = gsap.quickSetter(carouselSlide, 'x', 'px');
+    const setSlideX = (value: number) => {
+      slide.style.transform = `translate3d(${value}px, 0, 0)`;
+    };
+    const setCarouselSlideX = (value: number) => {
+      carouselSlide.style.transform = `translate3d(${value}px, 0, 0)`;
+    };
     let currentIndex = 0;
     let requestedIndex = 0;
     let isPhotoTransitioning = false;
-    let photoTransition: gsap.core.Tween | undefined;
+    let photoTransition: Animation[] = [];
     let photoTransitionSequence = 0;
     let preparedIndex: number | undefined;
     let preparedDirection: 'next' | 'previous' | undefined;
@@ -203,8 +205,8 @@ const labels = ui[lang].photography.lightbox;
 
     const clearPhotoTransition = () => {
       photoTransitionSequence += 1;
-      photoTransition?.kill();
-      photoTransition = undefined;
+      photoTransition.forEach((animation) => animation.cancel());
+      photoTransition = [];
       setSlideX(0);
       setCarouselSlideX(0);
       carouselSlide.classList.remove('is-carousel-active');
@@ -249,8 +251,43 @@ const labels = ui[lang].photography.lightbox;
       setCarouselSlideX(0);
       preparedIndex = undefined;
       preparedDirection = undefined;
-      photoTransition = undefined;
+      photoTransition = [];
       isPhotoTransitioning = false;
+    };
+
+    const animateSlides = (
+      slideDestination: number,
+      carouselDestination: number,
+      duration: number,
+      onComplete: () => void,
+    ) => {
+      photoTransition.forEach((animation) => animation.cancel());
+      const options: KeyframeAnimationOptions = {
+        duration: duration * 1000,
+        easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        fill: 'forwards',
+      };
+      photoTransition = [
+        slide.animate(
+          [
+            { transform: slide.style.transform || 'translate3d(0, 0, 0)' },
+            { transform: `translate3d(${slideDestination}px, 0, 0)` },
+          ],
+          options,
+        ),
+        carouselSlide.animate(
+          [
+            { transform: carouselSlide.style.transform || 'translate3d(0, 0, 0)' },
+            { transform: `translate3d(${carouselDestination}px, 0, 0)` },
+          ],
+          options,
+        ),
+      ];
+      void Promise.all(photoTransition.map((animation) => animation.finished))
+        .then(onComplete)
+        .catch(() => {
+          // Cancelling a superseded transition rejects its finished promise.
+        });
     };
 
     const animatePhotoTransition = (
@@ -268,15 +305,8 @@ const labels = ui[lang].photography.lightbox;
       isPhotoTransitioning = true;
       requestedIndex = resolvedIndex;
       resetZoom();
-      photoTransition?.kill();
       const sequence = ++photoTransitionSequence;
-      photoTransition = gsap.to([slide, carouselSlide], {
-        x: (elementIndex) => elementIndex === 0 ? destinationX : 0,
-        duration,
-        ease: 'power3.out',
-        overwrite: true,
-        onComplete: () => void finishPhotoTransition(resolvedIndex, sequence),
-      });
+      animateSlides(destinationX, 0, duration, () => void finishPhotoTransition(resolvedIndex, sequence));
     };
 
     const resetSwipePosition = (direction: 'next' | 'previous') => {
@@ -289,15 +319,9 @@ const labels = ui[lang].photography.lightbox;
       }
 
       isPhotoTransitioning = true;
-      photoTransition = gsap.to([slide, carouselSlide], {
-        x: (elementIndex) => elementIndex === 0 ? 0 : directionSign * stageWidth,
-        duration: 0.22,
-        ease: 'power3.out',
-        overwrite: true,
-        onComplete: () => {
+      animateSlides(0, directionSign * stageWidth, 0.22, () => {
           clearPhotoTransition();
           isPhotoTransitioning = false;
-        },
       });
     };
 
@@ -559,11 +583,7 @@ const labels = ui[lang].photography.lightbox;
     });
 
     window.addEventListener('resize', renderTransform);
-    document.addEventListener('astro:before-swap', () => {
-      window.removeEventListener('resize', renderTransform);
-    }, { once: true });
   };
 
   setupPhotoLightbox();
-  document.addEventListener('astro:page-load', setupPhotoLightbox);
 </script>

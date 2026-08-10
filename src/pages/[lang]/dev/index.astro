@@ -20,43 +20,63 @@ const t = copy[lang];
 </SiteLayout>
 
 <script>
-  import gsap from 'gsap';
-  import ScrollTrigger from 'gsap/ScrollTrigger';
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  let mm: ReturnType<typeof gsap.matchMedia> | undefined;
+  let revealObserver: IntersectionObserver | undefined;
+  let developerAnimations: Animation[] = [];
 
   const teardownDeveloperAnimations = () => {
-    mm?.revert();
-    mm = undefined;
+    revealObserver?.disconnect();
+    revealObserver = undefined;
+    developerAnimations.forEach((animation) => animation.cancel());
+    developerAnimations = [];
   };
 
   const setupDeveloperAnimations = () => {
     teardownDeveloperAnimations();
-    if (!document.querySelector('.dev-hero')) return;
+    const hero = document.querySelector('.dev-hero');
+    if (!hero || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    mm = gsap.matchMedia();
-    mm.add('(prefers-reduced-motion: no-preference)', () => {
-      const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
-      intro
-        .from('.dev-hero .status-line', { autoAlpha: 0, y: 10, duration: 0.36 })
-        .from('.dev-hero h1 span', { autoAlpha: 0, yPercent: 24, duration: 0.72, stagger: 0.08 }, '<0.08')
-        .from('.dev-hero__intro, .dev-hero__actions', { autoAlpha: 0, y: 12, duration: 0.48, stagger: 0.08 }, '<0.18')
-        .from('.source-card', { autoAlpha: 0, x: 18, duration: 0.68 }, '<0.08');
-
-      gsap.utils.toArray<HTMLElement>('.reveal-item').forEach((item) => {
-        gsap.from(item, {
-          autoAlpha: 0,
-          y: 18,
-          duration: 0.62,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: item, start: 'top 86%', once: true },
-        });
+    const easing = 'cubic-bezier(0.16, 1, 0.3, 1)';
+    const animateIntro = (
+      selector: string,
+      transform: string,
+      duration: number,
+      startDelay: number,
+      stagger = 0,
+    ) => {
+      document.querySelectorAll<HTMLElement>(selector).forEach((element, index) => {
+        const animation = element.animate(
+          [
+            { opacity: 0, transform },
+            { opacity: 1, transform: 'none' },
+          ],
+          { duration, delay: startDelay + index * stagger, easing, fill: 'backwards' },
+        );
+        developerAnimations.push(animation);
       });
-    });
+    };
+
+    animateIntro('.dev-hero .status-line', 'translateY(10px)', 360, 0);
+    animateIntro('.dev-hero h1 span', 'translateY(24%)', 720, 80, 80);
+    animateIntro('.dev-hero__intro, .dev-hero__actions', 'translateY(12px)', 480, 260, 80);
+    animateIntro('.source-card', 'translateX(18px)', 680, 340);
+
+    revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting || !(entry.target instanceof HTMLElement)) return;
+        revealObserver?.unobserve(entry.target);
+        const animation = entry.target.animate(
+          [
+            { opacity: 0, transform: 'translateY(18px)' },
+            { opacity: 1, transform: 'none' },
+          ],
+          { duration: 620, easing, fill: 'backwards' },
+        );
+        developerAnimations.push(animation);
+      });
+    }, { rootMargin: '0px 0px 14% 0px' });
+
+    document.querySelectorAll<HTMLElement>('.reveal-item').forEach((item) => revealObserver?.observe(item));
   };
 
-  document.addEventListener('astro:page-load', setupDeveloperAnimations);
-  document.addEventListener('astro:before-swap', teardownDeveloperAnimations);
+  setupDeveloperAnimations();
 </script>

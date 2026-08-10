@@ -28,10 +28,8 @@ const t = ui[lang].common;
     const button = document.querySelector<HTMLElement>('[data-back-to-top]');
     if (!button) return;
 
-    const scrollableDistance = document.documentElement.scrollHeight - window.innerHeight;
     const showAfter = Math.max(360, window.innerHeight * 0.7);
-    const isUseful = scrollableDistance > window.innerHeight * 0.75;
-    button.classList.toggle('is-visible', isUseful && window.scrollY > showAfter && !footerIsVisible);
+    button.classList.toggle('is-visible', window.scrollY > showAfter && !footerIsVisible);
   };
 
   const observeFooter = () => {
@@ -39,14 +37,7 @@ const t = ui[lang].common;
     footerIsVisible = false;
 
     const footer = document.querySelector<HTMLElement>('.site-footer');
-    if (!footer) {
-      updateBackToTop();
-      return;
-    }
-
-    const footerRect = footer.getBoundingClientRect();
-    footerIsVisible = footerRect.top < window.innerHeight && footerRect.bottom > 0;
-    updateBackToTop();
+    if (!footer) return;
 
     footerObserver = new IntersectionObserver(([entry]) => {
       footerIsVisible = entry?.isIntersecting ?? false;
@@ -60,7 +51,7 @@ const t = ui[lang].common;
     scrollFrame = window.requestAnimationFrame(updateBackToTop);
   };
 
-  document.addEventListener('astro:page-load', observeFooter);
+  observeFooter();
   window.addEventListener('scroll', queueBackToTopUpdate, { passive: true });
   window.addEventListener('resize', queueBackToTopUpdate, { passive: true });
 
@@ -87,7 +78,7 @@ const t = ui[lang].common;
     border: var(--rule-hair) solid var(--color-ink);
     border-radius: var(--radius-sm);
     background: var(--color-ink);
-    box-shadow: var(--shadow-back-to-top);
+    box-shadow: var(--shadow-back-to-top-offset) var(--color-accent);
     color: var(--color-paper);
     cursor: pointer;
     display: grid;
@@ -134,13 +125,13 @@ const t = ui[lang].common;
 
   @media (hover: hover) and (pointer: fine) {
     .back-to-top:hover {
-      box-shadow: var(--shadow-back-to-top-hover);
+      box-shadow: var(--shadow-back-to-top-hover-offset) var(--color-accent);
       transform: translate(var(--back-to-top-hover-offset), var(--back-to-top-hover-offset));
     }
   }
 
   .back-to-top:active {
-    box-shadow: var(--shadow-back-to-top-active);
+    box-shadow: var(--shadow-back-to-top-active-offset) var(--color-accent);
     transform: translate(var(--back-to-top-active-offset), var(--back-to-top-active-offset));
   }
 

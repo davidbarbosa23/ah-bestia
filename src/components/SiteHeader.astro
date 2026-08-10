@@ -79,7 +79,6 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
     themeButton.setAttribute('title', nextLabel);
   };
   syncThemeLabel();
-  document.addEventListener('astro:page-load', syncThemeLabel);
 
   const openCommand = () => {
     const dialog = document.querySelector('[data-command]');

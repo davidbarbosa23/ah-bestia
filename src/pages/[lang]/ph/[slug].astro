@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { getImage, Image } from 'astro:assets';
 import SiteLayout from '../../../layouts/SiteLayout.astro';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
@@ -37,6 +37,18 @@ const galleryImages = [
   ...gallery.images.filter(({ filename }) => filename === gallery.coverFilename),
   ...gallery.images.filter(({ filename }) => filename !== gallery.coverFilename),
 ];
+const galleryViewerImages = await Promise.all(
+  galleryImages.map(async ({ image, filename }) => ({
+    image,
+    filename,
+    viewer: await getImage({
+      src: image,
+      width: Math.min(1600, image.width),
+      format: 'webp',
+      quality: 80,
+    }),
+  })),
+);
 ---
 
 <SiteLayout
@@ -60,8 +72,8 @@ const galleryImages = [
         src={gallery.cover}
         widths={[480, 720, 1080, 1400]}
         sizes="100vw"
-        quality={88}
-        fetchpriority="high"
+        quality={82}
+        priority
         alt={`${content.cardTitle}. ${content.description}`}
       />
       <div class="article-hero__copy page-shell">
@@ -107,13 +119,14 @@ const galleryImages = [
       </nav>
 
       <div class="series-gallery">
-        {galleryImages.map(({ image, filename }, index) => {
+        {galleryViewerImages.map(({ image, filename, viewer }, index) => {
           const number = index + 1;
           const alt = `${labels.photo} ${number} ${labels.from} ${content.title}`;
           const isLandscape = image.width > image.height;
+          const isWide = isLandscape || index % 9 === 7;
 
           return (
-            <figure class:list={['series-photo', (isLandscape || index % 9 === 7) && 'series-photo--wide']}>
+            <figure class:list={['series-photo', isWide && 'series-photo--wide']}>
               <button
                 class="series-photo__open"
                 type="button"
@@ -121,15 +134,15 @@ const galleryImages = [
                 aria-haspopup="dialog"
                 aria-controls="photo-lightbox"
                 data-lightbox-open
-                data-lightbox-src={image.src}
+                data-lightbox-src={viewer.src}
                 data-lightbox-alt={alt}
                 data-lightbox-filename={filename}
               >
                 <Image
                   src={image}
                   widths={[480, 800, 1200, 1600]}
-                  sizes={isLandscape ? '100vw' : '(min-width: 40rem) 50vw, 100vw'}
-                  quality={86}
+                  sizes={isWide ? '(min-width: 92rem) 92rem, 100vw' : '(min-width: 92rem) 46rem, (min-width: 40rem) 50vw, 100vw'}
+                  quality={80}
                   loading="lazy"
                   alt={alt}
                 />

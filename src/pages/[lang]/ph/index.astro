@@ -21,49 +21,40 @@ const t = copy[lang];
 </SiteLayout>
 
 <script>
-  import gsap from 'gsap';
-  import ScrollTrigger from 'gsap/ScrollTrigger';
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  let mm: ReturnType<typeof gsap.matchMedia> | undefined;
+  let horizontalContext: {
+    add: (query: string, callback: () => void | (() => void)) => unknown;
+    revert: () => void;
+  } | undefined;
+  let horizontalObserver: IntersectionObserver | undefined;
+  let photographyAnimations: Animation[] = [];
+  let photographySetupVersion = 0;
 
   const teardownPhotographyAnimations = () => {
-    mm?.revert();
-    mm = undefined;
+    photographySetupVersion += 1;
+    horizontalObserver?.disconnect();
+    horizontalObserver = undefined;
+    horizontalContext?.revert();
+    horizontalContext = undefined;
+    photographyAnimations.forEach((animation) => animation.cancel());
+    photographyAnimations = [];
   };
 
-  const setupPhotographyAnimations = () => {
-    teardownPhotographyAnimations();
-    if (!document.querySelector('.photo-hero')) return;
+  const enhanceHorizontalGallery = async (
+    section: HTMLElement,
+    track: HTMLElement,
+    setupVersion: number,
+  ) => {
+    const [{ default: gsap }, { default: ScrollTrigger }] = await Promise.all([
+      import('gsap'),
+      import('gsap/ScrollTrigger'),
+    ]);
+    if (setupVersion !== photographySetupVersion || !section.isConnected) return;
 
-    mm = gsap.matchMedia();
-    mm.add('(prefers-reduced-motion: no-preference)', () => {
-      const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
-      intro
-        .from('.photo-hero .status-line', { autoAlpha: 0, y: 10, duration: 0.36 })
-        .from('.photo-hero h1 span', { autoAlpha: 0, yPercent: 24, duration: 0.72, stagger: 0.08 }, '<0.08')
-        .from('.photo-hero__copy > p:last-child', { autoAlpha: 0, y: 12, duration: 0.48 }, '<0.18');
-    });
-
-    mm.add(
-      {
-        desktop: '(min-width: 60rem)',
-        finePointer: '(hover: hover) and (pointer: fine)',
-        allowMotion: '(prefers-reduced-motion: no-preference)',
-      },
-      (context) => {
-        const { desktop, finePointer, allowMotion } = context.conditions as {
-          desktop: boolean;
-          finePointer: boolean;
-          allowMotion: boolean;
-        };
-        if (!desktop || !finePointer || !allowMotion) return;
-
-        const section = document.querySelector<HTMLElement>('[data-horizontal-section]');
-        const track = section?.querySelector<HTMLElement>('[data-photo-track]');
-        if (!section || !track) return;
-
+    gsap.registerPlugin(ScrollTrigger);
+    horizontalContext = gsap.matchMedia();
+    horizontalContext.add(
+      '(min-width: 60rem) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)',
+      () => {
         section.dataset.scrollEnhanced = 'true';
 
         const travelDistance = () => Math.max(0, track.scrollWidth - window.innerWidth);
@@ -115,6 +106,48 @@ const t = copy[lang];
     );
   };
 
-  document.addEventListener('astro:page-load', setupPhotographyAnimations);
-  document.addEventListener('astro:before-swap', teardownPhotographyAnimations);
+  const setupPhotographyAnimations = () => {
+    teardownPhotographyAnimations();
+    const hero = document.querySelector('.photo-hero');
+    if (!hero) return;
+
+    const allowMotion = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+    if (allowMotion) {
+      const easing = 'cubic-bezier(0.16, 1, 0.3, 1)';
+      const animateIntro = (selector: string, transform: string, duration: number, delay: number, stagger = 0) => {
+        document.querySelectorAll<HTMLElement>(selector).forEach((element, index) => {
+          const animation = element.animate(
+            [
+              { opacity: 0, transform },
+              { opacity: 1, transform: 'none' },
+            ],
+            { duration, delay: delay + index * stagger, easing, fill: 'backwards' },
+          );
+          photographyAnimations.push(animation);
+        });
+      };
+
+      animateIntro('.photo-hero .status-line', 'translateY(10px)', 360, 0);
+      animateIntro('.photo-hero h1 span', 'translateY(24%)', 720, 80, 80);
+      animateIntro('.photo-hero__copy > p:last-child', 'translateY(12px)', 480, 260);
+    }
+
+    const section = document.querySelector<HTMLElement>('[data-horizontal-section]');
+    const track = section?.querySelector<HTMLElement>('[data-photo-track]');
+    const supportsEnhancement = window.matchMedia(
+      '(min-width: 60rem) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)',
+    ).matches;
+    if (!section || !track || !supportsEnhancement) return;
+
+    const setupVersion = photographySetupVersion;
+    horizontalObserver = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      horizontalObserver?.disconnect();
+      horizontalObserver = undefined;
+      void enhanceHorizontalGallery(section, track, setupVersion);
+    }, { rootMargin: '75% 0px' });
+    horizontalObserver.observe(section);
+  };
+
+  setupPhotographyAnimations();
 </script>

@@ -18,7 +18,7 @@
   --color-success: oklch(62% 0.14 155);
   --color-error: oklch(58% 0.2 28);
   --color-overlay: oklch(10% 0.012 258 / 0.68);
-  --color-hero-scrim-soft: oklch(9% 0.012 258 / 0.4);
+  --color-hero-scrim-soft: oklch(9% 0.012 258 / 0.2);
   --color-hero-scrim-strong: oklch(9% 0.012 258 / 0.62);
   --color-viewer-canvas: oklch(10% 0.005 258);
   --color-viewer-surface: oklch(9% 0.006 258 / 0.72);
@@ -30,10 +30,10 @@
   --color-viewer-divider: oklch(100% 0 0 / 0.14);
   --color-viewer-hover: oklch(100% 0 0 / 0.12);
 
-  --font-display: 'Space Grotesk', 'Arial Narrow', sans-serif;
-  --font-body: 'Inter', 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Cascadia Code', monospace;
-  --font-wordmark: 'JetBrains Mono', 'Cascadia Code', monospace;
+  --font-display: 'Space Grotesk Variable', 'Arial Narrow', sans-serif;
+  --font-body: 'Inter Variable', 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'Cascadia Code', monospace;
+  --font-wordmark: 'JetBrains Mono Variable', 'Cascadia Code', monospace;
 
   --weight-regular: 400;
   --weight-medium: 500;
@@ -127,9 +127,9 @@
   --layer-back-to-top: 190;
   --layer-header: 200;
   --layer-skip-link: 500;
-  --shadow-back-to-top: 0.3rem 0.3rem 0 var(--color-accent);
-  --shadow-back-to-top-hover: 0.16rem 0.16rem 0 var(--color-accent);
-  --shadow-back-to-top-active: 0 0 0 var(--color-accent);
+  --shadow-back-to-top-offset: 0.3rem 0.3rem 0;
+  --shadow-back-to-top-hover-offset: 0.16rem 0.16rem 0;
+  --shadow-back-to-top-active-offset: 0 0 0;
   --page-gutter: clamp(1rem, 4vw, 4rem);
   --page-max: 92rem;
 }

@@ -13,7 +13,7 @@ const labels = ui[lang];
 <div class="experience experience--photographer" data-experience-panel="photographer">
   <main id="main">
     <section class="photo-hero" aria-labelledby="photo-title">
-      <Image src={photographerHero} widths={[480, 720, 1080, 1400, 1800, 2100]} sizes="100vw" quality={88} fetchpriority="high" alt={labels.metadata.photographerHeroAlt} />
+      <Image src={photographerHero} widths={[480, 720, 1080, 1400, 1800, 2100]} sizes="100vw" quality={82} priority alt={labels.metadata.photographerHeroAlt} />
       <div class="photo-hero__shade"></div>
       <div class="photo-hero__copy page-shell">
         <p class="status-line status-line--photo"><span></span>{t.status}</p>
@@ -31,14 +31,18 @@ const labels = ui[lang];
       <div class="photo-track" data-photo-track>
         {photoGalleries.map((gallery, index) => {
           const content = gallery.content[lang];
+          const isWide = index % 3 === 1;
+          const sizes = isWide
+            ? '(min-width: 90rem) 54rem, (min-width: 60rem) 62vw, (min-width: 40rem) 82vw, 84vw'
+            : '(min-width: 90rem) 39rem, (min-width: 60rem) 48vw, (min-width: 40rem) 72vw, 84vw';
           return (
-            <figure class:list={['photo-frame', index % 3 === 1 && 'photo-frame--wide', index % 3 === 2 && 'photo-frame--short']}>
+            <figure class:list={['photo-frame', isWide && 'photo-frame--wide', index % 3 === 2 && 'photo-frame--short']}>
               <a href={`/${lang}/ph/${gallery.slug}/`} aria-label={`${t.openNote}: ${content.cardTitle}`}>
                 <Image
                   src={gallery.cover}
                   widths={[420, 640, 900, 1080]}
-                  sizes="(min-width: 60rem) 29rem, 84vw"
-                  quality={86}
+                  sizes={sizes}
+                  quality={80}
                   loading="lazy"
                   alt={`${content.cardTitle}. ${content.description}`}
                 />

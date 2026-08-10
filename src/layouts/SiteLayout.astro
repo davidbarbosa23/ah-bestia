@@ -1,8 +1,9 @@
 ---
 import '../styles/global.css';
+import '../styles/fonts.css';
 import { ui, type Lang } from '../i18n/content';
-import { ClientRouter } from 'astro:transitions';
 import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
 import portrait from '../assets/portrait.jpg';
 import BackToTop from '../components/BackToTop.astro';
 
@@ -39,7 +40,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 const enPath = Astro.url.pathname.replace(/^\/(en|es)(?=\/|$)/, '/en');
 const esPath = Astro.url.pathname.replace(/^\/(en|es)(?=\/|$)/, '/es');
 const imageMetadata = typeof image === 'string' ? undefined : image;
-const socialImage = new URL(typeof image === 'string' ? image : image.src, Astro.site);
+const socialImageAsset = imageMetadata
+  ? await getImage({
+      src: imageMetadata,
+      width: Math.min(1200, imageMetadata.width),
+      format: 'jpg',
+      quality: 82,
+    })
+  : undefined;
+const personImageAsset = await getImage({ src: portrait, width: 800, format: 'jpg', quality: 82 });
+const socialImageSource = socialImageAsset?.src ?? (typeof image === 'string' ? image : image.src);
+const socialImage = new URL(socialImageSource, Astro.site);
 const labels = ui[lang];
 const alternateLang = lang === 'en' ? 'es' : 'en';
 const siteUrl = new URL('/', Astro.site);
@@ -50,9 +61,9 @@ const primaryImage = {
   '@type': 'ImageObject',
   contentUrl: socialImage.toString(),
   caption: imageAlt,
-  ...(imageMetadata && {
-    width: imageMetadata.width,
-    height: imageMetadata.height,
+  ...(socialImageAsset && {
+    width: socialImageAsset.attributes.width,
+    height: socialImageAsset.attributes.height,
   }),
 };
 const pageStructuredData = {
@@ -76,7 +87,7 @@ const structuredData = {
       '@id': personId,
       name: 'David Barbosa',
       url: siteUrl.toString(),
-      image: new URL(portrait.src, Astro.site).toString(),
+      image: new URL(personImageAsset.src, Astro.site).toString(),
       jobTitle: labels.metadata.jobTitle,
       sameAs: ['https://github.com/davidbarbosa23', 'https://www.linkedin.com/in/davidbarbosar/'],
       address: { '@type': 'PostalAddress', addressLocality: 'Bogotá', addressCountry: 'CO' },
@@ -111,18 +122,15 @@ const structuredData = {
     {localized && <link rel="alternate" hreflang="x-default" href={new URL(enPath, Astro.site)} />}
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <meta property="og:type" content={pageType} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={socialImage} />
     <meta property="og:image:alt" content={imageAlt} />
-    {imageMetadata && <meta property="og:image:width" content={String(imageMetadata.width)} />}
-    {imageMetadata && <meta property="og:image:height" content={String(imageMetadata.height)} />}
-    {imageMetadata && <meta property="og:image:type" content={`image/${imageMetadata.format === 'jpg' ? 'jpeg' : imageMetadata.format}`} />}
+    {socialImageAsset && <meta property="og:image:width" content={String(socialImageAsset.attributes.width)} />}
+    {socialImageAsset && <meta property="og:image:height" content={String(socialImageAsset.attributes.height)} />}
+    {socialImageAsset && <meta property="og:image:type" content="image/jpeg" />}
     <meta property="og:site_name" content="David Barbosa" />
     <meta property="og:locale" content={labels.metadata.locale} />
     <meta property="og:locale:alternate" content={ui[alternateLang].metadata.locale} />
@@ -139,7 +147,6 @@ const structuredData = {
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
       })();
     </script>
-    <ClientRouter fallback="swap" />
   </head>
   <body data-experience={experience}>
     <a class="skip-link" href="#main">{labels.common.skipToContent}</a>
@@ -147,29 +154,3 @@ const structuredData = {
     <BackToTop lang={lang} />
   </body>
 </html>
-
-<script>
-  let languageScrollPosition: { left: number; top: number } | undefined;
-
-  document.addEventListener('click', (event) => {
-    if (!(event.target instanceof Element)) return;
-    const link = event.target.closest('a[data-language-link]');
-    if (!link) return;
-
-    languageScrollPosition = {
-      left: window.scrollX,
-      top: window.scrollY,
-    };
-  });
-
-  document.addEventListener('astro:before-swap', (event) => {
-    const theme = document.documentElement.dataset.theme ?? 'light';
-    event.newDocument.documentElement.dataset.theme = theme;
-  });
-
-  document.addEventListener('astro:after-swap', () => {
-    if (!languageScrollPosition) return;
-    window.scrollTo({ ...languageScrollPosition, behavior: 'instant' });
-    languageScrollPosition = undefined;
-  });
-</script>
