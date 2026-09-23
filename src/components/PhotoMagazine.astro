@@ -1,0 +1,754 @@
+---
+import { getImage } from 'astro:assets';
+import { ui, type Lang } from '../i18n/content';
+import type { PhotoGallery } from '../data/photoGalleries';
+import Icon from './Icon.astro';
+
+interface Props {
+  gallery: PhotoGallery;
+  lang: Lang;
+}
+
+const { gallery, lang } = Astro.props;
+const magazine = gallery.magazine;
+
+if (!magazine) {
+  throw new Error(`PhotoMagazine requires a magazine configuration for ${gallery.slug}`);
+}
+
+const content = gallery.content[lang];
+const labels = ui[lang].photography;
+const { width: pageWidth, height: pageHeight } = magazine.pageSize;
+const pageMaxByHeight = `${Math.round(65 * pageWidth / pageHeight * 1000) / 1000}svh`;
+const spreadMaxByHeight = `${Math.round(70 * pageWidth * 2 / pageHeight * 1000) / 1000}svh`;
+
+const pages = await Promise.all(
+  magazine.pages.map(async (page, index) => {
+    const [small, large, viewer] = await Promise.all([
+      getImage({
+        src: page.imageAsset,
+        width: Math.min(720, page.imageAsset.width),
+        format: 'webp',
+        quality: 78,
+      }),
+      getImage({
+        src: page.imageAsset,
+        width: Math.min(1200, page.imageAsset.width),
+        format: 'webp',
+        quality: 82,
+      }),
+      getImage({
+        src: page.imageAsset,
+        width: Math.min(1600, page.imageAsset.width),
+        format: 'webp',
+        quality: 84,
+      }),
+    ]);
+
+    return {
+      ...page,
+      alt: page.alt?.[lang]
+        ?? `${labels.series.photo} ${index + 1} ${labels.series.from} ${content.title}`,
+      small,
+      large,
+      viewer,
+    };
+  }),
+);
+---
+
+<section
+  class="magazine"
+  data-magazine
+  data-page-label={labels.magazine.page}
+  data-pages-label={labels.magazine.pages}
+  data-of-label={labels.magazine.of}
+  data-fullscreen-label={labels.magazine.fullscreen}
+  data-exit-fullscreen-label={labels.magazine.exitFullscreen}
+  aria-label={`${labels.magazine.reader}: ${content.title}`}
+  tabindex="0"
+  style={`--magazine-page-ratio: ${pageWidth} / ${pageHeight}; --magazine-spread-ratio: ${pageWidth * 2} / ${pageHeight}; --magazine-page-max-by-height: ${pageMaxByHeight}; --magazine-spread-max-by-height: ${spreadMaxByHeight};`}
+>
+  <h2 class="sr-only">{labels.magazine.reader}: {content.title}</h2>
+
+  <div class="magazine__viewport">
+    <div class="magazine__book" data-magazine-book>
+      <ol class="magazine__pages">
+        {pages.map((page, index) => (
+          <li
+            class="magazine__page"
+            data-magazine-page
+            data-page-index={index}
+            data-fit={page.fit}
+            data-tone={page.tone}
+            data-position={index === 0 ? 'single' : undefined}
+            aria-hidden={index === 0 ? 'false' : 'true'}
+            style={`--magazine-photo-position: ${page.position};`}
+          >
+            <button
+              class="magazine__photo"
+              type="button"
+              aria-label={`${labels.magazine.openPhoto}: ${page.alt}`}
+              data-lightbox-open
+              data-lightbox-src={page.viewer.src}
+              data-lightbox-alt={page.alt}
+              data-lightbox-filename={page.image}
+              tabindex={index === 0 ? 0 : -1}
+            >
+              <img
+                src={index === 0 ? page.large.src : undefined}
+                srcset={index === 0 ? `${page.small.src} ${page.small.attributes.width}w, ${page.large.src} ${page.large.attributes.width}w` : undefined}
+                sizes="(min-width: 48rem) 36rem, 92vw"
+                width={page.imageAsset.width}
+                height={page.imageAsset.height}
+                alt={page.alt}
+                loading="lazy"
+                decoding="async"
+                draggable="false"
+                data-magazine-image
+                data-src={page.large.src}
+                data-srcset={`${page.small.src} ${page.small.attributes.width}w, ${page.large.src} ${page.large.attributes.width}w`}
+              />
+              {index === 0 && (
+                <span class="magazine__cover-copy" aria-hidden="true">
+                  <span>{labels.series.kicker} · {content.location}</span>
+                  <strong>{content.title}</strong>
+                </span>
+              )}
+              <span class="magazine__page-number" aria-hidden="true">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <span class="magazine__expand" aria-hidden="true"><Icon name="arrow-up-right" /></span>
+            </button>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <button
+      class="magazine__turn magazine__turn--previous"
+      type="button"
+      data-magazine-previous
+      aria-label={labels.magazine.previous}
+      disabled
+    >
+      <Icon name="chevron-left" />
+    </button>
+    <button
+      class="magazine__turn magazine__turn--next"
+      type="button"
+      data-magazine-next
+      aria-label={labels.magazine.next}
+    >
+      <Icon name="chevron-right" />
+    </button>
+  </div>
+
+  <div class="magazine__toolbar">
+    <output class="magazine__count" data-magazine-count aria-live="polite">
+      {labels.magazine.page} 1 {labels.magazine.of} {pages.length}
+    </output>
+    <progress
+      class="magazine__progress"
+      data-magazine-progress
+      value="1"
+      max={pages.length}
+      aria-label={labels.magazine.progress}
+    ></progress>
+    <button
+      class="magazine__fullscreen"
+      type="button"
+      data-magazine-fullscreen
+      aria-label={labels.magazine.fullscreen}
+      hidden
+    >
+      <span data-magazine-fullscreen-text>{labels.magazine.fullscreen}</span>
+      <Icon name="arrow-up-right" />
+    </button>
+  </div>
+
+  <p class="magazine__hint">{labels.magazine.hint}</p>
+</section>
+
+<script>
+  const setupMagazines = () => {
+    const controlledDocument = document as Document & {
+      magazineController?: AbortController;
+    };
+    controlledDocument.magazineController?.abort();
+    controlledDocument.magazineController = new AbortController();
+    const { signal } = controlledDocument.magazineController;
+
+    document.querySelectorAll<HTMLElement>('[data-magazine]').forEach((magazine) => {
+      const book = magazine.querySelector<HTMLElement>('[data-magazine-book]');
+      const pages = [...magazine.querySelectorAll<HTMLElement>('[data-magazine-page]')];
+      const previous = magazine.querySelector<HTMLButtonElement>('[data-magazine-previous]');
+      const next = magazine.querySelector<HTMLButtonElement>('[data-magazine-next]');
+      const count = magazine.querySelector<HTMLOutputElement>('[data-magazine-count]');
+      const progress = magazine.querySelector<HTMLProgressElement>('[data-magazine-progress]');
+      const fullscreen = magazine.querySelector<HTMLButtonElement>('[data-magazine-fullscreen]');
+      const fullscreenText = magazine.querySelector<HTMLElement>('[data-magazine-fullscreen-text]');
+
+      if (!book || !pages.length || !previous || !next || !count || !progress) return;
+
+      const wideLayout = window.matchMedia('(min-width: 48rem)');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const lastIndex = pages.length - 1;
+      const pageLabel = magazine.dataset.pageLabel ?? '';
+      const pagesLabel = magazine.dataset.pagesLabel ?? '';
+      const ofLabel = magazine.dataset.ofLabel ?? '';
+      let currentIndex = 0;
+      let pointerId: number | undefined;
+      let pointerStartX = 0;
+      let pointerStartY = 0;
+      let pointerCaptured = false;
+      let suppressPhotoClick = false;
+
+      const normalizeIndex = (requestedIndex: number) => {
+        const clampedIndex = Math.max(0, Math.min(lastIndex, requestedIndex));
+        if (!wideLayout.matches || clampedIndex === 0) return clampedIndex;
+        return 1 + Math.floor((clampedIndex - 1) / 2) * 2;
+      };
+
+      const visibleIndices = (startIndex: number) => {
+        if (!wideLayout.matches || startIndex === 0 || startIndex === lastIndex) {
+          return [startIndex];
+        }
+        return [startIndex, Math.min(lastIndex, startIndex + 1)];
+      };
+
+      const loadPage = (index: number) => {
+        const image = pages[index]?.querySelector<HTMLImageElement>('[data-magazine-image]');
+        if (!image || image.getAttribute('src')) return;
+        image.src = image.dataset.src ?? '';
+        image.srcset = image.dataset.srcset ?? '';
+      };
+
+      const preloadAround = (indices: number[]) => {
+        const first = indices[0] ?? 0;
+        const last = indices.at(-1) ?? first;
+        const candidates = wideLayout.matches
+          ? [first - 2, first - 1, ...indices, last + 1, last + 2]
+          : [first - 1, first, first + 1];
+        candidates.forEach((index) => {
+          if (index >= 0 && index <= lastIndex) loadPage(index);
+        });
+      };
+
+      const animateTurn = (indices: number[], direction: 'next' | 'previous') => {
+        if (reducedMotion.matches) return;
+        const turningPage = direction === 'next'
+          ? pages[indices[0] ?? 0]
+          : pages[indices.at(-1) ?? 0];
+        if (!turningPage) return;
+        const rotation = direction === 'next' ? 'rotateY(82deg)' : 'rotateY(-82deg)';
+        turningPage.animate(
+          [
+            { opacity: 0.35, transform: rotation },
+            { opacity: 1, transform: 'rotateY(0)' },
+          ],
+          {
+            duration: 440,
+            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          },
+        );
+      };
+
+      const render = (animate = false, direction: 'next' | 'previous' = 'next') => {
+        currentIndex = normalizeIndex(currentIndex);
+        const visible = visibleIndices(currentIndex);
+        const visibleSet = new Set(visible);
+        preloadAround(visible);
+
+        pages.forEach((page, index) => {
+          const active = visibleSet.has(index);
+          page.setAttribute('aria-hidden', String(!active));
+          page.toggleAttribute('inert', !active);
+          const opener = page.querySelector<HTMLButtonElement>('[data-lightbox-open]');
+          if (opener) opener.tabIndex = active ? 0 : -1;
+
+          if (!active) {
+            delete page.dataset.position;
+          } else if (visible.length === 1) {
+            page.dataset.position = 'single';
+          } else {
+            page.dataset.position = index === visible[0] ? 'left' : 'right';
+          }
+        });
+
+        const endIndex = visible.at(-1) ?? currentIndex;
+        previous.disabled = currentIndex === 0;
+        next.disabled = endIndex === lastIndex;
+        progress.value = endIndex + 1;
+        count.value = visible.length === 1
+          ? `${pageLabel} ${currentIndex + 1} ${ofLabel} ${pages.length}`
+          : `${pagesLabel} ${currentIndex + 1}–${endIndex + 1} ${ofLabel} ${pages.length}`;
+
+        if (animate) animateTurn(visible, direction);
+      };
+
+      const goTo = (requestedIndex: number) => {
+        const nextIndex = normalizeIndex(requestedIndex);
+        if (nextIndex === currentIndex) return;
+        const direction = nextIndex > currentIndex ? 'next' : 'previous';
+        currentIndex = nextIndex;
+        render(true, direction);
+      };
+
+      const goPrevious = () => goTo(wideLayout.matches && currentIndex > 1
+        ? currentIndex - 2
+        : currentIndex - 1);
+      const goNext = () => goTo(wideLayout.matches && currentIndex > 0
+        ? currentIndex + 2
+        : currentIndex + 1);
+
+      previous.addEventListener('click', goPrevious, { signal });
+      next.addEventListener('click', goNext, { signal });
+      wideLayout.addEventListener('change', () => render(), { signal });
+
+      magazine.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          goPrevious();
+        }
+        if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          goNext();
+        }
+        if (event.key === 'Home') {
+          event.preventDefault();
+          goTo(0);
+        }
+        if (event.key === 'End') {
+          event.preventDefault();
+          goTo(lastIndex);
+        }
+      }, { signal });
+
+      book.addEventListener('pointerdown', (event) => {
+        if (!event.isPrimary) return;
+        pointerId = event.pointerId;
+        pointerStartX = event.clientX;
+        pointerStartY = event.clientY;
+        pointerCaptured = false;
+      }, { signal });
+
+      book.addEventListener('pointermove', (event) => {
+        if (pointerId !== event.pointerId || pointerCaptured) return;
+        const distanceX = event.clientX - pointerStartX;
+        const distanceY = event.clientY - pointerStartY;
+        if (Math.abs(distanceX) <= 8 || Math.abs(distanceX) <= Math.abs(distanceY)) return;
+        pointerCaptured = true;
+        book.setPointerCapture(event.pointerId);
+      }, { signal });
+
+      const finishPointer = (event: PointerEvent) => {
+        if (pointerId !== event.pointerId) return;
+        const distanceX = event.clientX - pointerStartX;
+        const distanceY = event.clientY - pointerStartY;
+        pointerId = undefined;
+        pointerCaptured = false;
+        if (Math.abs(distanceX) < 48 || Math.abs(distanceX) <= Math.abs(distanceY) * 1.2) return;
+        suppressPhotoClick = true;
+        if (distanceX < 0) goNext();
+        else goPrevious();
+        window.setTimeout(() => { suppressPhotoClick = false; }, 0);
+      };
+
+      book.addEventListener('pointerup', finishPointer, { signal });
+      book.addEventListener('pointercancel', (event) => {
+        if (pointerId !== event.pointerId) return;
+        pointerId = undefined;
+        pointerCaptured = false;
+      }, { signal });
+      book.addEventListener('click', (event) => {
+        if (!suppressPhotoClick) return;
+        event.preventDefault();
+        event.stopPropagation();
+      }, { capture: true, signal });
+
+      magazine.querySelectorAll<HTMLElement>('[data-lightbox-open]').forEach((opener) => {
+        opener.addEventListener('click', () => {
+          if (document.fullscreenElement === magazine) void document.exitFullscreen();
+        }, { signal });
+      });
+
+      if (fullscreen && fullscreenText && typeof magazine.requestFullscreen === 'function') {
+        fullscreen.hidden = false;
+        fullscreen.addEventListener('click', () => {
+          if (document.fullscreenElement === magazine) void document.exitFullscreen();
+          else void magazine.requestFullscreen();
+        }, { signal });
+
+        document.addEventListener('fullscreenchange', () => {
+          const active = document.fullscreenElement === magazine;
+          const label = active
+            ? magazine.dataset.exitFullscreenLabel ?? ''
+            : magazine.dataset.fullscreenLabel ?? '';
+          fullscreen.setAttribute('aria-label', label);
+          fullscreenText.textContent = label;
+        }, { signal });
+      }
+
+      render();
+    });
+  };
+
+  document.addEventListener('astro:page-load', setupMagazines);
+</script>
+
+<style>
+  .magazine {
+    width: 100%;
+    border: var(--rule-hair) solid var(--color-rule-2);
+    background: var(--color-graphite);
+    color: var(--color-on-dark);
+    outline: none;
+  }
+
+  .magazine:focus-visible {
+    outline: var(--outline-focus) solid var(--color-focus);
+    outline-offset: var(--outline-offset-focus);
+  }
+
+  .magazine__viewport {
+    position: relative;
+    padding: var(--space-lg) calc(var(--size-control) + var(--space-sm));
+    display: grid;
+    place-items: center;
+    perspective: 1600px;
+    overflow: hidden;
+  }
+
+  .magazine__book {
+    position: relative;
+    width: min(100%, 72rem, var(--magazine-spread-max-by-height));
+    aspect-ratio: var(--magazine-spread-ratio);
+    touch-action: pan-y;
+    transform-style: preserve-3d;
+  }
+
+  .magazine__pages {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .magazine__page {
+    position: absolute;
+    inset-block: 0;
+    width: 50%;
+    background: var(--color-graphite-2);
+    box-shadow: var(--shadow-magazine-page);
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transform-style: preserve-3d;
+    visibility: hidden;
+  }
+
+  .magazine__page[data-tone='paper'] {
+    background: var(--color-paper-2);
+  }
+
+  .magazine__page[data-position] {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+  }
+
+  .magazine__page[data-position='left'] {
+    inset-inline-start: 0;
+    border-inline-end: var(--rule-hair) solid var(--color-viewer-divider);
+    box-shadow: var(--shadow-magazine-left-page);
+    transform-origin: right center;
+  }
+
+  .magazine__page[data-position='right'] {
+    inset-inline-start: 50%;
+    box-shadow: var(--shadow-magazine-right-page);
+    transform-origin: left center;
+  }
+
+  .magazine__page[data-position='single'] {
+    inset-inline-start: 25%;
+    box-shadow: var(--shadow-magazine-page);
+  }
+
+  .magazine__photo {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    display: block;
+    background: transparent;
+    color: inherit;
+    cursor: zoom-in;
+  }
+
+  .magazine__photo:focus-visible {
+    outline: var(--outline-focus) solid var(--color-focus);
+    outline-offset: var(--outline-offset-inset);
+  }
+
+  .magazine__photo img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: var(--magazine-photo-position);
+    user-select: none;
+  }
+
+  .magazine__page[data-fit='contain'] .magazine__photo img {
+    object-fit: contain;
+  }
+
+  .magazine__cover-copy {
+    position: absolute;
+    inset: auto 0 0;
+    padding: var(--space-2xl) var(--space-lg) var(--space-lg);
+    display: grid;
+    gap: var(--space-sm);
+    background: linear-gradient(0deg, var(--color-overlay), transparent);
+    color: var(--color-viewer-ink);
+    text-align: start;
+  }
+
+  .magazine__cover-copy span,
+  .magazine__page-number {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .magazine__cover-copy strong {
+    max-width: 10ch;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-heading);
+  }
+
+  .magazine__page-number,
+  .magazine__expand {
+    position: absolute;
+    inset-block-start: var(--space-sm);
+    border: var(--rule-hair) solid var(--color-viewer-rule);
+    background: var(--color-viewer-surface);
+    color: var(--color-viewer-ink);
+  }
+
+  .magazine__page-number {
+    inset-inline-start: var(--space-sm);
+    padding: var(--space-2xs) var(--space-xs);
+  }
+
+  .magazine__expand {
+    inset-inline-end: var(--space-sm);
+    width: var(--size-control-sm);
+    height: var(--size-control-sm);
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transition: opacity var(--dur-micro) var(--ease-out);
+  }
+
+  .magazine__photo:focus-visible .magazine__expand {
+    opacity: 1;
+  }
+
+  .magazine__turn {
+    position: absolute;
+    inset-block-start: 50%;
+    z-index: var(--layer-overlay);
+    width: var(--size-control);
+    height: var(--size-control);
+    padding: 0;
+    border: var(--rule-hair) solid var(--color-viewer-rule);
+    border-radius: var(--radius-round);
+    display: grid;
+    place-items: center;
+    background: var(--color-viewer-surface);
+    color: var(--color-viewer-ink);
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition:
+      background var(--dur-micro) var(--ease-out),
+      opacity var(--dur-micro) var(--ease-out);
+  }
+
+  .magazine__turn--previous {
+    inset-inline-start: var(--space-sm);
+  }
+
+  .magazine__turn--next {
+    inset-inline-end: var(--space-sm);
+  }
+
+  .magazine__turn:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  .magazine__turn:focus-visible,
+  .magazine__fullscreen:focus-visible {
+    outline: var(--outline-control) solid var(--color-viewer-ink);
+    outline-offset: var(--outline-offset-control);
+  }
+
+  .magazine__toolbar {
+    padding: var(--space-sm) var(--space-md);
+    border-block: var(--rule-hair) solid var(--color-viewer-divider);
+    display: grid;
+    grid-template-columns: auto minmax(4rem, 1fr) auto;
+    align-items: center;
+    gap: var(--space-md);
+    color: var(--color-viewer-ink-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .magazine__count {
+    min-width: 9.5rem;
+  }
+
+  .magazine__progress {
+    width: 100%;
+    height: var(--space-3xs);
+    border: 0;
+    border-radius: var(--radius-round);
+    overflow: hidden;
+    appearance: none;
+    background: var(--color-viewer-rule);
+  }
+
+  .magazine__progress::-webkit-progress-bar {
+    background: var(--color-viewer-rule);
+  }
+
+  .magazine__progress::-webkit-progress-value {
+    background: var(--color-accent);
+  }
+
+  .magazine__progress::-moz-progress-bar {
+    background: var(--color-accent);
+  }
+
+  .magazine__fullscreen {
+    min-height: var(--size-control-sm);
+    padding: 0 var(--space-sm);
+    border: var(--rule-hair) solid var(--color-viewer-rule);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: transparent;
+    color: var(--color-viewer-ink);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .magazine__hint {
+    margin: 0;
+    padding: var(--space-sm) var(--space-md);
+    color: var(--color-viewer-ink-subtle);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-align: center;
+  }
+
+  .magazine:fullscreen {
+    padding: var(--space-md);
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    border: 0;
+    background: var(--color-viewer-canvas);
+  }
+
+  .magazine:fullscreen .magazine__viewport {
+    min-height: 0;
+  }
+
+  .magazine:fullscreen .magazine__book {
+    width: min(100%, var(--magazine-spread-max-by-height));
+  }
+
+  @media (hover: hover) {
+    .magazine__photo:hover .magazine__expand {
+      opacity: 1;
+    }
+
+    .magazine__turn:not(:disabled):hover,
+    .magazine__fullscreen:hover {
+      background: var(--color-viewer-hover);
+    }
+  }
+
+  @media (max-width: 47.99rem) {
+    .magazine__viewport {
+      padding: var(--space-md) calc(var(--size-control-sm) + var(--space-xs));
+    }
+
+    .magazine__book {
+      width: min(100%, 30rem, var(--magazine-page-max-by-height));
+      aspect-ratio: var(--magazine-page-ratio);
+    }
+
+    .magazine__page,
+    .magazine__page[data-position='left'],
+    .magazine__page[data-position='right'],
+    .magazine__page[data-position='single'] {
+      inset-inline-start: 0;
+      width: 100%;
+      border: 0;
+      box-shadow: var(--shadow-magazine-page);
+      transform-origin: center;
+    }
+
+    .magazine__turn--previous {
+      inset-inline-start: var(--space-xs);
+    }
+
+    .magazine__turn--next {
+      inset-inline-end: var(--space-xs);
+    }
+
+    .magazine__toolbar {
+      grid-template-columns: auto 1fr;
+    }
+
+    .magazine__progress {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+
+    .magazine__fullscreen {
+      justify-self: end;
+    }
+
+    .magazine__fullscreen span {
+      display: none;
+    }
+
+    .magazine__count {
+      min-width: 0;
+    }
+
+    .magazine:fullscreen .magazine__book {
+      width: min(100%, var(--magazine-page-max-by-height));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .magazine__expand,
+    .magazine__turn {
+      transition: none;
+    }
+  }
+</style>

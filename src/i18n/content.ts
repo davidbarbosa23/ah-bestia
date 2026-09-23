@@ -349,6 +349,19 @@ export interface UiCopy {
       close: string;
       hint: string;
     };
+    magazine: {
+      reader: string;
+      previous: string;
+      next: string;
+      fullscreen: string;
+      exitFullscreen: string;
+      openPhoto: string;
+      page: string;
+      pages: string;
+      of: string;
+      progress: string;
+      hint: string;
+    };
   };
   labs: {
     status: string;
@@ -432,6 +445,19 @@ export const ui = {
         reset: 'Reset zoom',
         close: 'Close full-screen viewer',
         hint: 'Swipe to browse. Pinch, scroll, or use + / - to zoom.',
+      },
+      magazine: {
+        reader: 'Magazine reader',
+        previous: 'Previous pages',
+        next: 'Next pages',
+        fullscreen: 'Enter full screen',
+        exitFullscreen: 'Exit full screen',
+        openPhoto: 'Open photograph',
+        page: 'Page',
+        pages: 'Pages',
+        of: 'of',
+        progress: 'Magazine reading progress',
+        hint: 'Use the arrow keys or swipe to turn pages. Select a photograph to inspect it.',
       },
     },
     labs: {
@@ -530,6 +556,19 @@ export const ui = {
         reset: 'Restablecer zoom',
         close: 'Cerrar visor de pantalla completa',
         hint: 'Desliza para navegar. Pellizca, desplázate o usa + / - para ampliar.',
+      },
+      magazine: {
+        reader: 'Lector de revista',
+        previous: 'Páginas anteriores',
+        next: 'Páginas siguientes',
+        fullscreen: 'Ver en pantalla completa',
+        exitFullscreen: 'Salir de pantalla completa',
+        openPhoto: 'Abrir fotografía',
+        page: 'Página',
+        pages: 'Páginas',
+        of: 'de',
+        progress: 'Progreso de lectura de la revista',
+        hint: 'Usa las flechas o desliza para pasar páginas. Selecciona una fotografía para verla en detalle.',
       },
     },
     labs: {

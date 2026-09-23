@@ -20,20 +20,60 @@ interface ImageModule {
   default: ImageMetadata;
 }
 
+type MagazinePageFit = 'cover' | 'contain';
+type MagazinePageTone = 'paper' | 'ink';
+
+interface MagazinePageConfig {
+  image: string;
+  fit?: MagazinePageFit;
+  position?: string;
+  tone?: MagazinePageTone;
+  alt?: Partial<Record<Lang, string>>;
+}
+
+interface MagazineConfig {
+  pageSize?: {
+    width: number;
+    height: number;
+  };
+  pages: MagazinePageConfig[];
+}
+
 export interface GalleryImage {
   filename: string;
   image: ImageMetadata;
 }
 
+export interface MagazinePage extends MagazinePageConfig {
+  imageAsset: ImageMetadata;
+  fit: MagazinePageFit;
+  position: string;
+  tone: MagazinePageTone;
+}
+
+export interface PhotoMagazine {
+  pageSize: {
+    width: number;
+    height: number;
+  };
+  pages: MagazinePage[];
+}
+
 export interface PhotoGallery extends GalleryDefinition {
   cover: ImageMetadata;
   images: GalleryImage[];
+  magazine?: PhotoMagazine;
 }
 
 const imageModules = import.meta.glob<ImageModule>(
   '../assets/photography/galleries/**/*.jpg',
   { eager: true },
 );
+
+const magazineConfigs = import.meta.glob<MagazineConfig>('./magazines/*.json', {
+  eager: true,
+  import: 'default',
+});
 
 const definitions: GalleryDefinition[] = [
   {
@@ -199,7 +239,46 @@ export const photoGalleries: PhotoGallery[] = definitions.map((definition) => {
     throw new Error(`Missing cover image ${definition.coverFilename} for ${definition.slug}`);
   }
 
-  return { ...definition, cover, images };
+  const magazineConfig = magazineConfigs[`./magazines/${definition.slug}.json`];
+  let magazine: PhotoMagazine | undefined;
+
+  if (magazineConfig) {
+    const pageSize = magazineConfig.pageSize ?? { width: 2, height: 3 };
+    if (pageSize.width <= 0 || pageSize.height <= 0) {
+      throw new Error(`Invalid magazine page size for ${definition.slug}`);
+    }
+    if (!Array.isArray(magazineConfig.pages) || magazineConfig.pages.length === 0) {
+      throw new Error(`Magazine ${definition.slug} must include at least one page`);
+    }
+
+    magazine = {
+      pageSize,
+      pages: magazineConfig.pages.map((page, index) => {
+        const imageAsset = images.find(({ filename }) => filename === page.image)?.image;
+        if (!imageAsset) {
+          throw new Error(
+            `Missing magazine image ${page.image} on page ${index + 1} for ${definition.slug}`,
+          );
+        }
+        if (page.fit && !['cover', 'contain'].includes(page.fit)) {
+          throw new Error(`Invalid fit on page ${index + 1} for ${definition.slug}`);
+        }
+        if (page.tone && !['paper', 'ink'].includes(page.tone)) {
+          throw new Error(`Invalid tone on page ${index + 1} for ${definition.slug}`);
+        }
+
+        return {
+          ...page,
+          imageAsset,
+          fit: page.fit ?? 'cover',
+          position: page.position ?? '50% 50%',
+          tone: page.tone ?? 'ink',
+        };
+      }),
+    };
+  }
+
+  return { ...definition, cover, images, magazine };
 });
 
 export function getNextGallery(slug: string) {
