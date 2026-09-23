@@ -24,7 +24,7 @@ const spreadMaxByHeight = `${Math.round(70 * pageWidth * 2 / pageHeight * 1000) 
 
 const pages = await Promise.all(
   magazine.pages.map(async (page, index) => {
-    const [small, large, viewer] = await Promise.all([
+    const [small, large, expanded] = await Promise.all([
       getImage({
         src: page.imageAsset,
         width: Math.min(720, page.imageAsset.width),
@@ -39,9 +39,9 @@ const pages = await Promise.all(
       }),
       getImage({
         src: page.imageAsset,
-        width: Math.min(1600, page.imageAsset.width),
+        width: Math.min(2800, page.imageAsset.width),
         format: 'webp',
-        quality: 84,
+        quality: 88,
       }),
     ]);
 
@@ -51,7 +51,7 @@ const pages = await Promise.all(
         ?? `${labels.series.photo} ${index + 1} ${labels.series.from} ${content.title}`,
       small,
       large,
-      viewer,
+      expanded,
     };
   }),
 );
@@ -85,16 +85,7 @@ const pages = await Promise.all(
             aria-hidden={index === 0 ? 'false' : 'true'}
             style={`--magazine-photo-position: ${page.position};`}
           >
-            <button
-              class="magazine__photo"
-              type="button"
-              aria-label={`${labels.magazine.openPhoto}: ${page.alt}`}
-              data-lightbox-open
-              data-lightbox-src={page.viewer.src}
-              data-lightbox-alt={page.alt}
-              data-lightbox-filename={page.image}
-              tabindex={index === 0 ? 0 : -1}
-            >
+            <div class="magazine__photo">
               <img
                 src={index === 0 ? page.large.src : undefined}
                 srcset={index === 0 ? `${page.small.src} ${page.small.attributes.width}w, ${page.large.src} ${page.large.attributes.width}w` : undefined}
@@ -108,18 +99,9 @@ const pages = await Promise.all(
                 data-magazine-image
                 data-src={page.large.src}
                 data-srcset={`${page.small.src} ${page.small.attributes.width}w, ${page.large.src} ${page.large.attributes.width}w`}
+                data-expanded-src={page.expanded.src}
               />
-              {index === 0 && (
-                <span class="magazine__cover-copy" aria-hidden="true">
-                  <span>{labels.series.kicker} · {content.location}</span>
-                  <strong>{content.title}</strong>
-                </span>
-              )}
-              <span class="magazine__page-number" aria-hidden="true">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <span class="magazine__expand" aria-hidden="true"><Icon name="arrow-up-right" /></span>
-            </button>
+            </div>
           </li>
         ))}
       </ol>
@@ -155,6 +137,34 @@ const pages = await Promise.all(
       max={pages.length}
       aria-label={labels.magazine.progress}
     ></progress>
+    <div
+      class="magazine__zoom-controls"
+      data-magazine-zoom-controls
+      role="group"
+      aria-label={labels.magazine.zoomControls}
+      hidden
+    >
+      <button
+        type="button"
+        data-magazine-zoom-out
+        aria-label={labels.lightbox.zoomOut}
+        title={labels.lightbox.zoomOut}
+        disabled
+      ><Icon name="minus" /></button>
+      <button
+        class="magazine__zoom-value"
+        type="button"
+        data-magazine-zoom-reset
+        aria-label={labels.lightbox.reset}
+        title={labels.lightbox.reset}
+      >100%</button>
+      <button
+        type="button"
+        data-magazine-zoom-in
+        aria-label={labels.lightbox.zoomIn}
+        title={labels.lightbox.zoomIn}
+      ><Icon name="plus" /></button>
+    </div>
     <button
       class="magazine__fullscreen"
       type="button"
@@ -180,6 +190,7 @@ const pages = await Promise.all(
     const { signal } = controlledDocument.magazineController;
 
     document.querySelectorAll<HTMLElement>('[data-magazine]').forEach((magazine) => {
+      const viewport = magazine.querySelector<HTMLElement>('.magazine__viewport');
       const book = magazine.querySelector<HTMLElement>('[data-magazine-book]');
       const pages = [...magazine.querySelectorAll<HTMLElement>('[data-magazine-page]')];
       const previous = magazine.querySelector<HTMLButtonElement>('[data-magazine-previous]');
@@ -188,8 +199,13 @@ const pages = await Promise.all(
       const progress = magazine.querySelector<HTMLProgressElement>('[data-magazine-progress]');
       const fullscreen = magazine.querySelector<HTMLButtonElement>('[data-magazine-fullscreen]');
       const fullscreenText = magazine.querySelector<HTMLElement>('[data-magazine-fullscreen-text]');
+      const zoomControls = magazine.querySelector<HTMLElement>('[data-magazine-zoom-controls]');
+      const zoomOut = magazine.querySelector<HTMLButtonElement>('[data-magazine-zoom-out]');
+      const zoomReset = magazine.querySelector<HTMLButtonElement>('[data-magazine-zoom-reset]');
+      const zoomIn = magazine.querySelector<HTMLButtonElement>('[data-magazine-zoom-in]');
 
-      if (!book || !pages.length || !previous || !next || !count || !progress) return;
+      if (!viewport || !book || !pages.length || !previous || !next || !count || !progress) return;
+      if (!zoomControls || !zoomOut || !zoomReset || !zoomIn) return;
 
       const wideLayout = window.matchMedia('(min-width: 48rem)');
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -197,12 +213,20 @@ const pages = await Promise.all(
       const pageLabel = magazine.dataset.pageLabel ?? '';
       const pagesLabel = magazine.dataset.pagesLabel ?? '';
       const ofLabel = magazine.dataset.ofLabel ?? '';
+      const minimumScale = 1;
+      const maximumScale = 3;
       let currentIndex = 0;
       let pointerId: number | undefined;
       let pointerStartX = 0;
       let pointerStartY = 0;
       let pointerCaptured = false;
-      let suppressPhotoClick = false;
+      let lastPointerX = 0;
+      let lastPointerY = 0;
+      let scale = minimumScale;
+      let translateX = 0;
+      let translateY = 0;
+      let pinchStartDistance = 0;
+      let pinchStartScale = minimumScale;
 
       const normalizeIndex = (requestedIndex: number) => {
         const clampedIndex = Math.max(0, Math.min(lastIndex, requestedIndex));
@@ -217,11 +241,54 @@ const pages = await Promise.all(
         return [startIndex, Math.min(lastIndex, startIndex + 1)];
       };
 
+      const isFullscreen = () => document.fullscreenElement === magazine;
+
+      const clampPosition = () => {
+        const maxX = Math.max(0, (book.offsetWidth * scale - viewport.clientWidth) / 2);
+        const maxY = Math.max(0, (book.offsetHeight * scale - viewport.clientHeight) / 2);
+        translateX = Math.min(maxX, Math.max(-maxX, translateX));
+        translateY = Math.min(maxY, Math.max(-maxY, translateY));
+      };
+
+      const renderZoom = () => {
+        clampPosition();
+        book.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
+        zoomReset.textContent = `${Math.round(scale * 100)}%`;
+        zoomOut.disabled = scale <= minimumScale;
+        zoomIn.disabled = scale >= maximumScale;
+        magazine.classList.toggle('is-zoomed', scale > minimumScale);
+      };
+
+      const resetZoom = () => {
+        scale = minimumScale;
+        translateX = 0;
+        translateY = 0;
+        renderZoom();
+      };
+
+      const setScale = (nextScale: number) => {
+        scale = Math.min(maximumScale, Math.max(minimumScale, nextScale));
+        if (scale === minimumScale) {
+          translateX = 0;
+          translateY = 0;
+        }
+        renderZoom();
+      };
+
       const loadPage = (index: number) => {
         const image = pages[index]?.querySelector<HTMLImageElement>('[data-magazine-image]');
         if (!image || image.getAttribute('src')) return;
         image.src = image.dataset.src ?? '';
         image.srcset = image.dataset.srcset ?? '';
+      };
+
+      const loadExpandedPage = (index: number) => {
+        const image = pages[index]?.querySelector<HTMLImageElement>('[data-magazine-image]');
+        const source = image?.dataset.expandedSrc;
+        if (!image || !source || image.dataset.expandedLoaded === 'true') return;
+        image.removeAttribute('srcset');
+        image.src = source;
+        image.dataset.expandedLoaded = 'true';
       };
 
       const preloadAround = (indices: number[]) => {
@@ -259,14 +326,12 @@ const pages = await Promise.all(
         const visible = visibleIndices(currentIndex);
         const visibleSet = new Set(visible);
         preloadAround(visible);
+        if (isFullscreen()) visible.forEach(loadExpandedPage);
 
         pages.forEach((page, index) => {
           const active = visibleSet.has(index);
           page.setAttribute('aria-hidden', String(!active));
           page.toggleAttribute('inert', !active);
-          const opener = page.querySelector<HTMLButtonElement>('[data-lightbox-open]');
-          if (opener) opener.tabIndex = active ? 0 : -1;
-
           if (!active) {
             delete page.dataset.position;
           } else if (visible.length === 1) {
@@ -291,6 +356,7 @@ const pages = await Promise.all(
         const nextIndex = normalizeIndex(requestedIndex);
         if (nextIndex === currentIndex) return;
         const direction = nextIndex > currentIndex ? 'next' : 'previous';
+        resetZoom();
         currentIndex = nextIndex;
         render(true, direction);
       };
@@ -304,9 +370,27 @@ const pages = await Promise.all(
 
       previous.addEventListener('click', goPrevious, { signal });
       next.addEventListener('click', goNext, { signal });
-      wideLayout.addEventListener('change', () => render(), { signal });
+      wideLayout.addEventListener('change', () => {
+        resetZoom();
+        render();
+      }, { signal });
 
       magazine.addEventListener('keydown', (event) => {
+        if (isFullscreen() && (event.key === '+' || event.key === '=')) {
+          event.preventDefault();
+          setScale(scale + 0.25);
+          return;
+        }
+        if (isFullscreen() && (event.key === '-' || event.key === '_')) {
+          event.preventDefault();
+          setScale(scale - 0.25);
+          return;
+        }
+        if (isFullscreen() && event.key === '0') {
+          event.preventDefault();
+          resetZoom();
+          return;
+        }
         if (event.key === 'ArrowLeft') {
           event.preventDefault();
           goPrevious();
@@ -328,13 +412,30 @@ const pages = await Promise.all(
       book.addEventListener('pointerdown', (event) => {
         if (!event.isPrimary) return;
         pointerId = event.pointerId;
+        if (isFullscreen() && scale > minimumScale) {
+          lastPointerX = event.clientX;
+          lastPointerY = event.clientY;
+          pointerCaptured = true;
+          book.setPointerCapture(event.pointerId);
+          magazine.classList.add('is-dragging');
+          return;
+        }
         pointerStartX = event.clientX;
         pointerStartY = event.clientY;
         pointerCaptured = false;
       }, { signal });
 
       book.addEventListener('pointermove', (event) => {
-        if (pointerId !== event.pointerId || pointerCaptured) return;
+        if (pointerId !== event.pointerId) return;
+        if (isFullscreen() && scale > minimumScale) {
+          translateX += event.clientX - lastPointerX;
+          translateY += event.clientY - lastPointerY;
+          lastPointerX = event.clientX;
+          lastPointerY = event.clientY;
+          renderZoom();
+          return;
+        }
+        if (pointerCaptured) return;
         const distanceX = event.clientX - pointerStartX;
         const distanceY = event.clientY - pointerStartY;
         if (Math.abs(distanceX) <= 8 || Math.abs(distanceX) <= Math.abs(distanceY)) return;
@@ -344,15 +445,16 @@ const pages = await Promise.all(
 
       const finishPointer = (event: PointerEvent) => {
         if (pointerId !== event.pointerId) return;
+        const wasPanning = isFullscreen() && scale > minimumScale;
         const distanceX = event.clientX - pointerStartX;
         const distanceY = event.clientY - pointerStartY;
         pointerId = undefined;
         pointerCaptured = false;
+        magazine.classList.remove('is-dragging');
+        if (wasPanning) return;
         if (Math.abs(distanceX) < 48 || Math.abs(distanceX) <= Math.abs(distanceY) * 1.2) return;
-        suppressPhotoClick = true;
         if (distanceX < 0) goNext();
         else goPrevious();
-        window.setTimeout(() => { suppressPhotoClick = false; }, 0);
       };
 
       book.addEventListener('pointerup', finishPointer, { signal });
@@ -360,18 +462,54 @@ const pages = await Promise.all(
         if (pointerId !== event.pointerId) return;
         pointerId = undefined;
         pointerCaptured = false;
+        magazine.classList.remove('is-dragging');
       }, { signal });
-      book.addEventListener('click', (event) => {
-        if (!suppressPhotoClick) return;
-        event.preventDefault();
-        event.stopPropagation();
-      }, { capture: true, signal });
 
-      magazine.querySelectorAll<HTMLElement>('[data-lightbox-open]').forEach((opener) => {
-        opener.addEventListener('click', () => {
-          if (document.fullscreenElement === magazine) void document.exitFullscreen();
-        }, { signal });
-      });
+      zoomOut.addEventListener('click', () => setScale(scale - 0.25), { signal });
+      zoomIn.addEventListener('click', () => setScale(scale + 0.25), { signal });
+      zoomReset.addEventListener('click', resetZoom, { signal });
+
+      book.addEventListener('dblclick', (event) => {
+        if (!isFullscreen()) return;
+        event.preventDefault();
+        setScale(scale === minimumScale ? 2 : minimumScale);
+      }, { signal });
+
+      viewport.addEventListener('wheel', (event) => {
+        if (!isFullscreen()) return;
+        event.preventDefault();
+        setScale(scale + (event.deltaY < 0 ? 0.25 : -0.25));
+      }, { passive: false, signal });
+
+      const touchDistance = (touches: TouchList) => {
+        const first = touches[0];
+        const second = touches[1];
+        return Math.hypot(second.clientX - first.clientX, second.clientY - first.clientY);
+      };
+
+      viewport.addEventListener('touchstart', (event) => {
+        if (!isFullscreen() || event.touches.length !== 2) return;
+        event.preventDefault();
+        pinchStartDistance = touchDistance(event.touches);
+        pinchStartScale = scale;
+        pointerId = undefined;
+        pointerCaptured = false;
+        magazine.classList.remove('is-dragging');
+      }, { passive: false, signal });
+
+      viewport.addEventListener('touchmove', (event) => {
+        if (!isFullscreen() || event.touches.length !== 2 || pinchStartDistance === 0) return;
+        event.preventDefault();
+        setScale(pinchStartScale * touchDistance(event.touches) / pinchStartDistance);
+      }, { passive: false, signal });
+
+      const finishPinch = (event: TouchEvent) => {
+        if (event.touches.length < 2) pinchStartDistance = 0;
+      };
+
+      viewport.addEventListener('touchend', finishPinch, { signal });
+      viewport.addEventListener('touchcancel', finishPinch, { signal });
+      window.addEventListener('resize', renderZoom, { signal });
 
       if (fullscreen && fullscreenText && typeof magazine.requestFullscreen === 'function') {
         fullscreen.hidden = false;
@@ -387,6 +525,16 @@ const pages = await Promise.all(
             : magazine.dataset.fullscreenLabel ?? '';
           fullscreen.setAttribute('aria-label', label);
           fullscreenText.textContent = label;
+          zoomControls.hidden = !active;
+          pointerId = undefined;
+          pointerCaptured = false;
+          magazine.classList.remove('is-dragging');
+          if (active) {
+            render();
+            requestAnimationFrame(renderZoom);
+          } else {
+            resetZoom();
+          }
         }, { signal });
       }
 
@@ -426,6 +574,7 @@ const pages = await Promise.all(
     aspect-ratio: var(--magazine-spread-ratio);
     touch-action: pan-y;
     transform-style: preserve-3d;
+    transition: transform var(--dur-micro) var(--ease-out);
   }
 
   .magazine__pages {
@@ -481,17 +630,9 @@ const pages = await Promise.all(
     position: relative;
     width: 100%;
     height: 100%;
-    padding: 0;
-    border: 0;
     display: block;
     background: transparent;
     color: inherit;
-    cursor: zoom-in;
-  }
-
-  .magazine__photo:focus-visible {
-    outline: var(--outline-focus) solid var(--color-focus);
-    outline-offset: var(--outline-offset-inset);
   }
 
   .magazine__photo img {
@@ -505,62 +646,6 @@ const pages = await Promise.all(
 
   .magazine__page[data-fit='contain'] .magazine__photo img {
     object-fit: contain;
-  }
-
-  .magazine__cover-copy {
-    position: absolute;
-    inset: auto 0 0;
-    padding: var(--space-2xl) var(--space-lg) var(--space-lg);
-    display: grid;
-    gap: var(--space-sm);
-    background: linear-gradient(0deg, var(--color-overlay), transparent);
-    color: var(--color-viewer-ink);
-    text-align: start;
-  }
-
-  .magazine__cover-copy span,
-  .magazine__page-number {
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-  }
-
-  .magazine__cover-copy strong {
-    max-width: 10ch;
-    font-family: var(--font-display);
-    font-size: var(--text-2xl);
-    font-weight: var(--weight-medium);
-    letter-spacing: var(--tracking-tight);
-    line-height: var(--leading-heading);
-  }
-
-  .magazine__page-number,
-  .magazine__expand {
-    position: absolute;
-    inset-block-start: var(--space-sm);
-    border: var(--rule-hair) solid var(--color-viewer-rule);
-    background: var(--color-viewer-surface);
-    color: var(--color-viewer-ink);
-  }
-
-  .magazine__page-number {
-    inset-inline-start: var(--space-sm);
-    padding: var(--space-2xs) var(--space-xs);
-  }
-
-  .magazine__expand {
-    inset-inline-end: var(--space-sm);
-    width: var(--size-control-sm);
-    height: var(--size-control-sm);
-    display: grid;
-    place-items: center;
-    opacity: 0;
-    transition: opacity var(--dur-micro) var(--ease-out);
-  }
-
-  .magazine__photo:focus-visible .magazine__expand {
-    opacity: 1;
   }
 
   .magazine__turn {
@@ -597,7 +682,8 @@ const pages = await Promise.all(
   }
 
   .magazine__turn:focus-visible,
-  .magazine__fullscreen:focus-visible {
+  .magazine__fullscreen:focus-visible,
+  .magazine__zoom-controls button:focus-visible {
     outline: var(--outline-control) solid var(--color-viewer-ink);
     outline-offset: var(--outline-offset-control);
   }
@@ -640,6 +726,41 @@ const pages = await Promise.all(
     background: var(--color-accent);
   }
 
+  .magazine__zoom-controls {
+    border: var(--rule-hair) solid var(--color-viewer-rule);
+    display: inline-grid;
+    grid-template-columns: var(--size-control-sm) 3.75rem var(--size-control-sm);
+    justify-self: end;
+  }
+
+  .magazine__zoom-controls[hidden] {
+    display: none;
+  }
+
+  .magazine__zoom-controls button {
+    min-width: var(--size-control-sm);
+    min-height: var(--size-control-sm);
+    padding: 0;
+    border: 0;
+    border-inline-start: var(--rule-hair) solid var(--color-viewer-rule);
+    display: grid;
+    place-items: center;
+    background: transparent;
+    color: var(--color-viewer-ink);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .magazine__zoom-controls button:first-child {
+    border-inline-start: 0;
+  }
+
+  .magazine__zoom-controls button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
   .magazine__fullscreen {
     min-height: var(--size-control-sm);
     padding: 0 var(--space-sm);
@@ -666,26 +787,43 @@ const pages = await Promise.all(
   .magazine:fullscreen {
     padding: var(--space-md);
     display: grid;
-    grid-template-rows: minmax(0, 1fr) auto auto;
+    grid-template-rows: minmax(0, 1fr) auto;
     border: 0;
     background: var(--color-viewer-canvas);
   }
 
   .magazine:fullscreen .magazine__viewport {
     min-height: 0;
+    touch-action: none;
   }
 
   .magazine:fullscreen .magazine__book {
     width: min(100%, var(--magazine-spread-max-by-height));
+    touch-action: none;
+  }
+
+  .magazine:fullscreen .magazine__toolbar {
+    grid-template-columns: auto minmax(4rem, 1fr) auto auto;
+  }
+
+  .magazine:fullscreen .magazine__hint {
+    display: none;
+  }
+
+  .magazine:fullscreen.is-zoomed .magazine__book {
+    cursor: grab;
+    will-change: transform;
+  }
+
+  .magazine:fullscreen.is-dragging .magazine__book {
+    cursor: grabbing;
+    transition: none;
   }
 
   @media (hover: hover) {
-    .magazine__photo:hover .magazine__expand {
-      opacity: 1;
-    }
-
     .magazine__turn:not(:disabled):hover,
-    .magazine__fullscreen:hover {
+    .magazine__fullscreen:hover,
+    .magazine__zoom-controls button:not(:disabled):hover {
       background: var(--color-viewer-hover);
     }
   }
@@ -743,10 +881,25 @@ const pages = await Promise.all(
     .magazine:fullscreen .magazine__book {
       width: min(100%, var(--magazine-page-max-by-height));
     }
+
+    .magazine:fullscreen .magazine__toolbar {
+      grid-template-columns: auto 1fr auto;
+    }
+
+    .magazine:fullscreen .magazine__zoom-controls {
+      grid-column: 1 / -1;
+      grid-row: 3;
+      justify-self: center;
+    }
+
+    .magazine:fullscreen .magazine__fullscreen {
+      grid-column: 3;
+      grid-row: 1;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .magazine__expand,
+    .magazine__book,
     .magazine__turn {
       transition: none;
     }
