@@ -243,7 +243,7 @@ export const photoGalleries: PhotoGallery[] = definitions.map((definition) => {
   let magazine: PhotoMagazine | undefined;
 
   if (magazineConfig) {
-    const pageSize = magazineConfig.pageSize ?? { width: 2, height: 3 };
+    const pageSize = magazineConfig.pageSize ?? { width: 3, height: 4 };
     if (pageSize.width <= 0 || pageSize.height <= 0) {
       throw new Error(`Invalid magazine page size for ${definition.slug}`);
     }

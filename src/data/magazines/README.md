@@ -4,7 +4,7 @@ Add a JSON file whose filename matches a photo gallery slug to render that galle
 
 ```json
 {
-  "pageSize": { "width": 2, "height": 3 },
+  "pageSize": { "width": 3, "height": 4 },
   "pages": [
     {
       "image": "photo.jpg",
@@ -20,7 +20,7 @@ Add a JSON file whose filename matches a photo gallery slug to render that galle
 }
 ```
 
-- `pageSize` controls the physical page proportion and defaults to `2 × 3`.
+- `pageSize` controls the physical page proportion and defaults to `3 × 4`.
 - `pages` controls the exact image selection and reading order. The first entry is the cover.
 - `image` must match a filename in that gallery's asset folder.
 - `fit` accepts `cover` (default) or `contain`.
