@@ -934,28 +934,31 @@ const pages = await Promise.all(
     }
 
     .magazine.is-fullscreen .magazine__toolbar {
-      grid-template-columns: minmax(0, 1fr) auto auto;
-      grid-template-rows: var(--size-control-sm);
-      gap: var(--space-xs);
-      padding: var(--space-2xs) var(--space-xs);
+      position: absolute;
+      inset: 0;
+      z-index: var(--layer-overlay);
+      display: block;
+      padding: 0;
+      border: 0;
+      pointer-events: none;
     }
 
     .magazine.is-fullscreen .magazine__count {
       position: absolute;
-      width: 1px;
-      height: 1px;
-      margin: -1px;
-      padding: 0;
-      overflow: hidden;
-      clip: rect(0 0 0 0);
-      white-space: nowrap;
-      border: 0;
+      inset-block-end: max(var(--space-md), env(safe-area-inset-bottom));
+      inset-inline: var(--space-md);
+      min-width: 0;
+      color: var(--color-viewer-ink-subtle);
+      font-size: var(--text-xs);
+      line-height: var(--leading-none);
+      text-align: center;
+      transform: scale(0.8);
+      transform-origin: center bottom;
+      pointer-events: auto;
     }
 
     .magazine.is-fullscreen .magazine__progress {
-      grid-column: 1;
-      grid-row: 1;
-      align-self: center;
+      display: none;
     }
 
     .magazine.is-fullscreen .magazine__turn {
@@ -964,14 +967,20 @@ const pages = await Promise.all(
     }
 
     .magazine.is-fullscreen .magazine__zoom-controls {
-      grid-column: 2;
-      grid-row: 1;
-      justify-self: end;
+      position: absolute;
+      inset-block-start: max(var(--space-xs), env(safe-area-inset-top));
+      inset-inline-start: max(var(--space-xs), env(safe-area-inset-left));
+      pointer-events: auto;
     }
 
     .magazine.is-fullscreen .magazine__fullscreen {
-      grid-column: 3;
-      grid-row: 1;
+      position: absolute;
+      inset-block-start: max(var(--space-xs), env(safe-area-inset-top));
+      inset-inline-end: max(var(--space-xs), env(safe-area-inset-right));
+      min-width: var(--size-control-sm);
+      padding-inline: 0;
+      justify-content: center;
+      pointer-events: auto;
     }
   }
 
