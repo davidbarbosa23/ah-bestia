@@ -119,11 +119,11 @@
   --size-back-to-top-compact: 3.25rem;
   --size-back-to-top-icon: 1.35rem;
   --size-back-to-top-label: 0.55rem;
-  --magazine-page-ratio: 2 / 3;
-  --magazine-spread-ratio: 4 / 3;
-  --magazine-page-max-by-height: 43.333svh;
-  --magazine-spread-max-by-height: 93.333svh;
-  --magazine-fullscreen-spread-max-by-height: 117.333dvh;
+  --magazine-page-ratio: 3 / 4;
+  --magazine-spread-ratio: 3 / 2;
+  --magazine-page-max-by-height: 52.5svh;
+  --magazine-spread-max-by-height: 105svh;
+  --magazine-fullscreen-spread-max-by-height: 132dvh;
   --magazine-photo-position: 50% 50%;
   --back-to-top-padding: 0.45rem 0.35rem 0.3rem;
   --back-to-top-label-gap: 0.05rem;
