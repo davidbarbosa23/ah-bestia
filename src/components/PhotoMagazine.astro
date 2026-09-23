@@ -275,20 +275,32 @@ const pages = await Promise.all(
         renderZoom();
       };
 
+      const decodeImage = (image: HTMLImageElement) => image.decode().catch(() => {
+        // Keep the browser's normal loading and error behavior if decoding is interrupted.
+      });
+
       const loadPage = (index: number) => {
         const image = pages[index]?.querySelector<HTMLImageElement>('[data-magazine-image]');
-        if (!image || image.getAttribute('src')) return;
-        image.src = image.dataset.src ?? '';
-        image.srcset = image.dataset.srcset ?? '';
+        if (!image) return Promise.resolve();
+        if (!image.getAttribute('src')) {
+          image.loading = 'eager';
+          image.srcset = image.dataset.srcset ?? '';
+          image.src = image.dataset.src ?? '';
+        }
+        return decodeImage(image);
       };
 
       const loadExpandedPage = (index: number) => {
         const image = pages[index]?.querySelector<HTMLImageElement>('[data-magazine-image]');
         const source = image?.dataset.expandedSrc;
-        if (!image || !source || image.dataset.expandedLoaded === 'true') return;
-        image.removeAttribute('srcset');
-        image.src = source;
-        image.dataset.expandedLoaded = 'true';
+        if (!image || !source) return Promise.resolve();
+        if (image.dataset.expandedLoaded !== 'true') {
+          image.loading = 'eager';
+          image.removeAttribute('srcset');
+          image.src = source;
+          image.dataset.expandedLoaded = 'true';
+        }
+        return decodeImage(image);
       };
 
       const preloadAround = (indices: number[]) => {
@@ -298,8 +310,16 @@ const pages = await Promise.all(
           ? [first - 2, first - 1, ...indices, last + 1, last + 2]
           : [first - 1, first, first + 1];
         candidates.forEach((index) => {
-          if (index >= 0 && index <= lastIndex) loadPage(index);
+          if (index >= 0 && index <= lastIndex) void loadPage(index);
         });
+      };
+
+      const preloadNextExpandedTurn = (indices: number[]) => {
+        const lastVisible = indices.at(-1) ?? currentIndex;
+        if (lastVisible >= lastIndex) return;
+        const nextStart = normalizeIndex(lastVisible + 1);
+        if (nextStart <= lastVisible) return;
+        visibleIndices(nextStart).forEach((index) => void loadExpandedPage(index));
       };
 
       const animateTurn = (indices: number[], direction: 'next' | 'previous') => {
@@ -326,7 +346,10 @@ const pages = await Promise.all(
         const visible = visibleIndices(currentIndex);
         const visibleSet = new Set(visible);
         preloadAround(visible);
-        if (isFullscreen()) visible.forEach(loadExpandedPage);
+        if (isFullscreen()) {
+          visible.forEach((index) => void loadExpandedPage(index));
+          preloadNextExpandedTurn(visible);
+        }
 
         pages.forEach((page, index) => {
           const active = visibleSet.has(index);
