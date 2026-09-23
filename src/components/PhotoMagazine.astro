@@ -240,7 +240,8 @@ const pages = await Promise.all(
         return [startIndex, Math.min(lastIndex, startIndex + 1)];
       };
 
-      const isFullscreen = () => document.fullscreenElement === magazine;
+      const isFallbackExpanded = () => magazine.classList.contains('is-expanded');
+      const isFullscreen = () => document.fullscreenElement === magazine || isFallbackExpanded();
 
       const clampPosition = () => {
         const maxX = Math.max(0, (book.offsetWidth * scale - viewport.clientWidth) / 2);
@@ -384,10 +385,49 @@ const pages = await Promise.all(
       const goPrevious = () => goTo(currentIndex > 1 ? currentIndex - 2 : currentIndex - 1);
       const goNext = () => goTo(currentIndex > 0 ? currentIndex + 2 : currentIndex + 1);
 
+      const syncFullscreenState = () => {
+        const active = isFullscreen();
+        const label = active
+          ? magazine.dataset.exitFullscreenLabel ?? ''
+          : magazine.dataset.fullscreenLabel ?? '';
+        magazine.classList.toggle('is-fullscreen', active);
+        fullscreen?.setAttribute('aria-label', label);
+        if (fullscreenText) fullscreenText.textContent = label;
+        zoomControls.hidden = !active;
+        pointerId = undefined;
+        pointerCaptured = false;
+        magazine.classList.remove('is-dragging');
+        if (active) {
+          render();
+          requestAnimationFrame(renderZoom);
+        } else {
+          resetZoom();
+        }
+      };
+
+      const enterFallbackFullscreen = () => {
+        magazine.classList.add('is-expanded');
+        document.body.classList.add('magazine-expanded');
+        syncFullscreenState();
+        magazine.focus({ preventScroll: true });
+      };
+
+      const exitFallbackFullscreen = () => {
+        magazine.classList.remove('is-expanded');
+        document.body.classList.remove('magazine-expanded');
+        syncFullscreenState();
+        fullscreen?.focus({ preventScroll: true });
+      };
+
       previous.addEventListener('click', goPrevious, { signal });
       next.addEventListener('click', goNext, { signal });
 
       magazine.addEventListener('keydown', (event) => {
+        if (isFallbackExpanded() && event.key === 'Escape') {
+          event.preventDefault();
+          exitFallbackFullscreen();
+          return;
+        }
         if (isFullscreen() && (event.key === '+' || event.key === '=')) {
           event.preventDefault();
           setScale(scale + 0.25);
@@ -523,31 +563,33 @@ const pages = await Promise.all(
       viewport.addEventListener('touchcancel', finishPinch, { signal });
       window.addEventListener('resize', renderZoom, { signal });
 
-      if (fullscreen && fullscreenText && typeof magazine.requestFullscreen === 'function') {
+      if (fullscreen && fullscreenText) {
         fullscreen.hidden = false;
         fullscreen.addEventListener('click', () => {
-          if (document.fullscreenElement === magazine) void document.exitFullscreen();
-          else void magazine.requestFullscreen();
-        }, { signal });
-
-        document.addEventListener('fullscreenchange', () => {
-          const active = document.fullscreenElement === magazine;
-          const label = active
-            ? magazine.dataset.exitFullscreenLabel ?? ''
-            : magazine.dataset.fullscreenLabel ?? '';
-          fullscreen.setAttribute('aria-label', label);
-          fullscreenText.textContent = label;
-          zoomControls.hidden = !active;
-          pointerId = undefined;
-          pointerCaptured = false;
-          magazine.classList.remove('is-dragging');
-          if (active) {
-            render();
-            requestAnimationFrame(renderZoom);
-          } else {
-            resetZoom();
+          if (document.fullscreenElement === magazine) {
+            void document.exitFullscreen();
+            return;
+          }
+          if (isFallbackExpanded()) {
+            exitFallbackFullscreen();
+            return;
+          }
+          if (typeof magazine.requestFullscreen !== 'function') {
+            enterFallbackFullscreen();
+            return;
+          }
+          try {
+            void magazine.requestFullscreen().catch(enterFallbackFullscreen);
+          } catch {
+            enterFallbackFullscreen();
           }
         }, { signal });
+
+        document.addEventListener('fullscreenchange', syncFullscreenState, { signal });
+        signal.addEventListener('abort', () => {
+          magazine.classList.remove('is-expanded', 'is-fullscreen');
+          document.body.classList.remove('magazine-expanded');
+        }, { once: true });
       }
 
       render();
@@ -796,7 +838,12 @@ const pages = await Promise.all(
     text-align: center;
   }
 
-  .magazine:fullscreen {
+  :global(body.magazine-expanded) {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  .magazine.is-fullscreen {
     padding: var(--space-xs);
     display: grid;
     grid-template-rows: minmax(0, 1fr) auto;
@@ -804,31 +851,42 @@ const pages = await Promise.all(
     background: var(--color-viewer-canvas);
   }
 
-  .magazine:fullscreen .magazine__viewport {
+  .magazine.is-expanded {
+    position: fixed;
+    inset: 0;
+    z-index: var(--layer-skip-link);
+    width: 100%;
+    height: 100dvh;
+    padding-block: max(var(--space-xs), env(safe-area-inset-top)) max(var(--space-xs), env(safe-area-inset-bottom));
+    padding-inline: max(var(--space-xs), env(safe-area-inset-left)) max(var(--space-xs), env(safe-area-inset-right));
+    overflow: hidden;
+  }
+
+  .magazine.is-fullscreen .magazine__viewport {
     min-height: 0;
     padding-block: var(--space-xs);
     touch-action: none;
   }
 
-  .magazine:fullscreen .magazine__book {
+  .magazine.is-fullscreen .magazine__book {
     width: min(100%, var(--magazine-fullscreen-spread-max-by-height));
     touch-action: none;
   }
 
-  .magazine:fullscreen .magazine__toolbar {
+  .magazine.is-fullscreen .magazine__toolbar {
     grid-template-columns: auto minmax(4rem, 1fr) auto auto;
   }
 
-  .magazine:fullscreen .magazine__hint {
+  .magazine.is-fullscreen .magazine__hint {
     display: none;
   }
 
-  .magazine:fullscreen.is-zoomed .magazine__book {
+  .magazine.is-fullscreen.is-zoomed .magazine__book {
     cursor: grab;
     will-change: transform;
   }
 
-  .magazine:fullscreen.is-dragging .magazine__book {
+  .magazine.is-fullscreen.is-dragging .magazine__book {
     cursor: grabbing;
     transition: none;
   }
@@ -875,26 +933,26 @@ const pages = await Promise.all(
       min-width: 0;
     }
 
-    .magazine:fullscreen .magazine__toolbar {
+    .magazine.is-fullscreen .magazine__toolbar {
       grid-template-columns: auto 1fr auto;
     }
 
-    .magazine:fullscreen .magazine__viewport {
+    .magazine.is-fullscreen .magazine__viewport {
       padding-inline: var(--space-md);
     }
 
-    .magazine:fullscreen .magazine__turn {
+    .magazine.is-fullscreen .magazine__turn {
       width: var(--size-control-sm);
       height: var(--size-control-sm);
     }
 
-    .magazine:fullscreen .magazine__zoom-controls {
+    .magazine.is-fullscreen .magazine__zoom-controls {
       grid-column: 1 / -1;
       grid-row: 3;
       justify-self: center;
     }
 
-    .magazine:fullscreen .magazine__fullscreen {
+    .magazine.is-fullscreen .magazine__fullscreen {
       grid-column: 3;
       grid-row: 1;
     }
