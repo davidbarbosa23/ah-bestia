@@ -19,7 +19,6 @@ if (!magazine) {
 const content = gallery.content[lang];
 const labels = ui[lang].photography;
 const { width: pageWidth, height: pageHeight } = magazine.pageSize;
-const pageMaxByHeight = `${Math.round(65 * pageWidth / pageHeight * 1000) / 1000}svh`;
 const spreadMaxByHeight = `${Math.round(70 * pageWidth * 2 / pageHeight * 1000) / 1000}svh`;
 
 const pages = await Promise.all(
@@ -67,7 +66,7 @@ const pages = await Promise.all(
   data-exit-fullscreen-label={labels.magazine.exitFullscreen}
   aria-label={`${labels.magazine.reader}: ${content.title}`}
   tabindex="0"
-  style={`--magazine-page-ratio: ${pageWidth} / ${pageHeight}; --magazine-spread-ratio: ${pageWidth * 2} / ${pageHeight}; --magazine-page-max-by-height: ${pageMaxByHeight}; --magazine-spread-max-by-height: ${spreadMaxByHeight};`}
+  style={`--magazine-spread-ratio: ${pageWidth * 2} / ${pageHeight}; --magazine-spread-max-by-height: ${spreadMaxByHeight};`}
 >
   <h2 class="sr-only">{labels.magazine.reader}: {content.title}</h2>
 
@@ -207,7 +206,6 @@ const pages = await Promise.all(
       if (!viewport || !book || !pages.length || !previous || !next || !count || !progress) return;
       if (!zoomControls || !zoomOut || !zoomReset || !zoomIn) return;
 
-      const wideLayout = window.matchMedia('(min-width: 48rem)');
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
       const lastIndex = pages.length - 1;
       const pageLabel = magazine.dataset.pageLabel ?? '';
@@ -230,12 +228,12 @@ const pages = await Promise.all(
 
       const normalizeIndex = (requestedIndex: number) => {
         const clampedIndex = Math.max(0, Math.min(lastIndex, requestedIndex));
-        if (!wideLayout.matches || clampedIndex === 0) return clampedIndex;
+        if (clampedIndex === 0) return clampedIndex;
         return 1 + Math.floor((clampedIndex - 1) / 2) * 2;
       };
 
       const visibleIndices = (startIndex: number) => {
-        if (!wideLayout.matches || startIndex === 0 || startIndex === lastIndex) {
+        if (startIndex === 0 || startIndex === lastIndex) {
           return [startIndex];
         }
         return [startIndex, Math.min(lastIndex, startIndex + 1)];
@@ -306,9 +304,7 @@ const pages = await Promise.all(
       const preloadAround = (indices: number[]) => {
         const first = indices[0] ?? 0;
         const last = indices.at(-1) ?? first;
-        const candidates = wideLayout.matches
-          ? [first - 2, first - 1, ...indices, last + 1, last + 2]
-          : [first - 1, first, first + 1];
+        const candidates = [first - 2, first - 1, ...indices, last + 1, last + 2];
         candidates.forEach((index) => {
           if (index >= 0 && index <= lastIndex) void loadPage(index);
         });
@@ -384,19 +380,11 @@ const pages = await Promise.all(
         render(true, direction);
       };
 
-      const goPrevious = () => goTo(wideLayout.matches && currentIndex > 1
-        ? currentIndex - 2
-        : currentIndex - 1);
-      const goNext = () => goTo(wideLayout.matches && currentIndex > 0
-        ? currentIndex + 2
-        : currentIndex + 1);
+      const goPrevious = () => goTo(currentIndex > 1 ? currentIndex - 2 : currentIndex - 1);
+      const goNext = () => goTo(currentIndex > 0 ? currentIndex + 2 : currentIndex + 1);
 
       previous.addEventListener('click', goPrevious, { signal });
       next.addEventListener('click', goNext, { signal });
-      wideLayout.addEventListener('change', () => {
-        resetZoom();
-        render();
-      }, { signal });
 
       magazine.addEventListener('keydown', (event) => {
         if (isFullscreen() && (event.key === '+' || event.key === '=')) {
@@ -856,22 +844,6 @@ const pages = await Promise.all(
       padding: var(--space-md) calc(var(--size-control-sm) + var(--space-xs));
     }
 
-    .magazine__book {
-      width: min(100%, 30rem, var(--magazine-page-max-by-height));
-      aspect-ratio: var(--magazine-page-ratio);
-    }
-
-    .magazine__page,
-    .magazine__page[data-position='left'],
-    .magazine__page[data-position='right'],
-    .magazine__page[data-position='single'] {
-      inset-inline-start: 0;
-      width: 100%;
-      border: 0;
-      box-shadow: var(--shadow-magazine-page);
-      transform-origin: center;
-    }
-
     .magazine__turn--previous {
       inset-inline-start: var(--space-xs);
     }
@@ -899,10 +871,6 @@ const pages = await Promise.all(
 
     .magazine__count {
       min-width: 0;
-    }
-
-    .magazine:fullscreen .magazine__book {
-      width: min(100%, var(--magazine-page-max-by-height));
     }
 
     .magazine:fullscreen .magazine__toolbar {
