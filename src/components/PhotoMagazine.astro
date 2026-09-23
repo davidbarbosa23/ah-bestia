@@ -20,6 +20,7 @@ const content = gallery.content[lang];
 const labels = ui[lang].photography;
 const { width: pageWidth, height: pageHeight } = magazine.pageSize;
 const spreadMaxByHeight = `${Math.round(70 * pageWidth * 2 / pageHeight * 1000) / 1000}svh`;
+const fullscreenSpreadMaxByHeight = `${Math.round(88 * pageWidth * 2 / pageHeight * 1000) / 1000}dvh`;
 
 const pages = await Promise.all(
   magazine.pages.map(async (page, index) => {
@@ -66,7 +67,7 @@ const pages = await Promise.all(
   data-exit-fullscreen-label={labels.magazine.exitFullscreen}
   aria-label={`${labels.magazine.reader}: ${content.title}`}
   tabindex="0"
-  style={`--magazine-spread-ratio: ${pageWidth * 2} / ${pageHeight}; --magazine-spread-max-by-height: ${spreadMaxByHeight};`}
+  style={`--magazine-spread-ratio: ${pageWidth * 2} / ${pageHeight}; --magazine-spread-max-by-height: ${spreadMaxByHeight}; --magazine-fullscreen-spread-max-by-height: ${fullscreenSpreadMaxByHeight};`}
 >
   <h2 class="sr-only">{labels.magazine.reader}: {content.title}</h2>
 
@@ -796,7 +797,7 @@ const pages = await Promise.all(
   }
 
   .magazine:fullscreen {
-    padding: var(--space-md);
+    padding: var(--space-xs);
     display: grid;
     grid-template-rows: minmax(0, 1fr) auto;
     border: 0;
@@ -805,11 +806,12 @@ const pages = await Promise.all(
 
   .magazine:fullscreen .magazine__viewport {
     min-height: 0;
+    padding-block: var(--space-xs);
     touch-action: none;
   }
 
   .magazine:fullscreen .magazine__book {
-    width: min(100%, var(--magazine-spread-max-by-height));
+    width: min(100%, var(--magazine-fullscreen-spread-max-by-height));
     touch-action: none;
   }
 
@@ -875,6 +877,15 @@ const pages = await Promise.all(
 
     .magazine:fullscreen .magazine__toolbar {
       grid-template-columns: auto 1fr auto;
+    }
+
+    .magazine:fullscreen .magazine__viewport {
+      padding-inline: var(--space-md);
+    }
+
+    .magazine:fullscreen .magazine__turn {
+      width: var(--size-control-sm);
+      height: var(--size-control-sm);
     }
 
     .magazine:fullscreen .magazine__zoom-controls {

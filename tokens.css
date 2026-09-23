@@ -123,6 +123,7 @@
   --magazine-spread-ratio: 4 / 3;
   --magazine-page-max-by-height: 43.333svh;
   --magazine-spread-max-by-height: 93.333svh;
+  --magazine-fullscreen-spread-max-by-height: 117.333dvh;
   --magazine-photo-position: 50% 50%;
   --back-to-top-padding: 0.45rem 0.35rem 0.3rem;
   --back-to-top-label-gap: 0.05rem;
