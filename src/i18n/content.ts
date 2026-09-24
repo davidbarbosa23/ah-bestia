@@ -70,7 +70,7 @@ export const copy = {
       intro:
         'Machines, animals, streets, and the seconds when motion settles into form.',
       galleryTitle: 'Selected series from an ongoing archive.',
-      galleryHint: 'Hover to focus. Swipe on touch.',
+      galleryHint: 'Choose a series to enter its visual note.',
       pauseGallery: 'Pause projects',
       playGallery: 'Play projects',
       openNote: 'Open visual note',
@@ -211,7 +211,7 @@ export const copy = {
       intro:
         'Máquinas, animales, calles y los segundos en que el movimiento encuentra una forma.',
       galleryTitle: 'Series seleccionadas de un archivo en proceso.',
-      galleryHint: 'Pasa el cursor para enfocar. Desliza en pantallas táctiles.',
+      galleryHint: 'Elige una serie para entrar en su nota visual.',
       pauseGallery: 'Pausar proyectos',
       playGallery: 'Reproducir proyectos',
       openNote: 'Abrir nota visual',

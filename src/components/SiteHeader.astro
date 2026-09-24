@@ -15,7 +15,7 @@ const altPath = languageHref ?? alternatePath(Astro.url.pathname, lang);
 const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
 ---
 
-<header class="site-header" data-site-header>
+<header class:list={['site-header', experience && `site-header--${experience}`]} data-site-header>
   <div class="site-header__inner">
     <a class="wordmark" href={homePath} aria-label={labels.common.homeLabel}>
       <span aria-hidden="true">db/</span><span>David Barbosa</span>

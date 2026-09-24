@@ -1,89 +1,113 @@
 ---
 import { Image } from 'astro:assets';
 import { copy, ui, type Lang } from '../i18n/content';
-import { photoGalleries } from '../data/photoGalleries';
-import photographerHero from '../assets/photography/photographer-hero.jpg';
+import { photoGalleries, type PhotoGallery } from '../data/photoGalleries';
 import Icon from './Icon.astro';
 
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const t = copy[lang].photo;
 const labels = ui[lang];
+const featuredGallery = photoGalleries[0];
+const featuredContent = featuredGallery.content[lang];
+
+const getDetailImage = (gallery: PhotoGallery) => (
+  gallery.images.find(({ filename }) => filename !== gallery.coverFilename)?.image ?? gallery.cover
+);
 ---
 
 <div class="experience experience--photographer" data-experience-panel="photographer">
   <main id="main">
     <section class="photo-hero" aria-labelledby="photo-title">
-      <Image src={photographerHero} widths={[480, 720, 1080, 1400, 1800, 2100]} sizes="100vw" quality={82} priority alt={labels.metadata.photographerHeroAlt} />
-      <div class="photo-hero__shade"></div>
-      <div class="photo-hero__copy page-shell">
+      <a
+        class="photo-hero__image"
+        href={`/${lang}/ph/${featuredGallery.slug}/`}
+        aria-label={`${t.openNote}: ${featuredContent.cardTitle}`}
+      >
+        <Image
+          src={featuredGallery.cover}
+          widths={[480, 720, 1080, 1400, 1800]}
+          sizes="(min-width: 60rem) 68vw, 100vw"
+          quality={84}
+          priority
+          alt={`${featuredContent.cardTitle}. ${featuredContent.description}`}
+        />
+        <span class="photo-hero__image-note">
+          <span>{featuredContent.cardTitle}</span>
+          <span>{featuredContent.location}</span>
+        </span>
+      </a>
+
+      <div class="photo-hero__copy">
         <p class="status-line status-line--photo"><span></span>{t.status}</p>
         <h1 id="photo-title">{t.title.split('\n').map((line) => <span>{line}{' '}</span>)}</h1>
         <p>{t.intro}</p>
+        <a class="photo-hero__entry" href={`/${lang}/ph/${featuredGallery.slug}/`}>
+          {t.openNote}<Icon name="arrow-up-right" />
+        </a>
       </div>
     </section>
 
-    <section class="photo-gallery" aria-labelledby="gallery-title" data-horizontal-section>
-      <div class="photo-gallery__intro page-shell">
+    <section class="photo-archive" aria-labelledby="gallery-title">
+      <header class="photo-archive__intro page-shell">
         <h2 id="gallery-title">{t.galleryTitle}</h2>
-        <div class="photo-gallery__controls">
-          <p>{t.galleryHint}<Icon name="arrow-right" /></p>
-          <div class="photo-gallery__nav" role="group" aria-label={t.galleryTitle}>
-            <button type="button" data-carousel-direction="-1" aria-label={labels.photography.series.previous}>
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="m15 5-7 7 7 7"></path>
-              </svg>
-            </button>
-            <button
-              class="photo-gallery__toggle"
-              type="button"
-              data-marquee-toggle
-              data-pause-label={t.pauseGallery}
-              data-play-label={t.playGallery}
-              aria-label={t.pauseGallery}
-              aria-pressed="false"
+        <p>{t.galleryHint}</p>
+      </header>
+
+      <div class="photo-series-list page-shell">
+        {photoGalleries.map((gallery, index) => {
+          const content = gallery.content[lang];
+          const detailImage = getDetailImage(gallery);
+          const seriesNumber = String(index + 1).padStart(2, '0');
+          const seriesTotal = String(photoGalleries.length).padStart(2, '0');
+
+          return (
+            <article
+              class:list={['photo-series', index % 2 === 1 && 'photo-series--reverse']}
+              aria-labelledby={`series-${gallery.slug}`}
             >
-              <svg viewBox="0 0 24 24" aria-hidden="true" data-pause-icon>
-                <path d="M9 7v10M15 7v10"></path>
-              </svg>
-              <svg viewBox="0 0 24 24" aria-hidden="true" data-play-icon data-icon-hidden>
-                <path d="m9 6 9 6-9 6Z"></path>
-              </svg>
-            </button>
-            <button type="button" data-carousel-direction="1" aria-label={labels.photography.series.next}>
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="m9 5 7 7-7 7"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="photo-marquee" data-photo-marquee>
-        <div class="photo-track" data-photo-track>
-          <div class="photo-track__group" data-photo-group>
-            {photoGalleries.map((gallery) => {
-              const content = gallery.content[lang];
-              return (
-                <figure class="photo-frame" data-gallery-slug={gallery.slug}>
-                  <a href={`/${lang}/ph/${gallery.slug}/`} aria-label={`${t.openNote}: ${content.cardTitle}`}>
-                    <Image
-                      src={gallery.cover}
-                      widths={[360, 520, 720, 900]}
-                      sizes="(min-width: 60rem) 24vw, (min-width: 40rem) 52vw, 82vw"
-                      quality={80}
-                      loading="lazy"
-                      alt={`${content.cardTitle}. ${content.description}`}
-                    />
-                    <span class="photo-frame__open">{t.openNote}<Icon name="arrow-up-right" /></span>
-                  </a>
-                  <figcaption>
-                    <span><strong>{content.cardTitle}</strong>{content.location}</span>
-                  </figcaption>
+              <div class="photo-series__details">
+                <p class="photo-series__index">{seriesNumber} / {seriesTotal}</p>
+                <h3 id={`series-${gallery.slug}`}>{content.cardTitle}</h3>
+                <p class="photo-series__description">{content.description}</p>
+                <p class="photo-series__meta">
+                  <span>{content.location}</span>
+                  <span>{gallery.images.length} {labels.photography.photographs}</span>
+                </p>
+              </div>
+
+              <a
+                class="photo-series__spread"
+                href={`/${lang}/ph/${gallery.slug}/`}
+                aria-label={`${t.openNote}: ${content.cardTitle}`}
+              >
+                <figure class="photo-series__cover">
+                  <Image
+                    src={gallery.cover}
+                    widths={[480, 720, 960, 1200]}
+                    sizes="(min-width: 60rem) 44vw, (min-width: 40rem) 62vw, 92vw"
+                    quality={82}
+                    loading="lazy"
+                    alt={`${content.cardTitle}. ${content.description}`}
+                  />
                 </figure>
-              );
-            })}
-          </div>
-        </div>
+                <figure class="photo-series__detail" aria-hidden="true">
+                  <Image
+                    src={detailImage}
+                    widths={[280, 420, 560, 720]}
+                    sizes="(min-width: 60rem) 22vw, (min-width: 40rem) 32vw, 58vw"
+                    quality={80}
+                    loading="lazy"
+                    alt=""
+                  />
+                </figure>
+                <span class="photo-series__open">
+                  {t.openNote}<Icon name="arrow-up-right" />
+                </span>
+              </a>
+            </article>
+          );
+        })}
       </div>
     </section>
 
