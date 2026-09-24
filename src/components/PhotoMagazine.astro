@@ -173,7 +173,8 @@ const pages = await Promise.all(
       hidden
     >
       <span data-magazine-fullscreen-text>{labels.magazine.fullscreen}</span>
-      <Icon name="arrow-up-right" />
+      <span class="magazine__fullscreen-icon--enter"><Icon name="fullscreen" /></span>
+      <span class="magazine__fullscreen-icon--exit"><Icon name="fullscreen-exit" /></span>
     </button>
   </div>
 
@@ -829,6 +830,18 @@ const pages = await Promise.all(
     font-size: var(--text-xs);
   }
 
+  .magazine__fullscreen-icon--exit {
+    display: none;
+  }
+
+  .magazine.is-fullscreen .magazine__fullscreen-icon--enter {
+    display: none;
+  }
+
+  .magazine.is-fullscreen .magazine__fullscreen-icon--exit {
+    display: inline;
+  }
+
   .magazine__hint {
     margin: 0;
     padding: var(--space-sm) var(--space-md);
@@ -925,7 +938,7 @@ const pages = await Promise.all(
       justify-self: end;
     }
 
-    .magazine__fullscreen span {
+    .magazine__fullscreen [data-magazine-fullscreen-text] {
       display: none;
     }
 
