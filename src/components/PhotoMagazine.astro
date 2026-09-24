@@ -1,0 +1,1615 @@
+---
+import { getImage } from 'astro:assets';
+import { ui, type Lang } from '../i18n/content';
+import type { PhotoGallery } from '../data/photoGalleries';
+import Icon from './Icon.astro';
+
+interface Props {
+  gallery: PhotoGallery;
+  lang: Lang;
+}
+
+const { gallery, lang } = Astro.props;
+const magazine = gallery.magazine;
+
+if (!magazine) {
+  throw new Error(`PhotoMagazine requires a magazine configuration for ${gallery.slug}`);
+}
+
+const content = gallery.content[lang];
+const labels = ui[lang].photography;
+const { width: pageWidth, height: pageHeight } = magazine.pageSize;
+const spreadMaxByHeight = `${Math.round(70 * pageWidth * 2 / pageHeight * 1000) / 1000}svh`;
+const fullscreenSpreadMaxByHeight = `${Math.round(88 * pageWidth * 2 / pageHeight * 1000) / 1000}dvh`;
+
+const pages = await Promise.all(
+  magazine.pages.map(async (page, index) => {
+    const [small, large, expanded] = await Promise.all([
+      getImage({
+        src: page.imageAsset,
+        width: Math.min(720, page.imageAsset.width),
+        format: 'webp',
+        quality: 78,
+      }),
+      getImage({
+        src: page.imageAsset,
+        width: Math.min(1200, page.imageAsset.width),
+        format: 'webp',
+        quality: 82,
+      }),
+      getImage({
+        src: page.imageAsset,
+        width: Math.min(2800, page.imageAsset.width),
+        format: 'webp',
+        quality: 88,
+      }),
+    ]);
+
+    return {
+      ...page,
+      alt: page.alt?.[lang]
+        ?? `${labels.series.photo} ${index + 1} ${labels.series.from} ${content.title}`,
+      small,
+      large,
+      expanded,
+    };
+  }),
+);
+---
+
+<section
+  class="magazine"
+  data-magazine
+  data-page-label={labels.magazine.page}
+  data-pages-label={labels.magazine.pages}
+  data-of-label={labels.magazine.of}
+  data-fullscreen-label={labels.magazine.fullscreen}
+  data-exit-fullscreen-label={labels.magazine.exitFullscreen}
+  aria-label={`${labels.magazine.reader}: ${content.title}`}
+  tabindex="0"
+  style={`--magazine-spread-ratio: ${pageWidth * 2} / ${pageHeight}; --magazine-spread-max-by-height: ${spreadMaxByHeight}; --magazine-fullscreen-spread-max-by-height: ${fullscreenSpreadMaxByHeight};`}
+>
+  <h2 class="sr-only">{labels.magazine.reader}: {content.title}</h2>
+
+  <div class="magazine__viewport">
+    <div class="magazine__book" data-magazine-book>
+      <ol class="magazine__pages">
+        {pages.map((page, index) => (
+          <li
+            class="magazine__page"
+            data-magazine-page
+            data-page-index={index}
+            data-fit={page.fit}
+            data-tone={page.tone}
+            data-position={index === 0 ? 'single' : undefined}
+            aria-hidden={index === 0 ? 'false' : 'true'}
+            style={`--magazine-photo-position: ${page.position};`}
+          >
+            <div class="magazine__photo">
+              <img
+                src={index === 0 ? page.large.src : undefined}
+                srcset={index === 0 ? `${page.small.src} ${page.small.attributes.width}w, ${page.large.src} ${page.large.attributes.width}w` : undefined}
+                sizes="(min-width: 48rem) 36rem, 92vw"
+                width={page.imageAsset.width}
+                height={page.imageAsset.height}
+                alt={page.alt}
+                loading="lazy"
+                decoding="async"
+                draggable="false"
+                data-magazine-image
+                data-src={page.large.src}
+                data-srcset={`${page.small.src} ${page.small.attributes.width}w, ${page.large.src} ${page.large.attributes.width}w`}
+                data-expanded-src={page.expanded.src}
+              />
+            </div>
+          </li>
+        ))}
+      </ol>
+      <div class="magazine__turn-layer" data-magazine-turn-layer aria-hidden="true" hidden>
+        <div class="magazine__turn-bottom" data-magazine-turn-bottom></div>
+        <div
+          class="magazine__turn-shadow magazine__turn-shadow--outer"
+          data-magazine-turn-shadow
+        ></div>
+        <div class="magazine__turn-page" data-magazine-turn-page>
+          <div
+            class="magazine__turn-face"
+            data-magazine-turn-front
+          ></div>
+        </div>
+        <div
+          class="magazine__turn-shadow magazine__turn-shadow--inner"
+          data-magazine-turn-inner-shadow
+        ></div>
+      </div>
+    </div>
+
+    <button
+      class="magazine__turn magazine__turn--previous"
+      type="button"
+      data-magazine-previous
+      aria-label={labels.magazine.previous}
+      disabled
+    >
+      <Icon name="chevron-left" />
+    </button>
+    <button
+      class="magazine__turn magazine__turn--next"
+      type="button"
+      data-magazine-next
+      aria-label={labels.magazine.next}
+    >
+      <Icon name="chevron-right" />
+    </button>
+  </div>
+
+  <div class="magazine__toolbar">
+    <output class="magazine__count" data-magazine-count aria-live="polite">
+      {labels.magazine.page} 1 {labels.magazine.of} {pages.length}
+    </output>
+    <progress
+      class="magazine__progress"
+      data-magazine-progress
+      value="1"
+      max={pages.length}
+      aria-label={labels.magazine.progress}
+    ></progress>
+    <div
+      class="magazine__zoom-controls"
+      data-magazine-zoom-controls
+      role="group"
+      aria-label={labels.magazine.zoomControls}
+      hidden
+    >
+      <button
+        type="button"
+        data-magazine-zoom-out
+        aria-label={labels.lightbox.zoomOut}
+        title={labels.lightbox.zoomOut}
+        disabled
+      ><Icon name="minus" /></button>
+      <button
+        class="magazine__zoom-value"
+        type="button"
+        data-magazine-zoom-reset
+        aria-label={labels.lightbox.reset}
+        title={labels.lightbox.reset}
+      >100%</button>
+      <button
+        type="button"
+        data-magazine-zoom-in
+        aria-label={labels.lightbox.zoomIn}
+        title={labels.lightbox.zoomIn}
+      ><Icon name="plus" /></button>
+    </div>
+    <button
+      class="magazine__fullscreen"
+      type="button"
+      data-magazine-fullscreen
+      aria-label={labels.magazine.fullscreen}
+      hidden
+    >
+      <span data-magazine-fullscreen-text>{labels.magazine.fullscreen}</span>
+      <span class="magazine__fullscreen-icon--enter"><Icon name="fullscreen" /></span>
+      <span class="magazine__fullscreen-icon--exit"><Icon name="fullscreen-exit" /></span>
+    </button>
+  </div>
+
+  <p class="magazine__hint">
+    <span class="magazine__hint-full">{labels.magazine.hint}</span>
+    <span class="magazine__hint-compact">{labels.magazine.compactHint}</span>
+  </p>
+</section>
+
+<script>
+  const setupMagazines = () => {
+    const controlledDocument = document as Document & {
+      magazineController?: AbortController;
+    };
+    controlledDocument.magazineController?.abort();
+    controlledDocument.magazineController = new AbortController();
+    const { signal } = controlledDocument.magazineController;
+
+    document.querySelectorAll<HTMLElement>('[data-magazine]').forEach((magazine) => {
+      const viewport = magazine.querySelector<HTMLElement>('.magazine__viewport');
+      const book = magazine.querySelector<HTMLElement>('[data-magazine-book]');
+      const pages = [...magazine.querySelectorAll<HTMLElement>('[data-magazine-page]')];
+      const previous = magazine.querySelector<HTMLButtonElement>('[data-magazine-previous]');
+      const next = magazine.querySelector<HTMLButtonElement>('[data-magazine-next]');
+      const count = magazine.querySelector<HTMLOutputElement>('[data-magazine-count]');
+      const progress = magazine.querySelector<HTMLProgressElement>('[data-magazine-progress]');
+      const fullscreen = magazine.querySelector<HTMLButtonElement>('[data-magazine-fullscreen]');
+      const fullscreenText = magazine.querySelector<HTMLElement>('[data-magazine-fullscreen-text]');
+      const zoomControls = magazine.querySelector<HTMLElement>('[data-magazine-zoom-controls]');
+      const zoomOut = magazine.querySelector<HTMLButtonElement>('[data-magazine-zoom-out]');
+      const zoomReset = magazine.querySelector<HTMLButtonElement>('[data-magazine-zoom-reset]');
+      const zoomIn = magazine.querySelector<HTMLButtonElement>('[data-magazine-zoom-in]');
+      const turnLayer = magazine.querySelector<HTMLElement>('[data-magazine-turn-layer]');
+      const turnPage = magazine.querySelector<HTMLElement>('[data-magazine-turn-page]');
+      const turnFront = magazine.querySelector<HTMLElement>('[data-magazine-turn-front]');
+      const turnBottom = magazine.querySelector<HTMLElement>('[data-magazine-turn-bottom]');
+      const turnShadow = magazine.querySelector<HTMLElement>('[data-magazine-turn-shadow]');
+      const turnInnerShadow = magazine.querySelector<HTMLElement>('[data-magazine-turn-inner-shadow]');
+
+      if (!viewport || !book || !pages.length || !previous || !next || !count || !progress) return;
+      if (!zoomControls || !zoomOut || !zoomReset || !zoomIn) return;
+      if (!turnLayer || !turnPage || !turnFront || !turnBottom) return;
+      if (!turnShadow || !turnInnerShadow) return;
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const durationInMilliseconds = (value: string, fallback: number) => {
+        const duration = value.trim();
+        const amount = Number.parseFloat(duration);
+        if (!Number.isFinite(amount)) return fallback;
+        return duration.endsWith('ms') ? amount : duration.endsWith('s') ? amount * 1000 : amount;
+      };
+      const lastIndex = pages.length - 1;
+      const pageLabel = magazine.dataset.pageLabel ?? '';
+      const pagesLabel = magazine.dataset.pagesLabel ?? '';
+      const ofLabel = magazine.dataset.ofLabel ?? '';
+      const minimumScale = 1;
+      const maximumScale = 3;
+      let currentIndex = 0;
+      let pointerId: number | undefined;
+      let pointerStartX = 0;
+      let pointerStartY = 0;
+      let pointerCaptured = false;
+      let lastPointerX = 0;
+      let lastPointerY = 0;
+      let scale = minimumScale;
+      let translateX = 0;
+      let translateY = 0;
+      let pinchStartDistance = 0;
+      let pinchStartScale = minimumScale;
+      let isTurning = false;
+      let turnFrame: number | undefined;
+      let resolveTurn: (() => void) | undefined;
+
+      const normalizeIndex = (requestedIndex: number) => {
+        const clampedIndex = Math.max(0, Math.min(lastIndex, requestedIndex));
+        if (clampedIndex === 0) return clampedIndex;
+        return 1 + Math.floor((clampedIndex - 1) / 2) * 2;
+      };
+
+      const visibleIndices = (startIndex: number) => {
+        if (startIndex === 0 || startIndex === lastIndex) {
+          return [startIndex];
+        }
+        return [startIndex, Math.min(lastIndex, startIndex + 1)];
+      };
+
+      const isFallbackExpanded = () => magazine.classList.contains('is-expanded');
+      const isFullscreen = () => document.fullscreenElement === magazine || isFallbackExpanded();
+
+      const clampPosition = () => {
+        const maxX = Math.max(0, (book.offsetWidth * scale - viewport.clientWidth) / 2);
+        const maxY = Math.max(0, (book.offsetHeight * scale - viewport.clientHeight) / 2);
+        translateX = Math.min(maxX, Math.max(-maxX, translateX));
+        translateY = Math.min(maxY, Math.max(-maxY, translateY));
+      };
+
+      const renderZoom = () => {
+        clampPosition();
+        book.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
+        zoomReset.textContent = `${Math.round(scale * 100)}%`;
+        zoomOut.disabled = scale <= minimumScale;
+        zoomIn.disabled = scale >= maximumScale;
+        magazine.classList.toggle('is-zoomed', scale > minimumScale);
+      };
+
+      const resetZoom = () => {
+        scale = minimumScale;
+        translateX = 0;
+        translateY = 0;
+        renderZoom();
+      };
+
+      const setScale = (nextScale: number) => {
+        scale = Math.min(maximumScale, Math.max(minimumScale, nextScale));
+        if (scale === minimumScale) {
+          translateX = 0;
+          translateY = 0;
+        }
+        renderZoom();
+      };
+
+      const decodeImage = async (image: HTMLImageElement) => {
+        if (image.complete && image.naturalWidth > 0) return;
+        await image.decode().catch(() => {
+          // Keep the browser's normal loading and error behavior if decoding is interrupted.
+        });
+      };
+
+      const loadPage = (index: number) => {
+        const image = pages[index]?.querySelector<HTMLImageElement>('[data-magazine-image]');
+        if (!image) return Promise.resolve();
+        if (!image.getAttribute('src')) {
+          image.loading = 'eager';
+          image.srcset = image.dataset.srcset ?? '';
+          image.src = image.dataset.src ?? '';
+        }
+        return decodeImage(image);
+      };
+
+      const loadExpandedPage = (index: number) => {
+        const image = pages[index]?.querySelector<HTMLImageElement>('[data-magazine-image]');
+        const source = image?.dataset.expandedSrc;
+        if (!image || !source) return Promise.resolve();
+        if (image.dataset.expandedLoaded !== 'true') {
+          image.loading = 'eager';
+          image.removeAttribute('srcset');
+          image.src = source;
+          image.dataset.expandedLoaded = 'true';
+        }
+        return decodeImage(image);
+      };
+
+      const preloadAround = (indices: number[]) => {
+        const first = indices[0] ?? 0;
+        const last = indices.at(-1) ?? first;
+        const candidates = [first - 2, first - 1, ...indices, last + 1, last + 2];
+        candidates.forEach((index) => {
+          if (index >= 0 && index <= lastIndex) void loadPage(index);
+        });
+      };
+
+      const preloadNextExpandedTurn = (indices: number[]) => {
+        const lastVisible = indices.at(-1) ?? currentIndex;
+        if (lastVisible >= lastIndex) return;
+        const nextStart = normalizeIndex(lastVisible + 1);
+        if (nextStart <= lastVisible) return;
+        visibleIndices(nextStart).forEach((index) => void loadExpandedPage(index));
+      };
+
+      type PagePosition = 'left' | 'right' | 'single';
+      type PaperPoint = { x: number; y: number };
+      type PaperRect = {
+        topLeft: PaperPoint;
+        topRight: PaperPoint;
+        bottomLeft: PaperPoint;
+        bottomRight: PaperPoint;
+      };
+      type PaperFold = {
+        angle: number;
+        position: PaperPoint;
+        rect: PaperRect;
+        topIntersect: PaperPoint | null;
+        sideIntersect: PaperPoint | null;
+        bottomIntersect: PaperPoint | null;
+        flippingArea: Array<PaperPoint | null>;
+        bottomArea: Array<PaperPoint | null>;
+      };
+
+      const setVisualPages = (positions: Map<number, PagePosition>) => {
+        pages.forEach((page, index) => {
+          const position = positions.get(index);
+          if (position) page.dataset.position = position;
+          else delete page.dataset.position;
+        });
+      };
+
+      const positionsFor = (indices: number[]) => {
+        const positions = new Map<number, PagePosition>();
+        if (indices.length === 1) {
+          const index = indices[0];
+          if (index !== undefined) {
+            positions.set(index, index === 0 ? 'right' : index === lastIndex ? 'left' : 'single');
+          }
+        } else {
+          const left = indices[0];
+          const right = indices[1];
+          if (left !== undefined) positions.set(left, 'left');
+          if (right !== undefined) positions.set(right, 'right');
+        }
+        return positions;
+      };
+
+      const copyPageToSurface = (index: number, surface: HTMLElement) => {
+        const page = pages[index];
+        const photo = page?.querySelector<HTMLElement>('.magazine__photo');
+        if (!page || !photo) return;
+        delete surface.dataset.empty;
+        const copy = photo.cloneNode(true) as HTMLElement;
+        const image = copy.querySelector<HTMLImageElement>('img');
+        if (image) {
+          image.alt = '';
+          image.loading = 'eager';
+        }
+        surface.replaceChildren(copy);
+        surface.dataset.fit = page.dataset.fit ?? 'cover';
+        surface.dataset.tone = page.dataset.tone ?? 'ink';
+        surface.style.setProperty(
+          '--magazine-photo-position',
+          page.style.getPropertyValue('--magazine-photo-position'),
+        );
+      };
+
+      const clearTurnSurface = (surface: HTMLElement) => {
+        surface.replaceChildren();
+        delete surface.dataset.fit;
+        delete surface.dataset.tone;
+        delete surface.dataset.empty;
+        surface.style.removeProperty('--magazine-photo-position');
+      };
+
+      const easePageTurn = (progress: number) => progress * progress * (3 - 2 * progress);
+
+      const distanceBetween = (one: PaperPoint | null, two: PaperPoint | null) => {
+        if (!one || !two) return Number.POSITIVE_INFINITY;
+        return Math.hypot(two.x - one.x, two.y - one.y);
+      };
+
+      const rotatePaperPoint = (point: PaperPoint, origin: PaperPoint, angle: number) => ({
+        x: point.x * Math.cos(angle) + point.y * Math.sin(angle) + origin.x,
+        y: point.y * Math.cos(angle) - point.x * Math.sin(angle) + origin.y,
+      });
+
+      const limitPointToCircle = (origin: PaperPoint, radius: number, point: PaperPoint) => {
+        const distance = distanceBetween(origin, point);
+        if (distance <= radius) return point;
+        const ratio = radius / distance;
+        return {
+          x: origin.x + (point.x - origin.x) * ratio,
+          y: origin.y + (point.y - origin.y) * ratio,
+        };
+      };
+
+      const intersectPaperLines = (
+        one: [PaperPoint, PaperPoint],
+        two: [PaperPoint, PaperPoint],
+        width: number,
+        height: number,
+      ) => {
+        const [a, b] = one;
+        const [c, d] = two;
+        const denominator = (a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x);
+        if (Math.abs(denominator) < 0.0001) return null;
+        const crossOne = a.x * b.y - a.y * b.x;
+        const crossTwo = c.x * d.y - c.y * d.x;
+        const point = {
+          x: (crossOne * (c.x - d.x) - (a.x - b.x) * crossTwo) / denominator,
+          y: (crossOne * (c.y - d.y) - (a.y - b.y) * crossTwo) / denominator,
+        };
+        if (point.x < -1 || point.x > width + 1 || point.y < -1 || point.y > height + 1) {
+          return null;
+        }
+        return point;
+      };
+
+      const calculatePaperFold = (
+        localPosition: PaperPoint,
+        width: number,
+        height: number,
+      ): PaperFold | null => {
+        let position = localPosition;
+        let angle = 0;
+        let rect: PaperRect;
+
+        const updateGeometry = (point: PaperPoint) => {
+          const horizontal = width - point.x + 1;
+          const vertical = height - point.y;
+          const diagonal = Math.hypot(vertical, horizontal);
+          if (diagonal < 0.001) return false;
+          angle = 2 * Math.acos(Math.min(1, horizontal / diagonal));
+          if (vertical < 0) angle *= -1;
+          angle *= -1;
+
+          const transformPoint = (base: PaperPoint) => ({
+            x: base.x * Math.cos(angle) + base.y * Math.sin(angle) + point.x,
+            y: base.y * Math.cos(angle) - base.x * Math.sin(angle) + point.y,
+          });
+          rect = {
+            topLeft: transformPoint({ x: 0, y: -height }),
+            topRight: transformPoint({ x: width, y: -height }),
+            bottomLeft: transformPoint({ x: 0, y: 0 }),
+            bottomRight: transformPoint({ x: width, y: 0 }),
+          };
+          return Number.isFinite(angle);
+        };
+
+        if (!updateGeometry(position)) return null;
+
+        const firstLimit = limitPointToCircle({ x: 0, y: height }, width, position);
+        if (firstLimit !== position) {
+          position = firstLimit;
+          if (!updateGeometry(position)) return null;
+        }
+
+        if (rect!.topRight.x <= 0) {
+          const secondLimit = limitPointToCircle(
+            { x: 0, y: 0 },
+            Math.hypot(width, height),
+            rect!.bottomLeft,
+          );
+          if (secondLimit !== rect!.bottomLeft) {
+            position = secondLimit;
+            if (!updateGeometry(position)) return null;
+          }
+        }
+
+        const topIntersect = intersectPaperLines(
+          [rect!.topLeft, rect!.topRight],
+          [{ x: 0, y: 0 }, { x: width, y: 0 }],
+          width,
+          height,
+        );
+        const sideIntersect = intersectPaperLines(
+          [position, rect!.topLeft],
+          [{ x: width, y: 0 }, { x: width, y: height }],
+          width,
+          height,
+        );
+        const bottomIntersect = intersectPaperLines(
+          [rect!.bottomLeft, rect!.bottomRight],
+          [{ x: 0, y: height }, { x: width, y: height }],
+          width,
+          height,
+        );
+
+        const flippingArea: Array<PaperPoint | null> = [rect!.topLeft, topIntersect];
+        if (sideIntersect) flippingArea.push(sideIntersect);
+        flippingArea.push(bottomIntersect, rect!.bottomLeft);
+
+        const bottomArea: Array<PaperPoint | null> = [topIntersect];
+        if (topIntersect) bottomArea.push({ x: width, y: 0 });
+        bottomArea.push({ x: width, y: height });
+        if (sideIntersect && distanceBetween(sideIntersect, topIntersect) >= 10) {
+          bottomArea.push(sideIntersect);
+        }
+        bottomArea.push(bottomIntersect, topIntersect);
+
+        return {
+          angle,
+          position,
+          rect: rect!,
+          topIntersect,
+          sideIntersect,
+          bottomIntersect,
+          flippingArea,
+          bottomArea,
+        };
+      };
+
+      const toBookPoint = (
+        point: PaperPoint,
+        direction: 'next' | 'previous',
+        pageWidth: number,
+      ) => ({
+        x: direction === 'next' ? point.x + pageWidth : pageWidth - point.x,
+        y: point.y,
+      });
+
+      const paperClipPath = (
+        area: Array<PaperPoint | null>,
+        position: PaperPoint,
+        angle: number,
+        direction: 'next' | 'previous',
+      ) => {
+        const coordinates = area.flatMap((point) => {
+          if (!point) return [];
+          const relative = direction === 'previous'
+            ? { x: -point.x + position.x, y: point.y - position.y }
+            : { x: point.x - position.x, y: point.y - position.y };
+          const rotated = rotatePaperPoint(relative, { x: 0, y: 0 }, angle);
+          return [`${rotated.x.toFixed(2)}px ${rotated.y.toFixed(2)}px`];
+        });
+        return `polygon(${coordinates.join(', ')})`;
+      };
+
+      const shadowClipPath = (
+        area: PaperPoint[],
+        shadowPosition: PaperPoint,
+        shadowTranslate: number,
+        angle: number,
+        direction: 'next' | 'previous',
+      ) => {
+        const coordinates = area.map((point) => {
+          const relative = direction === 'previous'
+            ? { x: -point.x + shadowPosition.x, y: point.y - shadowPosition.y }
+            : { x: point.x - shadowPosition.x, y: point.y - shadowPosition.y };
+          const rotated = rotatePaperPoint(
+            relative,
+            { x: shadowTranslate, y: 100 },
+            angle,
+          );
+          return `${rotated.x.toFixed(2)}px ${rotated.y.toFixed(2)}px`;
+        });
+        return `polygon(${coordinates.join(', ')})`;
+      };
+
+      const drawPaperShadows = (
+        fold: PaperFold,
+        direction: 'next' | 'previous',
+        pageWidth: number,
+        pageHeight: number,
+      ) => {
+        const start = fold.sideIntersect ?? fold.topIntersect;
+        const end = fold.sideIntersect ? fold.bottomIntersect : fold.bottomIntersect;
+        if (!start || !end) {
+          turnShadow.style.display = 'none';
+          turnInnerShadow.style.display = 'none';
+          return;
+        }
+
+        const segmentLength = distanceBetween(start, end);
+        if (!Number.isFinite(segmentLength) || segmentLength < 0.01) return;
+        const baseAngle = Math.acos(Math.max(-1, Math.min(1, (end.x - start.x) / segmentLength)));
+        const shadowAngle = (direction === 'next' ? baseAngle : Math.PI - baseAngle) + 3 * Math.PI / 2;
+        const progress = Math.abs(((fold.position.x - pageWidth) / (2 * pageWidth)) * 100);
+        const shadowWidth = Math.max(1, pageWidth * 0.75 * progress / 100);
+        const opacity = Math.max(0, (100 - progress) * 0.0035);
+        const globalPosition = toBookPoint(start, direction, pageWidth);
+
+        const outerTranslate = direction === 'previous' ? shadowWidth : 0;
+        const outerArea: PaperPoint[] = [
+          { x: 0, y: 0 },
+          { x: pageWidth, y: 0 },
+          { x: pageWidth, y: pageHeight },
+          { x: 0, y: pageHeight },
+        ];
+        turnShadow.style.display = 'block';
+        turnShadow.style.width = `${shadowWidth}px`;
+        turnShadow.style.height = `${pageHeight * 2}px`;
+        turnShadow.style.background = direction === 'next'
+          ? `linear-gradient(to right, rgb(0 0 0 / ${opacity}), transparent)`
+          : `linear-gradient(to left, rgb(0 0 0 / ${opacity}), transparent)`;
+        turnShadow.style.transformOrigin = `${outerTranslate}px 100px`;
+        turnShadow.style.transform = `translate3d(${globalPosition.x - outerTranslate}px, ${globalPosition.y - 100}px, 0) rotate(${shadowAngle}rad)`;
+        turnShadow.style.clipPath = shadowClipPath(
+          outerArea,
+          start,
+          outerTranslate,
+          shadowAngle,
+          direction,
+        );
+
+        const innerWidth = Math.max(1, shadowWidth * 0.75);
+        const innerTranslate = direction === 'next' ? innerWidth : 0;
+        const turnedArea = [
+          fold.rect.topLeft,
+          fold.rect.topRight,
+          fold.rect.bottomRight,
+          fold.rect.bottomLeft,
+        ];
+        turnInnerShadow.style.display = 'block';
+        turnInnerShadow.style.width = `${innerWidth}px`;
+        turnInnerShadow.style.height = `${pageHeight * 2}px`;
+        turnInnerShadow.style.background = direction === 'next'
+          ? `linear-gradient(to left, rgb(0 0 0 / ${opacity}) 5%, rgb(0 0 0 / 0.05) 15%, rgb(0 0 0 / ${opacity}) 35%, transparent 100%)`
+          : `linear-gradient(to right, rgb(0 0 0 / ${opacity}) 5%, rgb(0 0 0 / 0.05) 15%, rgb(0 0 0 / ${opacity}) 35%, transparent 100%)`;
+        turnInnerShadow.style.transformOrigin = `${innerTranslate}px 100px`;
+        turnInnerShadow.style.transform = `translate3d(${globalPosition.x - innerTranslate}px, ${globalPosition.y - 100}px, 0) rotate(${shadowAngle}rad)`;
+        turnInnerShadow.style.clipPath = shadowClipPath(
+          turnedArea,
+          start,
+          innerTranslate,
+          shadowAngle,
+          direction,
+        );
+      };
+
+      const drawSoftTurn = (
+        progress: number,
+        direction: 'next' | 'previous',
+        pageWidth: number,
+        pageHeight: number,
+      ) => {
+        const margin = Math.min(pageHeight / 10, pageWidth * 0.16);
+        const eased = easePageTurn(Math.min(progress, 0.999));
+        const localPosition = {
+          x: pageWidth - margin + (-2 * pageWidth + margin) * eased,
+          y: pageHeight - margin + margin * eased,
+        };
+        const fold = calculatePaperFold(localPosition, pageWidth, pageHeight);
+        if (!fold) return;
+
+        const pagePosition = direction === 'next' ? fold.rect.topLeft : fold.rect.topRight;
+        const pageAngle = direction === 'next' ? -fold.angle : fold.angle;
+        const globalPagePosition = toBookPoint(pagePosition, direction, pageWidth);
+        turnPage.style.transform = `translate3d(${globalPagePosition.x}px, ${globalPagePosition.y}px, 0) rotate(${pageAngle}rad)`;
+        turnPage.style.clipPath = paperClipPath(
+          fold.flippingArea,
+          pagePosition,
+          pageAngle,
+          direction,
+        );
+
+        const bottomPosition = direction === 'next'
+          ? { x: 0, y: 0 }
+          : { x: pageWidth, y: 0 };
+        const globalBottomPosition = toBookPoint(bottomPosition, direction, pageWidth);
+        turnBottom.style.transform = `translate3d(${globalBottomPosition.x}px, ${globalBottomPosition.y}px, 0)`;
+        turnBottom.style.clipPath = paperClipPath(
+          fold.bottomArea,
+          bottomPosition,
+          0,
+          direction,
+        );
+
+        drawPaperShadows(fold, direction, pageWidth, pageHeight);
+      };
+
+      const clearTurnLayer = () => {
+        turnLayer.hidden = true;
+        delete turnLayer.dataset.direction;
+        turnPage.removeAttribute('style');
+        turnBottom.removeAttribute('style');
+        turnShadow.removeAttribute('style');
+        turnInnerShadow.removeAttribute('style');
+        clearTurnSurface(turnFront);
+        clearTurnSurface(turnBottom);
+        magazine.classList.remove('is-turning');
+      };
+
+      const animateTurn = async (
+        fromIndices: number[],
+        toIndices: number[],
+        direction: 'next' | 'previous',
+      ) => {
+        const turningIndex = direction === 'next' ? toIndices[0] : toIndices.at(-1);
+        const bottomIndex = toIndices.length > 1
+          ? direction === 'next' ? toIndices.at(-1) : toIndices[0]
+          : undefined;
+        if (turningIndex === undefined) return;
+
+        const turnImagesReady = Promise.all(
+          [...new Set([...fromIndices, ...toIndices])].map(loadPage),
+        );
+        const loadBudget = durationInMilliseconds(
+          getComputedStyle(magazine).getPropertyValue('--dur-micro'),
+          120,
+        );
+        await Promise.race([
+          turnImagesReady,
+          new Promise<void>((resolve) => window.setTimeout(
+            resolve,
+            loadBudget,
+          )),
+        ]);
+        if (signal.aborted) return;
+
+        copyPageToSurface(turningIndex, turnFront);
+        if (bottomIndex !== undefined) {
+          copyPageToSurface(bottomIndex, turnBottom);
+        } else {
+          turnBottom.dataset.empty = 'true';
+        }
+        setVisualPages(positionsFor(fromIndices));
+
+        turnLayer.dataset.direction = direction;
+        turnLayer.hidden = false;
+        magazine.classList.add('is-turning');
+
+        const duration = durationInMilliseconds(
+          getComputedStyle(magazine).getPropertyValue('--dur-page-turn'),
+          720,
+        );
+
+        await new Promise<void>((resolve) => {
+          resolveTurn = resolve;
+          const startedAt = performance.now();
+
+          const drawFrame = (now: number) => {
+            const rawProgress = Math.min(1, (now - startedAt) / duration);
+            drawSoftTurn(rawProgress, direction, book.clientWidth / 2, book.clientHeight);
+
+            if (rawProgress < 1 && !signal.aborted) {
+              turnFrame = requestAnimationFrame(drawFrame);
+              return;
+            }
+            turnFrame = undefined;
+            resolveTurn = undefined;
+            resolve();
+          };
+
+          turnFrame = requestAnimationFrame(drawFrame);
+        });
+      };
+
+      const render = () => {
+        currentIndex = normalizeIndex(currentIndex);
+        const visible = visibleIndices(currentIndex);
+        const visibleSet = new Set(visible);
+        preloadAround(visible);
+        if (isFullscreen()) {
+          visible.forEach((index) => void loadExpandedPage(index));
+          preloadNextExpandedTurn(visible);
+        }
+
+        setVisualPages(positionsFor(visible));
+        pages.forEach((page, index) => {
+          const active = visibleSet.has(index);
+          page.setAttribute('aria-hidden', String(!active));
+          page.toggleAttribute('inert', !active);
+        });
+
+        const endIndex = visible.at(-1) ?? currentIndex;
+        previous.disabled = currentIndex === 0;
+        next.disabled = endIndex === lastIndex;
+        progress.value = endIndex + 1;
+        count.value = visible.length === 1
+          ? `${pageLabel} ${currentIndex + 1} ${ofLabel} ${pages.length}`
+          : `${pagesLabel} ${currentIndex + 1}–${endIndex + 1} ${ofLabel} ${pages.length}`;
+
+      };
+
+      const goTo = async (requestedIndex: number) => {
+        const nextIndex = normalizeIndex(requestedIndex);
+        if (nextIndex === currentIndex || isTurning) return;
+        const direction = nextIndex > currentIndex ? 'next' : 'previous';
+        const fromIndices = visibleIndices(currentIndex);
+        const toIndices = visibleIndices(nextIndex);
+        isTurning = true;
+        previous.disabled = true;
+        next.disabled = true;
+        resetZoom();
+        if (!reducedMotion.matches) {
+          await animateTurn(fromIndices, toIndices, direction);
+        }
+        if (signal.aborted) return;
+        currentIndex = nextIndex;
+        clearTurnLayer();
+        render();
+        isTurning = false;
+      };
+
+      const goPrevious = () => goTo(currentIndex > 1 ? currentIndex - 2 : currentIndex - 1);
+      const goNext = () => goTo(currentIndex > 0 ? currentIndex + 2 : currentIndex + 1);
+
+      const syncFullscreenState = () => {
+        const active = isFullscreen();
+        const label = active
+          ? magazine.dataset.exitFullscreenLabel ?? ''
+          : magazine.dataset.fullscreenLabel ?? '';
+        magazine.classList.toggle('is-fullscreen', active);
+        fullscreen?.setAttribute('aria-label', label);
+        if (fullscreenText) fullscreenText.textContent = label;
+        zoomControls.hidden = !active;
+        pointerId = undefined;
+        pointerCaptured = false;
+        magazine.classList.remove('is-dragging');
+        if (active) {
+          render();
+          requestAnimationFrame(renderZoom);
+        } else {
+          resetZoom();
+        }
+      };
+
+      const enterFallbackFullscreen = () => {
+        magazine.classList.add('is-expanded');
+        document.body.classList.add('magazine-expanded');
+        syncFullscreenState();
+        magazine.focus({ preventScroll: true });
+      };
+
+      const exitFallbackFullscreen = () => {
+        magazine.classList.remove('is-expanded');
+        document.body.classList.remove('magazine-expanded');
+        syncFullscreenState();
+        fullscreen?.focus({ preventScroll: true });
+      };
+
+      previous.addEventListener('click', () => void goPrevious(), { signal });
+      next.addEventListener('click', () => void goNext(), { signal });
+
+      magazine.addEventListener('keydown', (event) => {
+        if (isFallbackExpanded() && event.key === 'Escape') {
+          event.preventDefault();
+          exitFallbackFullscreen();
+          return;
+        }
+        if (isFullscreen() && (event.key === '+' || event.key === '=')) {
+          event.preventDefault();
+          setScale(scale + 0.25);
+          return;
+        }
+        if (isFullscreen() && (event.key === '-' || event.key === '_')) {
+          event.preventDefault();
+          setScale(scale - 0.25);
+          return;
+        }
+        if (isFullscreen() && event.key === '0') {
+          event.preventDefault();
+          resetZoom();
+          return;
+        }
+        if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          void goPrevious();
+        }
+        if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          void goNext();
+        }
+        if (event.key === 'Home') {
+          event.preventDefault();
+          void goTo(0);
+        }
+        if (event.key === 'End') {
+          event.preventDefault();
+          void goTo(lastIndex);
+        }
+      }, { signal });
+
+      book.addEventListener('pointerdown', (event) => {
+        if (!event.isPrimary) return;
+        pointerId = event.pointerId;
+        if (isFullscreen() && scale > minimumScale) {
+          lastPointerX = event.clientX;
+          lastPointerY = event.clientY;
+          pointerCaptured = true;
+          book.setPointerCapture(event.pointerId);
+          magazine.classList.add('is-dragging');
+          return;
+        }
+        pointerStartX = event.clientX;
+        pointerStartY = event.clientY;
+        pointerCaptured = false;
+      }, { signal });
+
+      book.addEventListener('pointermove', (event) => {
+        if (pointerId !== event.pointerId) return;
+        if (isFullscreen() && scale > minimumScale) {
+          translateX += event.clientX - lastPointerX;
+          translateY += event.clientY - lastPointerY;
+          lastPointerX = event.clientX;
+          lastPointerY = event.clientY;
+          renderZoom();
+          return;
+        }
+        if (pointerCaptured) return;
+        const distanceX = event.clientX - pointerStartX;
+        const distanceY = event.clientY - pointerStartY;
+        if (Math.abs(distanceX) <= 8 || Math.abs(distanceX) <= Math.abs(distanceY)) return;
+        pointerCaptured = true;
+        book.setPointerCapture(event.pointerId);
+      }, { signal });
+
+      const finishPointer = (event: PointerEvent) => {
+        if (pointerId !== event.pointerId) return;
+        const wasPanning = isFullscreen() && scale > minimumScale;
+        const distanceX = event.clientX - pointerStartX;
+        const distanceY = event.clientY - pointerStartY;
+        pointerId = undefined;
+        pointerCaptured = false;
+        magazine.classList.remove('is-dragging');
+        if (wasPanning) return;
+        if (Math.abs(distanceX) < 48 || Math.abs(distanceX) <= Math.abs(distanceY) * 1.2) return;
+        if (distanceX < 0) void goNext();
+        else void goPrevious();
+      };
+
+      book.addEventListener('pointerup', finishPointer, { signal });
+      book.addEventListener('pointercancel', (event) => {
+        if (pointerId !== event.pointerId) return;
+        pointerId = undefined;
+        pointerCaptured = false;
+        magazine.classList.remove('is-dragging');
+      }, { signal });
+
+      zoomOut.addEventListener('click', () => setScale(scale - 0.25), { signal });
+      zoomIn.addEventListener('click', () => setScale(scale + 0.25), { signal });
+      zoomReset.addEventListener('click', resetZoom, { signal });
+
+      book.addEventListener('dblclick', (event) => {
+        if (!isFullscreen()) return;
+        event.preventDefault();
+        setScale(scale === minimumScale ? 2 : minimumScale);
+      }, { signal });
+
+      viewport.addEventListener('wheel', (event) => {
+        if (!isFullscreen()) return;
+        event.preventDefault();
+        setScale(scale + (event.deltaY < 0 ? 0.25 : -0.25));
+      }, { passive: false, signal });
+
+      const touchDistance = (touches: TouchList) => {
+        const first = touches[0];
+        const second = touches[1];
+        return Math.hypot(second.clientX - first.clientX, second.clientY - first.clientY);
+      };
+
+      viewport.addEventListener('touchstart', (event) => {
+        if (!isFullscreen() || event.touches.length !== 2) return;
+        event.preventDefault();
+        pinchStartDistance = touchDistance(event.touches);
+        pinchStartScale = scale;
+        pointerId = undefined;
+        pointerCaptured = false;
+        magazine.classList.remove('is-dragging');
+      }, { passive: false, signal });
+
+      viewport.addEventListener('touchmove', (event) => {
+        if (!isFullscreen() || event.touches.length !== 2 || pinchStartDistance === 0) return;
+        event.preventDefault();
+        setScale(pinchStartScale * touchDistance(event.touches) / pinchStartDistance);
+      }, { passive: false, signal });
+
+      const finishPinch = (event: TouchEvent) => {
+        if (event.touches.length < 2) pinchStartDistance = 0;
+      };
+
+      viewport.addEventListener('touchend', finishPinch, { signal });
+      viewport.addEventListener('touchcancel', finishPinch, { signal });
+      window.addEventListener('resize', renderZoom, { signal });
+
+      if (fullscreen && fullscreenText) {
+        fullscreen.hidden = false;
+        fullscreen.addEventListener('click', () => {
+          if (document.fullscreenElement === magazine) {
+            void document.exitFullscreen();
+            return;
+          }
+          if (isFallbackExpanded()) {
+            exitFallbackFullscreen();
+            return;
+          }
+          if (typeof magazine.requestFullscreen !== 'function') {
+            enterFallbackFullscreen();
+            return;
+          }
+          try {
+            void magazine.requestFullscreen().catch(enterFallbackFullscreen);
+          } catch {
+            enterFallbackFullscreen();
+          }
+        }, { signal });
+
+        document.addEventListener('fullscreenchange', syncFullscreenState, { signal });
+        signal.addEventListener('abort', () => {
+          if (turnFrame !== undefined) cancelAnimationFrame(turnFrame);
+          resolveTurn?.();
+          resolveTurn = undefined;
+          clearTurnLayer();
+          magazine.classList.remove('is-expanded', 'is-fullscreen');
+          document.body.classList.remove('magazine-expanded');
+        }, { once: true });
+      }
+
+      render();
+    });
+  };
+
+  document.addEventListener('astro:page-load', setupMagazines);
+</script>
+
+<style>
+  .magazine {
+    width: 100%;
+    border: var(--rule-hair) solid var(--color-rule-2);
+    background: var(--color-graphite);
+    color: var(--color-on-dark);
+    outline: none;
+  }
+
+  .magazine:focus-visible {
+    outline: var(--outline-focus) solid var(--color-focus);
+    outline-offset: var(--outline-offset-focus);
+  }
+
+  .magazine__viewport {
+    position: relative;
+    padding: var(--space-lg) calc(var(--size-control) + var(--space-sm));
+    display: grid;
+    place-items: center;
+    perspective: 1600px;
+    overflow: hidden;
+  }
+
+  .magazine__book {
+    position: relative;
+    width: min(100%, 72rem, var(--magazine-spread-max-by-height));
+    aspect-ratio: var(--magazine-spread-ratio);
+    touch-action: pan-y;
+    transform-style: preserve-3d;
+    transition: transform var(--dur-micro) var(--ease-out);
+  }
+
+  .magazine__pages {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .magazine__turn-layer {
+    position: absolute;
+    inset: 0;
+    z-index: calc(var(--layer-overlay) + 1);
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .magazine__turn-layer[hidden] {
+    display: none;
+  }
+
+  .magazine__turn-page,
+  .magazine__turn-bottom {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    width: 50%;
+    height: 100%;
+    background: var(--color-graphite-2);
+    overflow: hidden;
+    will-change: transform, clip-path;
+  }
+
+  .magazine__turn-bottom {
+    z-index: var(--layer-content);
+  }
+
+  .magazine__turn-page {
+    z-index: var(--layer-overlay);
+    transform-origin: 0 0;
+  }
+
+  .magazine__turn-face {
+    position: absolute;
+    inset: 0;
+    background: var(--color-graphite-2);
+    overflow: hidden;
+  }
+
+  .magazine__turn-face[data-tone='paper'] {
+    background: var(--color-paper-2);
+  }
+
+  .magazine__turn-bottom[data-tone='paper'] {
+    background: var(--color-paper-2);
+  }
+
+  .magazine__turn-bottom[data-empty='true'] {
+    background: var(--color-graphite);
+  }
+
+  .magazine__turn-bottom .magazine__photo,
+  .magazine__turn-bottom .magazine__photo img,
+  .magazine__turn-face .magazine__photo,
+  .magazine__turn-face .magazine__photo img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .magazine__turn-bottom .magazine__photo img,
+  .magazine__turn-face .magazine__photo img {
+    display: block;
+    object-fit: cover;
+    object-position: var(--magazine-photo-position);
+    user-select: none;
+  }
+
+  .magazine__turn-bottom[data-fit='contain'] .magazine__photo img,
+  .magazine__turn-face[data-fit='contain'] .magazine__photo img {
+    object-fit: contain;
+  }
+
+  .magazine__turn-shadow {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    z-index: var(--layer-tooltip);
+    pointer-events: none;
+    will-change: transform, clip-path, opacity;
+  }
+
+  .magazine__page {
+    position: absolute;
+    inset-block: 0;
+    width: 50%;
+    background: var(--color-graphite-2);
+    box-shadow: var(--shadow-magazine-page);
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transform-style: preserve-3d;
+    visibility: hidden;
+  }
+
+  .magazine__page[data-tone='paper'] {
+    background: var(--color-paper-2);
+  }
+
+  .magazine__page[data-position] {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+  }
+
+  .magazine__page[data-position='left'] {
+    inset-inline-start: 0;
+    border-inline-end: var(--rule-hair) solid var(--color-viewer-divider);
+    box-shadow: var(--shadow-magazine-left-page);
+    transform-origin: right center;
+  }
+
+  .magazine__page[data-position='right'] {
+    inset-inline-start: 50%;
+    box-shadow: var(--shadow-magazine-right-page);
+    transform-origin: left center;
+  }
+
+  .magazine__page[data-position='left']::after,
+  .magazine__page[data-position='right']::after {
+    position: absolute;
+    inset-block: 0;
+    z-index: var(--layer-content);
+    width: clamp(var(--space-sm), 7%, var(--space-xl));
+    content: '';
+    pointer-events: none;
+  }
+
+  .magazine__page[data-position='left']::after {
+    inset-inline-end: 0;
+    background: linear-gradient(
+      to left,
+      color-mix(in oklch, var(--color-graphite) 32%, transparent),
+      color-mix(in oklch, var(--color-graphite) 12%, transparent) 38%,
+      transparent
+    );
+  }
+
+  .magazine__page[data-position='right']::after {
+    inset-inline-start: 0;
+    background: linear-gradient(
+      to right,
+      color-mix(in oklch, var(--color-graphite) 32%, transparent),
+      color-mix(in oklch, var(--color-graphite) 12%, transparent) 38%,
+      transparent
+    );
+  }
+
+  .magazine__page[data-position='single'] {
+    inset-inline-start: 25%;
+    box-shadow: var(--shadow-magazine-page);
+  }
+
+  .magazine__photo {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: transparent;
+    color: inherit;
+  }
+
+  .magazine__photo img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: var(--magazine-photo-position);
+    user-select: none;
+  }
+
+  .magazine__page[data-fit='contain'] .magazine__photo img {
+    object-fit: contain;
+  }
+
+  .magazine.is-turning .magazine__book {
+    pointer-events: none;
+  }
+
+  .magazine__turn {
+    position: absolute;
+    inset-block-start: 50%;
+    z-index: var(--layer-overlay);
+    width: var(--size-control);
+    height: var(--size-control);
+    padding: 0;
+    border: var(--rule-hair) solid var(--color-viewer-rule);
+    border-radius: var(--radius-round);
+    display: grid;
+    place-items: center;
+    background: var(--color-viewer-surface);
+    color: var(--color-viewer-ink);
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition:
+      background var(--dur-micro) var(--ease-out),
+      opacity var(--dur-micro) var(--ease-out);
+  }
+
+  .magazine__turn--previous {
+    inset-inline-start: var(--space-sm);
+  }
+
+  .magazine__turn--next {
+    inset-inline-end: var(--space-sm);
+  }
+
+  .magazine__turn:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  .magazine__turn:focus-visible,
+  .magazine__fullscreen:focus-visible,
+  .magazine__zoom-controls button:focus-visible {
+    outline: var(--outline-control) solid var(--color-viewer-ink);
+    outline-offset: var(--outline-offset-control);
+  }
+
+  .magazine__toolbar {
+    padding: var(--space-sm) var(--space-md);
+    border-block: var(--rule-hair) solid var(--color-viewer-divider);
+    display: grid;
+    grid-template-columns: auto minmax(4rem, 1fr) auto;
+    align-items: center;
+    gap: var(--space-md);
+    color: var(--color-viewer-ink-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .magazine__count {
+    min-width: 9.5rem;
+  }
+
+  .magazine__progress {
+    width: 100%;
+    height: var(--space-3xs);
+    border: 0;
+    border-radius: var(--radius-round);
+    overflow: hidden;
+    appearance: none;
+    background: var(--color-viewer-rule);
+  }
+
+  .magazine__progress::-webkit-progress-bar {
+    background: var(--color-viewer-rule);
+  }
+
+  .magazine__progress::-webkit-progress-value {
+    background: var(--color-accent);
+  }
+
+  .magazine__progress::-moz-progress-bar {
+    background: var(--color-accent);
+  }
+
+  .magazine__zoom-controls {
+    border: var(--rule-hair) solid var(--color-viewer-rule);
+    display: inline-grid;
+    grid-template-columns: var(--size-control-sm) 3.75rem var(--size-control-sm);
+    justify-self: end;
+  }
+
+  .magazine__zoom-controls[hidden] {
+    display: none;
+  }
+
+  .magazine__zoom-controls button {
+    min-width: var(--size-control-sm);
+    min-height: var(--size-control-sm);
+    padding: 0;
+    border: 0;
+    border-inline-start: var(--rule-hair) solid var(--color-viewer-rule);
+    display: grid;
+    place-items: center;
+    background: transparent;
+    color: var(--color-viewer-ink);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .magazine__zoom-controls button:first-child {
+    border-inline-start: 0;
+  }
+
+  .magazine__zoom-controls button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .magazine__fullscreen {
+    min-height: var(--size-control-sm);
+    padding: 0 var(--space-sm);
+    border: var(--rule-hair) solid var(--color-viewer-rule);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: transparent;
+    color: var(--color-viewer-ink);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .magazine__fullscreen-icon--exit {
+    display: none;
+  }
+
+  .magazine.is-fullscreen .magazine__fullscreen-icon--enter {
+    display: none;
+  }
+
+  .magazine.is-fullscreen .magazine__fullscreen-icon--exit {
+    display: inline;
+  }
+
+  .magazine__hint {
+    margin: 0;
+    padding: var(--space-sm) var(--space-md);
+    color: var(--color-viewer-ink-subtle);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-align: center;
+  }
+
+  .magazine__hint-compact {
+    display: none;
+  }
+
+  :global(body.magazine-expanded) {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  .magazine.is-fullscreen {
+    padding: var(--space-xs);
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    border: 0;
+    background: var(--color-viewer-canvas);
+  }
+
+  .magazine.is-expanded {
+    position: fixed;
+    inset: 0;
+    z-index: var(--layer-skip-link);
+    width: 100%;
+    height: 100dvh;
+    padding-block: max(var(--space-xs), env(safe-area-inset-top)) max(var(--space-xs), env(safe-area-inset-bottom));
+    padding-inline: max(var(--space-xs), env(safe-area-inset-left)) max(var(--space-xs), env(safe-area-inset-right));
+    overflow: hidden;
+  }
+
+  .magazine.is-fullscreen .magazine__viewport {
+    min-height: 0;
+    padding-block: var(--space-xs);
+    touch-action: none;
+  }
+
+  .magazine.is-fullscreen .magazine__book {
+    width: min(100%, var(--magazine-fullscreen-spread-max-by-height));
+    touch-action: none;
+  }
+
+  .magazine.is-fullscreen .magazine__toolbar {
+    grid-template-columns: auto minmax(4rem, 1fr) auto auto;
+  }
+
+  .magazine.is-fullscreen .magazine__hint {
+    display: none;
+  }
+
+  .magazine.is-fullscreen.is-zoomed .magazine__book {
+    cursor: grab;
+    will-change: transform;
+  }
+
+  .magazine.is-fullscreen.is-dragging .magazine__book {
+    cursor: grabbing;
+    transition: none;
+  }
+
+  @media (hover: hover) {
+    .magazine__turn:not(:disabled):hover,
+    .magazine__fullscreen:hover,
+    .magazine__zoom-controls button:not(:disabled):hover {
+      background: var(--color-viewer-hover);
+    }
+  }
+
+  @media (max-width: 47.99rem) {
+    .magazine__viewport {
+      padding: var(--space-md) calc(var(--size-control-sm) + var(--space-xs));
+    }
+
+    .magazine__hint {
+      padding: var(--space-xs) var(--space-sm);
+      font-size: calc(var(--text-xs) * 0.875);
+      line-height: var(--leading-caption);
+    }
+
+    .magazine__hint-full {
+      display: none;
+    }
+
+    .magazine__hint-compact {
+      display: inline;
+    }
+
+    .magazine__turn--previous {
+      inset-inline-start: var(--space-xs);
+    }
+
+    .magazine__turn--next {
+      inset-inline-end: var(--space-xs);
+    }
+
+    .magazine__toolbar {
+      grid-template-columns: auto 1fr;
+    }
+
+    .magazine__progress {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+
+    .magazine__fullscreen {
+      justify-self: end;
+    }
+
+    .magazine__fullscreen [data-magazine-fullscreen-text] {
+      display: none;
+    }
+
+    .magazine__count {
+      min-width: 0;
+    }
+
+    .magazine.is-fullscreen .magazine__toolbar {
+      position: absolute;
+      inset: 0;
+      z-index: var(--layer-overlay);
+      display: block;
+      padding: 0;
+      border: 0;
+      pointer-events: none;
+    }
+
+    .magazine.is-fullscreen .magazine__count {
+      position: absolute;
+      inset-block-end: max(var(--space-md), env(safe-area-inset-bottom));
+      inset-inline: var(--space-md);
+      min-width: 0;
+      color: var(--color-viewer-ink-subtle);
+      font-size: var(--text-xs);
+      line-height: var(--leading-none);
+      text-align: center;
+      transform: scale(0.8);
+      transform-origin: center bottom;
+      pointer-events: auto;
+    }
+
+    .magazine.is-fullscreen .magazine__progress {
+      display: none;
+    }
+
+    .magazine.is-fullscreen .magazine__turn {
+      width: var(--size-control-sm);
+      height: var(--size-control-sm);
+    }
+
+    .magazine.is-fullscreen .magazine__zoom-controls {
+      position: absolute;
+      inset-block-start: max(var(--space-xs), env(safe-area-inset-top));
+      inset-inline-start: max(var(--space-xs), env(safe-area-inset-left));
+      pointer-events: auto;
+    }
+
+    .magazine.is-fullscreen .magazine__fullscreen {
+      position: absolute;
+      inset-block-start: max(var(--space-xs), env(safe-area-inset-top));
+      inset-inline-end: max(var(--space-xs), env(safe-area-inset-right));
+      min-width: var(--size-control-sm);
+      padding-inline: 0;
+      justify-content: center;
+      pointer-events: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .magazine__book,
+    .magazine__turn,
+    .magazine__turn-layer {
+      transition: none;
+    }
+  }
+</style>

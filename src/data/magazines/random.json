@@ -1,0 +1,25 @@
+{
+  "pageSize": {
+    "width": 3,
+    "height": 4
+  },
+  "pages": [
+    { "image": "_A745670-1-3.jpg", "position": "50% 48%" },
+    { "image": "ASC06117.jpg", "position": "50% 50%" },
+    { "image": "ASC06144.jpg", "position": "50% 48%" },
+    { "image": "ASC06219.jpg", "position": "50% 50%" },
+    { "image": "ASC05779-2.jpg", "position": "50% 48%" },
+    { "image": "ASC04981.jpg", "position": "50% 45%" },
+    { "image": "ASC05750.jpg", "position": "50% 50%" },
+    { "image": "ASC04702.jpg", "position": "50% 50%" },
+    { "image": "ASC05068.jpg", "position": "50% 50%", "tone": "paper" },
+    { "image": "_A744670.jpg", "position": "50% 50%" },
+    { "image": "ASC00641.jpg", "position": "50% 50%" },
+    { "image": "A7400504-2.jpg", "position": "50% 50%" },
+    { "image": "ASC06997.jpg", "position": "50% 50%" },
+    { "image": "ASC03165.jpg", "position": "50% 50%" },
+    { "image": "ASC00116.jpg", "position": "50% 45%" },
+    { "image": "_A741531.jpg", "position": "50% 50%" },
+    { "image": "_A746116-2.jpg", "position": "50% 55%" }
+  ]
+}

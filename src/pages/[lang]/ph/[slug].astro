@@ -4,6 +4,7 @@ import SiteLayout from '../../../layouts/SiteLayout.astro';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
 import PhotoLightbox from '../../../components/PhotoLightbox.astro';
+import PhotoMagazine from '../../../components/PhotoMagazine.astro';
 import Icon from '../../../components/Icon.astro';
 import { languages, ui, type Lang } from '../../../i18n/content';
 import {
@@ -38,18 +39,21 @@ const galleryImages = [
   ...gallery.images.filter(({ filename }) => filename === gallery.coverFilename),
   ...gallery.images.filter(({ filename }) => filename !== gallery.coverFilename),
 ];
-const galleryViewerImages = await Promise.all(
-  galleryImages.map(async ({ image, filename }) => ({
-    image,
-    filename,
-    viewer: await getImage({
-      src: image,
-      width: Math.min(1600, image.width),
-      format: 'webp',
-      quality: 80,
-    }),
-  })),
-);
+const galleryViewerImages = gallery.magazine
+  ? []
+  : await Promise.all(
+      galleryImages.map(async ({ image, filename }) => ({
+        image,
+        filename,
+        viewer: await getImage({
+          src: image,
+          width: Math.min(1600, image.width),
+          format: 'webp',
+          quality: 80,
+        }),
+      })),
+    );
+const presentedImageCount = gallery.magazine?.pages.length ?? gallery.images.length;
 ---
 
 <SiteLayout
@@ -98,7 +102,7 @@ const galleryViewerImages = await Promise.all(
             </svg>
             <span class="series-body__tooltip" aria-hidden="true">{previousContent.title}</span>
           </a>
-          <p><strong>{gallery.images.length}</strong> {ui[lang].photography.photographs}</p>
+          <p><strong>{presentedImageCount}</strong> {ui[lang].photography.photographs}</p>
         </div>
         <div class="series-body__meta-group series-body__meta-group--next">
           <p>
@@ -119,44 +123,48 @@ const galleryViewerImages = await Promise.all(
         </div>
       </nav>
 
-      <div class="series-gallery">
-        {galleryViewerImages.map(({ image, filename, viewer }, index) => {
-          const number = index + 1;
-          const alt = `${labels.photo} ${number} ${labels.from} ${content.title}`;
-          const isLandscape = image.width > image.height;
-          const isWide = isLandscape || index % 9 === 7;
+      {gallery.magazine ? (
+        <PhotoMagazine gallery={gallery} lang={lang} />
+      ) : (
+        <div class="series-gallery">
+          {galleryViewerImages.map(({ image, filename, viewer }, index) => {
+            const number = index + 1;
+            const alt = `${labels.photo} ${number} ${labels.from} ${content.title}`;
+            const isLandscape = image.width > image.height;
+            const isWide = isLandscape || index % 9 === 7;
 
-          return (
-            <figure class:list={['series-photo', isWide && 'series-photo--wide']}>
-              <button
-                class="series-photo__open"
-                type="button"
-                aria-label={`${labels.openFullscreen}: ${alt}`}
-                aria-haspopup="dialog"
-                aria-controls="photo-lightbox"
-                data-lightbox-open
-                data-lightbox-src={viewer.src}
-                data-lightbox-alt={alt}
-                data-lightbox-filename={filename}
-              >
-                <Image
-                  src={image}
-                  widths={[480, 800, 1200, 1600]}
-                  sizes={isWide ? '(min-width: 92rem) 92rem, 100vw' : '(min-width: 92rem) 46rem, (min-width: 40rem) 50vw, 100vw'}
-                  quality={80}
-                  loading="lazy"
-                  alt={alt}
-                />
-                <span class="series-photo__expand"><Icon name="arrow-up-right" /></span>
-              </button>
-              <figcaption>
-                <span>{String(number).padStart(2, '0')} / {String(gallery.images.length).padStart(2, '0')}</span>
-                <span aria-hidden="true">{filename}</span>
-              </figcaption>
-            </figure>
-          );
-        })}
-      </div>
+            return (
+              <figure class:list={['series-photo', isWide && 'series-photo--wide']}>
+                <button
+                  class="series-photo__open"
+                  type="button"
+                  aria-label={`${labels.openFullscreen}: ${alt}`}
+                  aria-haspopup="dialog"
+                  aria-controls="photo-lightbox"
+                  data-lightbox-open
+                  data-lightbox-src={viewer.src}
+                  data-lightbox-alt={alt}
+                  data-lightbox-filename={filename}
+                >
+                  <Image
+                    src={image}
+                    widths={[480, 800, 1200, 1600]}
+                    sizes={isWide ? '(min-width: 92rem) 92rem, 100vw' : '(min-width: 92rem) 46rem, (min-width: 40rem) 50vw, 100vw'}
+                    quality={80}
+                    loading="lazy"
+                    alt={alt}
+                  />
+                  <span class="series-photo__expand"><Icon name="arrow-up-right" /></span>
+                </button>
+                <figcaption>
+                  <span>{String(number).padStart(2, '0')} / {String(gallery.images.length).padStart(2, '0')}</span>
+                  <span aria-hidden="true">{filename}</span>
+                </figcaption>
+              </figure>
+            );
+          })}
+        </div>
+      )}
 
       <a class="article-next" href={`/${lang}/ph/${nextGallery.slug}/`}>
         <span>{labels.next}</span>

@@ -98,6 +98,7 @@
   --dur-micro: 120ms;
   --dur-short: 220ms;
   --dur-long: 420ms;
+  --dur-page-turn: 720ms;
 
   --rule-hair: 1px;
   --outline-control: 2px;
@@ -119,6 +120,12 @@
   --size-back-to-top-compact: 3.25rem;
   --size-back-to-top-icon: 1.35rem;
   --size-back-to-top-label: 0.55rem;
+  --magazine-page-ratio: 3 / 4;
+  --magazine-spread-ratio: 3 / 2;
+  --magazine-page-max-by-height: 52.5svh;
+  --magazine-spread-max-by-height: 105svh;
+  --magazine-fullscreen-spread-max-by-height: 132dvh;
+  --magazine-photo-position: 50% 50%;
   --back-to-top-padding: 0.45rem 0.35rem 0.3rem;
   --back-to-top-label-gap: 0.05rem;
   --back-to-top-rest-scale: 0.94;
@@ -135,6 +142,13 @@
   --shadow-back-to-top-offset: 0.3rem 0.3rem 0;
   --shadow-back-to-top-hover-offset: 0.16rem 0.16rem 0;
   --shadow-back-to-top-active-offset: 0 0 0;
+  --shadow-magazine-page: 0 1.5rem 4rem oklch(4% 0.01 258 / 0.52);
+  --shadow-magazine-left-page:
+    -0.75rem 1.25rem 3rem oklch(4% 0.01 258 / 0.36),
+    inset -1.1rem 0 1.5rem oklch(4% 0.01 258 / 0.18);
+  --shadow-magazine-right-page:
+    0.75rem 1.25rem 3rem oklch(4% 0.01 258 / 0.36),
+    inset 1.1rem 0 1.5rem oklch(4% 0.01 258 / 0.18);
   --page-gutter: clamp(1rem, 4vw, 4rem);
   --page-max: 92rem;
 }

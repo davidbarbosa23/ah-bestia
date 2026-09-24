@@ -349,6 +349,20 @@ export interface UiCopy {
       close: string;
       hint: string;
     };
+    magazine: {
+      reader: string;
+      previous: string;
+      next: string;
+      fullscreen: string;
+      exitFullscreen: string;
+      page: string;
+      pages: string;
+      of: string;
+      progress: string;
+      zoomControls: string;
+      hint: string;
+      compactHint: string;
+    };
   };
   labs: {
     status: string;
@@ -432,6 +446,20 @@ export const ui = {
         reset: 'Reset zoom',
         close: 'Close full-screen viewer',
         hint: 'Swipe to browse. Pinch, scroll, or use + / - to zoom.',
+      },
+      magazine: {
+        reader: 'Magazine reader',
+        previous: 'Previous pages',
+        next: 'Next pages',
+        fullscreen: 'Enter full screen',
+        exitFullscreen: 'Exit full screen',
+        page: 'Page',
+        pages: 'Pages',
+        of: 'of',
+        progress: 'Magazine reading progress',
+        zoomControls: 'Zoom controls',
+        hint: 'Use the arrow keys or swipe to turn pages. In full screen, scroll or use + / - to zoom.',
+        compactHint: 'Swipe or use ← / →.',
       },
     },
     labs: {
@@ -530,6 +558,20 @@ export const ui = {
         reset: 'Restablecer zoom',
         close: 'Cerrar visor de pantalla completa',
         hint: 'Desliza para navegar. Pellizca, desplázate o usa + / - para ampliar.',
+      },
+      magazine: {
+        reader: 'Lector de revista',
+        previous: 'Páginas anteriores',
+        next: 'Páginas siguientes',
+        fullscreen: 'Ver en pantalla completa',
+        exitFullscreen: 'Salir de pantalla completa',
+        page: 'Página',
+        pages: 'Páginas',
+        of: 'de',
+        progress: 'Progreso de lectura de la revista',
+        zoomControls: 'Controles de zoom',
+        hint: 'Usa las teclas de flecha o desliza para pasar las páginas. En pantalla completa, usa la rueda o + / - para ampliar.',
+        compactHint: 'Desliza o usa ← / →.',
       },
     },
     labs: {
