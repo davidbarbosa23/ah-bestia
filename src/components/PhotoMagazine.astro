@@ -305,7 +305,9 @@ const pages = await Promise.all(
           if (book.style.width !== zoomedWidth) book.style.width = zoomedWidth;
         }
         clampPosition();
-        book.style.transform = `translate3d(${translateX}px, ${translateY}px, 0)`;
+        const centerOffsetX = (viewport.clientWidth - book.offsetWidth) / 2 - book.offsetLeft;
+        const centerOffsetY = (viewport.clientHeight - book.offsetHeight) / 2 - book.offsetTop;
+        book.style.transform = `translate3d(${centerOffsetX + translateX}px, ${centerOffsetY + translateY}px, 0)`;
         zoomReset.textContent = `${Math.round(scale * 100)}%`;
         zoomOut.disabled = scale <= minimumScale;
         zoomIn.disabled = scale >= maximumScale;
