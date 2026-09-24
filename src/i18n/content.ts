@@ -136,6 +136,7 @@ export const copy = {
     },
     footer: {
       copyright: 'David Barbosa',
+      resume: 'Résumé',
     },
   },
   es: {
@@ -286,6 +287,7 @@ export const copy = {
     },
     footer: {
       copyright: 'David Barbosa',
+      resume: 'Currículum',
     },
   },
 } as const;
