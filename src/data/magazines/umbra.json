@@ -1,0 +1,19 @@
+{
+  "pageSize": {
+    "width": 3,
+    "height": 4
+  },
+  "pages": [
+    { "image": "01_portada.jpg", "position": "50% 50%" },
+    { "image": "02.jpg", "position": "50% 50%" },
+    { "image": "03.jpg", "position": "50% 50%" },
+    { "image": "04.jpg", "position": "50% 50%" },
+    { "image": "05.jpg", "position": "50% 50%" },
+    { "image": "06.jpg", "position": "50% 50%" },
+    { "image": "07.jpg", "position": "50% 50%" },
+    { "image": "08.jpg", "position": "50% 50%" },
+    { "image": "09.jpg", "position": "50% 50%" },
+    { "image": "10.jpg", "position": "50% 50%" },
+    { "image": "11.jpg", "position": "50% 50%" }
+  ]
+}

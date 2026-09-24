@@ -239,6 +239,29 @@ const definitions: GalleryDefinition[] = [
       },
     },
   },
+  {
+    slug: 'umbra',
+    assetFolder: 'Umbra',
+    sourceFolder: 'Umbra',
+    coverFilename: '01_portada.jpg',
+    indexDetailFilename: '03.jpg',
+    content: {
+      en: {
+        title: 'Umbra',
+        cardTitle: 'Umbra',
+        description:
+          'An editorial portrait study shaped by shadow, texture, and a western silhouette.',
+        location: 'Portrait session',
+      },
+      es: {
+        title: 'Umbra',
+        cardTitle: 'Umbra',
+        description:
+          'Un estudio de retrato editorial entre sombras, textura y una silueta western.',
+        location: 'Sesión de retrato',
+      },
+    },
+  },
 ];
 
 const naturalFilenameOrder = new Intl.Collator('en', {
