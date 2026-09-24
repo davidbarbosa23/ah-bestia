@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import { copy, ui, type Lang } from '../i18n/content';
-import { photoGalleries, type PhotoGallery } from '../data/photoGalleries';
+import { photoGalleries } from '../data/photoGalleries';
 import Icon from './Icon.astro';
 
 interface Props { lang: Lang; }
@@ -9,9 +9,6 @@ const { lang } = Astro.props;
 const t = copy[lang].photo;
 const labels = ui[lang];
 
-const getDetailImage = (gallery: PhotoGallery) => (
-  gallery.images.find(({ filename }) => filename !== gallery.coverFilename)?.image ?? gallery.cover
-);
 ---
 
 <div class="experience experience--photographer" data-experience-panel="photographer">
@@ -25,7 +22,6 @@ const getDetailImage = (gallery: PhotoGallery) => (
       <div class="photo-series-list page-shell">
         {photoGalleries.map((gallery, index) => {
           const content = gallery.content[lang];
-          const detailImage = getDetailImage(gallery);
           const seriesNumber = String(index + 1).padStart(2, '0');
           const seriesTotal = String(photoGalleries.length).padStart(2, '0');
 
@@ -48,6 +44,7 @@ const getDetailImage = (gallery: PhotoGallery) => (
                 class="photo-series__spread"
                 href={`/${lang}/ph/${gallery.slug}/`}
                 aria-label={`${t.openNote}: ${content.cardTitle}`}
+                data-series-transition
               >
                 <figure class="photo-series__cover">
                   <Image
@@ -58,11 +55,12 @@ const getDetailImage = (gallery: PhotoGallery) => (
                     loading={index === 0 ? 'eager' : 'lazy'}
                     fetchpriority={index === 0 ? 'high' : 'auto'}
                     alt={`${content.cardTitle}. ${content.description}`}
+                    transition:name={`gallery-cover-${gallery.slug}`}
                   />
                 </figure>
                 <figure class="photo-series__detail" aria-hidden="true">
                   <Image
-                    src={detailImage}
+                    src={gallery.indexDetail}
                     widths={[280, 420, 560, 720]}
                     sizes="(min-width: 60rem) 22vw, (min-width: 40rem) 32vw, 58vw"
                     quality={80}

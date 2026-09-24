@@ -71,6 +71,11 @@ const pages = await Promise.all(
 >
   <h2 class="sr-only">{labels.magazine.reader}: {content.title}</h2>
 
+  <div class="magazine__identity" aria-hidden="true">
+    <span>{labels.series.magazineEdition}</span>
+    <span>{pages.length} {labels.magazine.pages}</span>
+  </div>
+
   <div class="magazine__viewport">
     <div class="magazine__book" data-magazine-book>
       <ol class="magazine__pages">
@@ -93,9 +98,11 @@ const pages = await Promise.all(
                 width={page.imageAsset.width}
                 height={page.imageAsset.height}
                 alt={page.alt}
-                loading="lazy"
+                loading={index === 0 ? 'eager' : 'lazy'}
+                fetchpriority={index === 0 ? 'high' : 'auto'}
                 decoding="async"
                 draggable="false"
+                transition:name={index === 0 ? `gallery-cover-${gallery.slug}` : undefined}
                 data-magazine-image
                 data-src={page.large.src}
                 data-srcset={`${page.small.src} ${page.small.attributes.width}w, ${page.large.src} ${page.large.attributes.width}w`}
@@ -1086,6 +1093,19 @@ const pages = await Promise.all(
   .magazine:focus-visible {
     outline: var(--outline-focus) solid var(--color-focus);
     outline-offset: var(--outline-offset-focus);
+  }
+
+  .magazine__identity {
+    padding: var(--space-sm) var(--space-md);
+    border-block-end: var(--rule-hair) solid var(--color-viewer-divider);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-md);
+    color: var(--color-viewer-ink-subtle);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    text-transform: uppercase;
   }
 
   .magazine__viewport {

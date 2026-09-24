@@ -1,4 +1,4 @@
-# Darkroom Editorial — Photographer Home
+# Darkroom Editorial — Photographer Experience
 
 Planning source for the redesign of `/en/ph/` and `/es/ph/`.
 
@@ -77,10 +77,16 @@ One interaction carries the page: each photographic spread stays visually still,
 
 ### Phase 2 — gallery continuity
 
-- [ ] Carry the Darkroom Editorial masthead treatment into individual series pages.
-- [ ] Add a shared-image route transition from each home spread into its series hero.
-- [ ] Review each series cover/detail pairing and replace automatic choices with a curated image map where useful.
-- [ ] Review gallery-page navigation and closing transitions as one continuous exhibition path.
+- [x] Carry the Darkroom Editorial masthead treatment into individual series pages.
+- [x] Add a shared-image route transition from each home spread into the first gallery plate or Magazine cover.
+- [x] Review each series cover/detail pairing and replace automatic choices with a curated image map.
+- [x] Review gallery-page navigation and closing transitions as one continuous exhibition path.
+- [x] Keep Magazine as a configured alternate mode and frame it within the same opening/closing system.
+
+Phase 2 establishes two deliberate reading modes:
+
+- **Continuous sequence** is the default. The selected cover returns as plate 01 inside the natural gallery rhythm—without a separate cover block—while the photographs alternate between paired, offset, and full-width placements and the closing frame previews the next complete story.
+- **Magazine edition** remains opt-in through a gallery JSON configuration. It begins directly with the page-turn reader, keeps full-screen controls and a clear edition identity, and uses the same next-story handoff as continuous galleries.
 
 ### Phase 3 — content refinement
 

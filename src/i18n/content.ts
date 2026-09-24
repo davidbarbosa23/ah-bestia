@@ -340,6 +340,9 @@ export interface UiCopy {
       photo: string;
       from: string;
       openFullscreen: string;
+      sequence: string;
+      magazineEdition: string;
+      continueWith: string;
     };
     lightbox: {
       viewer: string;
@@ -438,6 +441,9 @@ export const ui = {
         photo: 'Photograph',
         from: 'from',
         openFullscreen: 'Open full-screen view',
+        sequence: 'Continuous sequence',
+        magazineEdition: 'Magazine edition',
+        continueWith: 'Continue with',
       },
       lightbox: {
         viewer: 'Full-screen photo viewer',
@@ -550,6 +556,9 @@ export const ui = {
         photo: 'Fotografía',
         from: 'de',
         openFullscreen: 'Abrir vista de pantalla completa',
+        sequence: 'Secuencia continua',
+        magazineEdition: 'Edición de revista',
+        continueWith: 'Continuar con',
       },
       lightbox: {
         viewer: 'Visor de fotos en pantalla completa',
