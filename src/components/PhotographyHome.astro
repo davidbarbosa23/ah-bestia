@@ -79,39 +79,37 @@ const labels = ui[lang];
       </div>
     </section>
 
-    <section class="photo-practice page-shell" aria-labelledby="photo-practice-title">
-      <figure class="photo-practice__image">
-        <Image
-          src={photographerCamera}
-          widths={[480, 720, 1080, 1400]}
-          sizes="(min-width: 60rem) 58vw, 92vw"
-          quality={82}
-          loading="lazy"
-          alt={labels.metadata.photographerHeroAlt}
-        />
-        <figcaption>{t.processImageCaption}</figcaption>
-      </figure>
-
-      <div class="photo-practice__copy">
+    <section class="photo-practice" aria-labelledby="photo-practice-title">
+      <div class="photo-practice__inner page-shell">
         <div class="photo-practice__intro">
           <p class="mono-label">{t.processLabel}</p>
           <h2 id="photo-practice-title">{t.processTitle}</h2>
           <p>{t.processBody}</p>
         </div>
 
+        <figure class="photo-practice__image">
+          <Image
+            src={photographerCamera}
+            widths={[480, 720, 1080, 1400]}
+            sizes="(min-width: 60rem) 36vw, 92vw"
+            quality={82}
+            loading="lazy"
+            alt={labels.metadata.photographerHeroAlt}
+          />
+        </figure>
+
         <div class="photo-practice__contact">
           <p class="mono-label">{t.collaborationLabel}</p>
           <p>{t.collaborationBody}</p>
           <a
             class="text-link"
-            href={`mailto:davidbarbosa.dev@gmail.com?subject=${encodeURIComponent(t.collaborationSubject)}`}
+            href={`mailto:davidbarbosa.design@gmail.com?subject=${encodeURIComponent(t.collaborationSubject)}`}
           >
             {t.collaborationLink}<Icon name="arrow-up-right" />
           </a>
         </div>
+
       </div>
     </section>
-
-    <p class="photo-credit page-shell">{t.creditNote}</p>
   </main>
 </div>

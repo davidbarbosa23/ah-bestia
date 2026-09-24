@@ -74,10 +74,10 @@ export const copy = {
       pauseGallery: 'Pause projects',
       playGallery: 'Play projects',
       openNote: 'Open visual note',
-      processLabel: 'Photographic practice',
-      processTitle: 'The camera stays close.',
+      processLabel: 'An evolving collection',
+      processTitle: 'The archive stays open.',
       processBody:
-        'The archive follows recurring subjects—machines, animals, streets, movement, and light—without forcing them into a single answer. Each series remains open to the next photograph.',
+        'Portraits, machines, animals, streets, travel, movement, and whatever catches my attention next. The collection is intentionally open-ended, changing shape as new photographs and new subjects are added.',
       processImageCaption: 'Working camera · Fujifilm X100VI',
       collaborationLabel: 'Assignments and collaborations',
       collaborationBody:
@@ -225,10 +225,10 @@ export const copy = {
       pauseGallery: 'Pausar proyectos',
       playGallery: 'Reproducir proyectos',
       openNote: 'Abrir nota visual',
-      processLabel: 'Práctica fotográfica',
-      processTitle: 'La cámara permanece cerca.',
+      processLabel: 'Una colección en evolución',
+      processTitle: 'El archivo sigue abierto.',
       processBody:
-        'El archivo sigue temas recurrentes —máquinas, animales, calles, movimiento y luz— sin obligarlos a una única respuesta. Cada serie queda abierta a la siguiente fotografía.',
+        'Retratos, máquinas, animales, calles, viajes, movimiento y lo que llame mi atención después. La colección está abierta a cambiar de forma a medida que se sumen nuevas fotografías y nuevos temas.',
       processImageCaption: 'Cámara de trabajo · Fujifilm X100VI',
       collaborationLabel: 'Encargos y colaboraciones',
       collaborationBody:
