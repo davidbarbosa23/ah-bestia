@@ -237,6 +237,12 @@ const pages = await Promise.all(
       if (!turnShadow || !turnInnerShadow) return;
 
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const durationInMilliseconds = (value: string, fallback: number) => {
+        const duration = value.trim();
+        const amount = Number.parseFloat(duration);
+        if (!Number.isFinite(amount)) return fallback;
+        return duration.endsWith('ms') ? amount : duration.endsWith('s') ? amount * 1000 : amount;
+      };
       const lastIndex = pages.length - 1;
       const pageLabel = magazine.dataset.pageLabel ?? '';
       const pagesLabel = magazine.dataset.pagesLabel ?? '';
@@ -749,14 +755,15 @@ const pages = await Promise.all(
         const turnImagesReady = Promise.all(
           [...new Set([...fromIndices, ...toIndices])].map(loadPage),
         );
-        const loadBudget = Number.parseFloat(
+        const loadBudget = durationInMilliseconds(
           getComputedStyle(magazine).getPropertyValue('--dur-micro'),
+          120,
         );
         await Promise.race([
           turnImagesReady,
           new Promise<void>((resolve) => window.setTimeout(
             resolve,
-            Number.isFinite(loadBudget) ? loadBudget : 120,
+            loadBudget,
           )),
         ]);
         if (signal.aborted) return;
@@ -773,10 +780,10 @@ const pages = await Promise.all(
         turnLayer.hidden = false;
         magazine.classList.add('is-turning');
 
-        const configuredDuration = Number.parseFloat(
+        const duration = durationInMilliseconds(
           getComputedStyle(magazine).getPropertyValue('--dur-page-turn'),
+          720,
         );
-        const duration = Number.isFinite(configuredDuration) ? configuredDuration : 720;
 
         await new Promise<void>((resolve) => {
           resolveTurn = resolve;
