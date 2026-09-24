@@ -901,150 +901,13 @@ html[data-theme='dark'] .theme-icon--moon {
 }
 
 /* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5
- * macrostructure: Long-form Photographic Index · tone: darkroom editorial · anchor hue: amber
+ * macrostructure: Archive-First Photographic Index · tone: darkroom editorial · anchor hue: amber
  * genre: editorial · theme: photographic inversion · enrichment: art-directed archive spreads
+ * opening: heroless — first series is the visual thesis
  * nav: established N1b · footer: Ft2 · slop: pass (42–45) · contrast: pass (40–41)
  * honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive: pass (49)
  * icons: pass (30) · mobile: pass (34, 49, 50–57)
  */
-.photo-hero {
-  display: grid;
-  background: var(--color-graphite);
-  color: var(--color-on-dark);
-  overflow: clip;
-}
-
-.photo-hero__image {
-  position: relative;
-  min-height: clamp(
-    calc(var(--space-3xl) * 5),
-    68svh,
-    calc(var(--space-4xl) * 6)
-  );
-  display: block;
-  overflow: clip;
-  background: var(--color-graphite-2);
-  animation: photo-image-reveal var(--dur-long) var(--ease-out) both;
-}
-
-.photo-hero__image::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(0deg, var(--color-overlay), transparent 42%);
-  opacity: 0.52;
-  transition: opacity var(--dur-short) var(--ease-out);
-}
-
-.photo-hero__image:hover::after,
-.photo-hero__image:focus-visible::after {
-  opacity: 0.28;
-}
-
-.photo-hero__image > img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transition: transform var(--dur-long) var(--ease-out);
-}
-
-.photo-hero__image:hover > img,
-.photo-hero__image:focus-visible > img {
-  transform: scale(1.01);
-}
-
-.photo-hero__image-note {
-  position: absolute;
-  z-index: var(--layer-content);
-  inset-inline: var(--page-gutter);
-  inset-block-end: var(--space-lg);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--space-xs) var(--space-lg);
-  color: var(--color-on-dark);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-}
-
-.photo-hero__copy {
-  min-width: 0;
-  padding: var(--space-2xl) var(--page-gutter) var(--space-3xl);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-start;
-  gap: var(--space-md);
-  background: var(--color-graphite);
-}
-
-.photo-hero__copy > * {
-  animation: photo-copy-reveal var(--dur-long) var(--ease-out) both;
-}
-
-.photo-hero__copy > :nth-child(2) {
-  animation-delay: var(--dur-micro);
-}
-
-.photo-hero__copy > :nth-child(3) {
-  animation-delay: var(--dur-short);
-}
-
-.photo-hero__copy > :nth-child(4) {
-  animation-delay: var(--dur-long);
-}
-
-.status-line--photo {
-  color: var(--color-on-dark-muted);
-}
-
-.photo-hero h1 {
-  max-width: 9ch;
-  color: var(--color-on-dark);
-  font-size: var(--text-display-s);
-  line-height: var(--leading-hero);
-}
-
-.photo-hero h1 span {
-  display: block;
-}
-
-:lang(es) .photo-hero h1 {
-  max-width: 12ch;
-  font-size: var(--text-3xl);
-}
-
-.photo-hero__copy > p:not(.status-line) {
-  max-width: 34rem;
-  color: var(--color-on-dark-muted);
-  font-size: var(--text-base);
-}
-
-.photo-hero__entry {
-  min-height: var(--size-control);
-  width: max-content;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  border-block-end: var(--rule-hair) solid var(--color-on-dark-muted);
-  color: var(--color-on-dark);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  white-space: nowrap;
-  transition:
-    border-color var(--dur-short) var(--ease-out),
-    color var(--dur-short) var(--ease-out);
-}
-
-.photo-hero__entry:hover,
-.photo-hero__entry:focus-visible {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-}
-
 .photo-archive {
   padding-block: var(--space-3xl) 0;
   background: var(--color-paper);
@@ -1058,12 +921,12 @@ html[data-theme='dark'] .theme-icon--moon {
   border-block-end: var(--rule-hair) solid var(--color-rule-2);
 }
 
-.photo-archive__intro h2 {
+.photo-archive__intro h1 {
   max-width: 15ch;
 }
 
 .photo-archive__intro > p {
-  max-width: 34rem;
+  max-width: 52ch;
   color: var(--color-muted);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -1096,14 +959,14 @@ html[data-theme='dark'] .theme-icon--moon {
   font-variant-numeric: tabular-nums;
 }
 
-.photo-series h3 {
+.photo-series h2 {
   max-width: 12ch;
   font-size: var(--text-section-title);
   line-height: var(--leading-heading);
 }
 
 .photo-series__description {
-  max-width: 34rem;
+  max-width: 52ch;
   color: var(--color-ink-2);
   font-size: var(--text-base);
 }
@@ -1202,27 +1065,7 @@ html[data-theme='dark'] .theme-icon--moon {
   font-size: var(--text-sm);
 }
 
-@keyframes photo-image-reveal {
-  from {
-    opacity: 0;
-    transform: scale(1.015);
-  }
-}
-
-@keyframes photo-copy-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(var(--space-md));
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .photo-hero__image,
-  .photo-hero__copy > * {
-    animation: none;
-  }
-
-  .photo-hero__image > img,
   .photo-series__spread figure {
     transition-duration: var(--dur-micro);
   }
@@ -2185,24 +2028,6 @@ input[aria-invalid='true'] {
 }
 
 @media (min-width: 60rem) {
-  .photo-hero {
-    height: clamp(
-      calc(var(--space-3xl) * 5),
-      72svh,
-      calc(var(--space-4xl) * 6)
-    );
-    grid-template-columns: minmax(0, 1.7fr) minmax(calc(var(--space-2xl) * 5), 0.8fr);
-  }
-
-  .photo-hero__image {
-    min-height: 0;
-    height: 100%;
-  }
-
-  .photo-hero__copy {
-    padding: var(--space-2xl) var(--space-2xl) var(--space-3xl);
-  }
-
   .photo-archive {
     padding-block-start: var(--space-4xl);
   }
@@ -2224,7 +2049,7 @@ input[aria-invalid='true'] {
     align-items: start;
   }
 
-  .photo-series h3 {
+  .photo-series h2 {
     font-size: var(--text-3xl);
   }
 
@@ -2284,10 +2109,6 @@ input[aria-invalid='true'] {
 
 @media (min-width: 90rem) {
   .dev-hero h1 {
-    font-size: var(--text-display);
-  }
-
-  .photo-hero h1 {
     font-size: var(--text-display);
   }
 }

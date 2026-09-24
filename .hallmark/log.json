@@ -1,6 +1,15 @@
 [
   {
     "date": "2026-09-24",
+    "macrostructure": "Archive-First Photographic Index",
+    "theme": "Cobalt / photographic inversion",
+    "enrichment": "Heroless art-directed archive spreads",
+    "brief": "Removed the standalone photographer hero so the first series opens the page",
+    "nav": "typographic established site shell",
+    "footer": "established site shell"
+  },
+  {
+    "date": "2026-09-24",
     "macrostructure": "Long-form Photographic Index",
     "theme": "Cobalt / photographic inversion",
     "enrichment": "Art-directed archive spreads",

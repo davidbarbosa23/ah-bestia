@@ -4,7 +4,7 @@ Planning source for the redesign of `/en/ph/` and `/es/ph/`.
 
 ## Design thesis
 
-The photographer home should feel like entering a small exhibition: one decisive opening image, quiet typography, and a paced sequence of photographic spreads. The photographs provide the spectacle; the interface stays restrained.
+The photographer home should feel like entering a small exhibition already in progress: quiet typography followed immediately by a paced sequence of photographic spreads. The photographs provide the spectacle; the interface stays restrained.
 
 ## Audience and job
 
@@ -26,11 +26,9 @@ The photographer home should feel like entering a small exhibition: one decisive
 Macrostructure: long-form photographic index.
 
 ```text
-Photographic masthead
-        ↓
-Signature frame (image  +  thesis copy)
-        ↓
 Archive introduction
+        ↓
+First series as visual thesis
         ↓
 Sticky series metadata  |  art-directed two-image spread
         ↓
@@ -47,16 +45,16 @@ One interaction carries the page: each photographic spread stays visually still,
 
 ## Responsive behavior
 
-- 320–414 px: image first, then copy; each series becomes a single-column spread with a deliberately offset detail image.
-- 768 px: hero and series metadata remain stacked, with larger paired-image compositions.
-- 960 px and above: split hero; series metadata becomes sticky beside the image spread; alternating rows reverse the visual balance.
+- 320–414 px: the archive introduction leads directly into single-column series spreads with deliberately offset detail images.
+- 768 px: series metadata remains stacked with larger paired-image compositions.
+- 960 px and above: series metadata becomes sticky beside the image spread; alternating rows reverse the visual balance.
 - Clickable labels never wrap. Images use `minmax(0, 1fr)` tracks and remain within the viewport.
 
 ## Performance and accessibility
 
-- Prioritize only the opening image; lazy-load series imagery.
+- Prioritize only the first series cover; lazy-load the remaining series imagery.
 - Remove the continuous GSAP marquee and its cloned DOM.
-- Keep the hero entrance limited to opacity and transform.
+- Keep the opening free of decorative entrance animation.
 - Keep full keyboard focus and visible textual actions.
 - Preserve reduced-motion behavior.
 - Use localized existing copy and real gallery counts; do not invent metrics or claims.
@@ -65,13 +63,13 @@ One interaction carries the page: each photographic spread stays visually still,
 
 ### Phase 1 — landing-page structure
 
-- [x] Replace the equipment-led hero with a signature photograph from the archive.
+- [x] Remove the standalone hero so the archive itself becomes the opening composition.
 - [x] Convert the uniform carousel into long-form art-directed series spreads.
 - [x] Preserve natural photographic ratios instead of forcing every cover into `5 / 6`.
 - [x] Add truthful archive position, location, and photograph count metadata.
 - [x] Restyle the photographer mode switch as typographic masthead navigation.
 - [x] Remove continuous marquee controls, cloning, and drag behavior.
-- [x] Keep one restrained hero entrance with a reduced-motion fallback.
+- [x] Prioritize the first archive cover as the page's LCP image.
 - [x] Validate the final layout at 320, 375, 414, 768, and desktop widths.
 - [x] Verify light and dark modes visually.
 - [x] Verify English and Spanish text lengths visually.
