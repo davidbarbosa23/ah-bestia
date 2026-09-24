@@ -30,6 +30,11 @@
   --color-viewer-rule-strong: oklch(100% 0 0 / 0.3);
   --color-viewer-divider: oklch(100% 0 0 / 0.14);
   --color-viewer-hover: oklch(100% 0 0 / 0.12);
+  --color-magazine-turn-shade: oklch(0% 0 0 / 0.5);
+  --color-magazine-turn-shade-back: oklch(0% 0 0 / 0.42);
+  --color-magazine-turn-shadow: oklch(0% 0 0 / 0.58);
+  --color-magazine-turn-edge-light: oklch(100% 0 0 / 0.34);
+  --color-magazine-turn-edge-dark: oklch(0% 0 0 / 0.32);
 
   --dev-hero-background: none;
 
@@ -98,6 +103,7 @@
   --dur-micro: 120ms;
   --dur-short: 220ms;
   --dur-long: 420ms;
+  --dur-page-turn: 720ms;
 
   --rule-hair: 1px;
   --outline-control: 2px;
@@ -125,6 +131,7 @@
   --magazine-spread-max-by-height: 105svh;
   --magazine-fullscreen-spread-max-by-height: 132dvh;
   --magazine-photo-position: 50% 50%;
+  --magazine-turn-fold: 0;
   --back-to-top-padding: 0.45rem 0.35rem 0.3rem;
   --back-to-top-label-gap: 0.05rem;
   --back-to-top-rest-scale: 0.94;
