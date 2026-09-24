@@ -264,6 +264,7 @@ const pages = await Promise.all(
       let translateY = 0;
       let pinchStartDistance = 0;
       let pinchStartScale = minimumScale;
+      let baseBookWidth = 0;
       let isTurning = false;
       let turnFrame: number | undefined;
       let resolveTurn: (() => void) | undefined;
@@ -285,15 +286,26 @@ const pages = await Promise.all(
       const isFullscreen = () => document.fullscreenElement === magazine || isFallbackExpanded();
 
       const clampPosition = () => {
-        const maxX = Math.max(0, (book.offsetWidth * scale - viewport.clientWidth) / 2);
-        const maxY = Math.max(0, (book.offsetHeight * scale - viewport.clientHeight) / 2);
+        const maxX = Math.max(0, (book.offsetWidth - viewport.clientWidth) / 2);
+        const maxY = Math.max(0, (book.offsetHeight - viewport.clientHeight) / 2);
         translateX = Math.min(maxX, Math.max(-maxX, translateX));
         translateY = Math.min(maxY, Math.max(-maxY, translateY));
       };
 
       const renderZoom = () => {
+        if (scale === minimumScale) {
+          if (book.style.width) book.style.removeProperty('width');
+          baseBookWidth = book.offsetWidth;
+        } else {
+          if (baseBookWidth === 0) {
+            book.style.removeProperty('width');
+            baseBookWidth = book.offsetWidth;
+          }
+          const zoomedWidth = `${baseBookWidth * scale}px`;
+          if (book.style.width !== zoomedWidth) book.style.width = zoomedWidth;
+        }
         clampPosition();
-        book.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
+        book.style.transform = `translate3d(${translateX}px, ${translateY}px, 0)`;
         zoomReset.textContent = `${Math.round(scale * 100)}%`;
         zoomOut.disabled = scale <= minimumScale;
         zoomIn.disabled = scale >= maximumScale;
@@ -1033,9 +1045,15 @@ const pages = await Promise.all(
         if (event.touches.length < 2) pinchStartDistance = 0;
       };
 
+      const handleResize = () => {
+        book.style.removeProperty('width');
+        baseBookWidth = book.offsetWidth;
+        renderZoom();
+      };
+
       viewport.addEventListener('touchend', finishPinch, { signal });
       viewport.addEventListener('touchcancel', finishPinch, { signal });
-      window.addEventListener('resize', renderZoom, { signal });
+      window.addEventListener('resize', handleResize, { signal });
 
       if (fullscreen && fullscreenText) {
         fullscreen.hidden = false;
@@ -1493,12 +1511,12 @@ const pages = await Promise.all(
 
   .magazine.is-fullscreen.is-zoomed .magazine__book {
     cursor: grab;
-    will-change: transform;
   }
 
   .magazine.is-fullscreen.is-dragging .magazine__book {
     cursor: grabbing;
     transition: none;
+    will-change: transform;
   }
 
   @media (hover: hover) {
