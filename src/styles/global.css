@@ -2323,7 +2323,29 @@ input[aria-invalid='true'] {
   }
 
   .site-header--photographer .experience-switch {
-    width: 100%;
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: center;
+    width: calc(var(--size-control) * 2 + var(--space-xs));
+    gap: var(--space-xs);
+  }
+
+  .site-header--photographer .experience-switch__option {
+    padding-inline: var(--space-2xs);
+  }
+
+  .site-header--photographer .site-header__inner {
+    min-height: var(--size-header-compact);
+    padding-block: var(--space-2xs);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto;
+    row-gap: 0;
+  }
+
+  .site-header--photographer .site-tools {
+    position: static;
+    grid-column: 3;
+    grid-row: 1;
   }
 
   .site-tools {
