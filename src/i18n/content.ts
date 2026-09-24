@@ -74,6 +74,16 @@ export const copy = {
       pauseGallery: 'Pause projects',
       playGallery: 'Play projects',
       openNote: 'Open visual note',
+      processLabel: 'Photographic practice',
+      processTitle: 'The camera stays close.',
+      processBody:
+        'The archive follows recurring subjects—machines, animals, streets, movement, and light—without forcing them into a single answer. Each series remains open to the next photograph.',
+      processImageCaption: 'Working camera · Fujifilm X100VI',
+      collaborationLabel: 'Assignments and collaborations',
+      collaborationBody:
+        'For editorial assignments, commissions, or image-led collaborations, share the place, subject, and intended use.',
+      collaborationLink: 'Discuss a photography project',
+      collaborationSubject: 'Photography assignment or collaboration',
       images: [
         [
           'spain-track.jpg',
@@ -215,6 +225,16 @@ export const copy = {
       pauseGallery: 'Pausar proyectos',
       playGallery: 'Reproducir proyectos',
       openNote: 'Abrir nota visual',
+      processLabel: 'Práctica fotográfica',
+      processTitle: 'La cámara permanece cerca.',
+      processBody:
+        'El archivo sigue temas recurrentes —máquinas, animales, calles, movimiento y luz— sin obligarlos a una única respuesta. Cada serie queda abierta a la siguiente fotografía.',
+      processImageCaption: 'Cámara de trabajo · Fujifilm X100VI',
+      collaborationLabel: 'Encargos y colaboraciones',
+      collaborationBody:
+        'Para encargos editoriales o colaboraciones centradas en la imagen, cuéntame el lugar, el tema y el uso previsto.',
+      collaborationLink: 'Hablemos de fotografía',
+      collaborationSubject: 'Encargo o colaboración fotográfica',
       images: [
         [
           'spain-track.jpg',

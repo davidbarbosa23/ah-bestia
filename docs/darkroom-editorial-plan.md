@@ -90,9 +90,15 @@ Phase 2 establishes two deliberate reading modes:
 
 ### Phase 3 — content refinement
 
-- [ ] Decide whether assignments or collaborations need a dedicated closing action.
-- [ ] Review the camera photograph for a possible process/about section.
-- [ ] Confirm final captions, locations, and series ordering in both languages.
+- [x] Add one dedicated assignments/collaborations action at the end of the archive rather than repeating it after every series.
+- [x] Reuse the camera photograph as a quiet working-practice section, not as a second hero.
+- [x] Confirm captions, series context, and ordering in both languages.
+
+Phase 3 keeps the content deliberately factual:
+
+- Gallery captions use plate position plus the localized series context; technical filenames remain available to the lightbox download path but are no longer presented as editorial captions.
+- The archive order remains Spain → Autódromo → motocross → bicycles → dogs → Achira → ongoing archive. It moves from place through speed and machines into animals, portrait, and an open-ended notebook.
+- The closing action is reserved for editorial assignments, commissions, and image-led collaborations. It appears once, beside the working camera photograph, so individual series can end by continuing into another story.
 
 ## Acceptance criteria
 
