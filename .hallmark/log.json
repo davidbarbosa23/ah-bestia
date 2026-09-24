@@ -1,5 +1,32 @@
 [
   {
+    "date": "2026-09-24",
+    "macrostructure": "Photographic",
+    "theme": "Cobalt / photographic inversion",
+    "enrichment": "Continuous photo essay with retained magazine edition",
+    "brief": "Darkroom Editorial continuity across individual photographic series",
+    "nav": "established shared site shell",
+    "footer": "Ft2 established shared site shell"
+  },
+  {
+    "date": "2026-09-24",
+    "macrostructure": "Archive-First Photographic Index",
+    "theme": "Cobalt / photographic inversion",
+    "enrichment": "Heroless art-directed archive spreads",
+    "brief": "Removed the standalone photographer hero so the first series opens the page",
+    "nav": "typographic established site shell",
+    "footer": "established site shell"
+  },
+  {
+    "date": "2026-09-24",
+    "macrostructure": "Long-form Photographic Index",
+    "theme": "Cobalt / photographic inversion",
+    "enrichment": "Art-directed archive spreads",
+    "brief": "Darkroom Editorial redesign of the photographer landing page",
+    "nav": "typographic established site shell",
+    "footer": "established site shell"
+  },
+  {
     "date": "2026-08-09",
     "macrostructure": "Compact Fold + Moving Contact Sheet",
     "theme": "Cobalt / photographic inversion",

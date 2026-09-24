@@ -71,6 +71,7 @@ const pages = await Promise.all(
 >
   <h2 class="sr-only">{labels.magazine.reader}: {content.title}</h2>
 
+
   <div class="magazine__viewport">
     <div class="magazine__book" data-magazine-book>
       <ol class="magazine__pages">
@@ -93,9 +94,11 @@ const pages = await Promise.all(
                 width={page.imageAsset.width}
                 height={page.imageAsset.height}
                 alt={page.alt}
-                loading="lazy"
+                loading={index === 0 ? 'eager' : 'lazy'}
+                fetchpriority={index === 0 ? 'high' : 'auto'}
                 decoding="async"
                 draggable="false"
+                transition:name={index === 0 ? `gallery-cover-${gallery.slug}` : undefined}
                 data-magazine-image
                 data-src={page.large.src}
                 data-srcset={`${page.small.src} ${page.small.attributes.width}w, ${page.large.src} ${page.large.attributes.width}w`}
@@ -261,6 +264,7 @@ const pages = await Promise.all(
       let translateY = 0;
       let pinchStartDistance = 0;
       let pinchStartScale = minimumScale;
+      let baseBookWidth = 0;
       let isTurning = false;
       let turnFrame: number | undefined;
       let resolveTurn: (() => void) | undefined;
@@ -282,15 +286,28 @@ const pages = await Promise.all(
       const isFullscreen = () => document.fullscreenElement === magazine || isFallbackExpanded();
 
       const clampPosition = () => {
-        const maxX = Math.max(0, (book.offsetWidth * scale - viewport.clientWidth) / 2);
-        const maxY = Math.max(0, (book.offsetHeight * scale - viewport.clientHeight) / 2);
+        const maxX = Math.max(0, (book.offsetWidth - viewport.clientWidth) / 2);
+        const maxY = Math.max(0, (book.offsetHeight - viewport.clientHeight) / 2);
         translateX = Math.min(maxX, Math.max(-maxX, translateX));
         translateY = Math.min(maxY, Math.max(-maxY, translateY));
       };
 
       const renderZoom = () => {
+        if (scale === minimumScale) {
+          if (book.style.width) book.style.removeProperty('width');
+          baseBookWidth = book.offsetWidth;
+        } else {
+          if (baseBookWidth === 0) {
+            book.style.removeProperty('width');
+            baseBookWidth = book.offsetWidth;
+          }
+          const zoomedWidth = `${baseBookWidth * scale}px`;
+          if (book.style.width !== zoomedWidth) book.style.width = zoomedWidth;
+        }
         clampPosition();
-        book.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
+        const centerOffsetX = (viewport.clientWidth - book.offsetWidth) / 2 - book.offsetLeft;
+        const centerOffsetY = (viewport.clientHeight - book.offsetHeight) / 2 - book.offsetTop;
+        book.style.transform = `translate3d(${centerOffsetX + translateX}px, ${centerOffsetY + translateY}px, 0)`;
         zoomReset.textContent = `${Math.round(scale * 100)}%`;
         zoomOut.disabled = scale <= minimumScale;
         zoomIn.disabled = scale >= maximumScale;
@@ -1030,9 +1047,15 @@ const pages = await Promise.all(
         if (event.touches.length < 2) pinchStartDistance = 0;
       };
 
+      const handleResize = () => {
+        book.style.removeProperty('width');
+        baseBookWidth = book.offsetWidth;
+        renderZoom();
+      };
+
       viewport.addEventListener('touchend', finishPinch, { signal });
       viewport.addEventListener('touchcancel', finishPinch, { signal });
-      window.addEventListener('resize', renderZoom, { signal });
+      window.addEventListener('resize', handleResize, { signal });
 
       if (fullscreen && fullscreenText) {
         fullscreen.hidden = false;
@@ -1078,8 +1101,8 @@ const pages = await Promise.all(
   .magazine {
     width: 100%;
     border: var(--rule-hair) solid var(--color-rule-2);
-    background: var(--color-graphite);
-    color: var(--color-on-dark);
+    background: var(--color-magazine-canvas);
+    color: var(--color-magazine-ink);
     outline: none;
   }
 
@@ -1118,7 +1141,6 @@ const pages = await Promise.all(
     position: absolute;
     inset: 0;
     z-index: calc(var(--layer-overlay) + 1);
-    overflow: hidden;
     pointer-events: none;
   }
 
@@ -1133,7 +1155,7 @@ const pages = await Promise.all(
     inset-inline-start: 0;
     width: 50%;
     height: 100%;
-    background: var(--color-graphite-2);
+    background: var(--color-magazine-page);
     overflow: hidden;
     will-change: transform, clip-path;
   }
@@ -1150,7 +1172,7 @@ const pages = await Promise.all(
   .magazine__turn-face {
     position: absolute;
     inset: 0;
-    background: var(--color-graphite-2);
+    background: var(--color-magazine-page);
     overflow: hidden;
   }
 
@@ -1163,7 +1185,7 @@ const pages = await Promise.all(
   }
 
   .magazine__turn-bottom[data-empty='true'] {
-    background: var(--color-graphite);
+    background: var(--color-magazine-canvas);
   }
 
   .magazine__turn-bottom .magazine__photo,
@@ -1200,8 +1222,8 @@ const pages = await Promise.all(
     position: absolute;
     inset-block: 0;
     width: 50%;
-    background: var(--color-graphite-2);
-    box-shadow: var(--shadow-magazine-page);
+    background: var(--color-magazine-page);
+    box-shadow: var(--shadow-magazine-page-surface);
     opacity: 0;
     overflow: hidden;
     pointer-events: none;
@@ -1221,14 +1243,13 @@ const pages = await Promise.all(
 
   .magazine__page[data-position='left'] {
     inset-inline-start: 0;
-    border-inline-end: var(--rule-hair) solid var(--color-viewer-divider);
-    box-shadow: var(--shadow-magazine-left-page);
+    box-shadow: var(--shadow-magazine-left-page-surface);
     transform-origin: right center;
   }
 
   .magazine__page[data-position='right'] {
     inset-inline-start: 50%;
-    box-shadow: var(--shadow-magazine-right-page);
+    box-shadow: var(--shadow-magazine-right-page-surface);
     transform-origin: left center;
   }
 
@@ -1246,25 +1267,27 @@ const pages = await Promise.all(
     inset-inline-end: 0;
     background: linear-gradient(
       to left,
-      color-mix(in oklch, var(--color-graphite) 32%, transparent),
-      color-mix(in oklch, var(--color-graphite) 12%, transparent) 38%,
+      color-mix(in oklch, var(--color-magazine-ink) 24%, transparent),
+      color-mix(in oklch, var(--color-magazine-ink) 9%, transparent) 38%,
       transparent
     );
+    opacity: 0.7;
   }
 
   .magazine__page[data-position='right']::after {
     inset-inline-start: 0;
     background: linear-gradient(
       to right,
-      color-mix(in oklch, var(--color-graphite) 32%, transparent),
-      color-mix(in oklch, var(--color-graphite) 12%, transparent) 38%,
+      color-mix(in oklch, var(--color-magazine-ink) 24%, transparent),
+      color-mix(in oklch, var(--color-magazine-ink) 9%, transparent) 38%,
       transparent
     );
+    opacity: 0.7;
   }
 
   .magazine__page[data-position='single'] {
     inset-inline-start: 25%;
-    box-shadow: var(--shadow-magazine-page);
+    box-shadow: var(--shadow-magazine-page-surface);
   }
 
   .magazine__photo {
@@ -1300,12 +1323,12 @@ const pages = await Promise.all(
     width: var(--size-control);
     height: var(--size-control);
     padding: 0;
-    border: var(--rule-hair) solid var(--color-viewer-rule);
+    border: var(--rule-hair) solid var(--color-magazine-rule);
     border-radius: var(--radius-round);
     display: grid;
     place-items: center;
-    background: var(--color-viewer-surface);
-    color: var(--color-viewer-ink);
+    background: var(--color-magazine-surface);
+    color: var(--color-magazine-ink);
     cursor: pointer;
     transform: translateY(-50%);
     transition:
@@ -1329,18 +1352,18 @@ const pages = await Promise.all(
   .magazine__turn:focus-visible,
   .magazine__fullscreen:focus-visible,
   .magazine__zoom-controls button:focus-visible {
-    outline: var(--outline-control) solid var(--color-viewer-ink);
+    outline: var(--outline-control) solid var(--color-magazine-ink);
     outline-offset: var(--outline-offset-control);
   }
 
   .magazine__toolbar {
     padding: var(--space-sm) var(--space-md);
-    border-block: var(--rule-hair) solid var(--color-viewer-divider);
+    border-block: var(--rule-hair) solid var(--color-magazine-divider);
     display: grid;
     grid-template-columns: auto minmax(4rem, 1fr) auto;
     align-items: center;
     gap: var(--space-md);
-    color: var(--color-viewer-ink-muted);
+    color: var(--color-magazine-ink-muted);
     font-family: var(--font-mono);
     font-size: var(--text-xs);
   }
@@ -1356,11 +1379,11 @@ const pages = await Promise.all(
     border-radius: var(--radius-round);
     overflow: hidden;
     appearance: none;
-    background: var(--color-viewer-rule);
+    background: var(--color-magazine-rule);
   }
 
   .magazine__progress::-webkit-progress-bar {
-    background: var(--color-viewer-rule);
+    background: var(--color-magazine-rule);
   }
 
   .magazine__progress::-webkit-progress-value {
@@ -1372,7 +1395,7 @@ const pages = await Promise.all(
   }
 
   .magazine__zoom-controls {
-    border: var(--rule-hair) solid var(--color-viewer-rule);
+    border: var(--rule-hair) solid var(--color-magazine-rule);
     display: inline-grid;
     grid-template-columns: var(--size-control-sm) 3.75rem var(--size-control-sm);
     justify-self: end;
@@ -1387,11 +1410,11 @@ const pages = await Promise.all(
     min-height: var(--size-control-sm);
     padding: 0;
     border: 0;
-    border-inline-start: var(--rule-hair) solid var(--color-viewer-rule);
+    border-inline-start: var(--rule-hair) solid var(--color-magazine-rule);
     display: grid;
     place-items: center;
     background: transparent;
-    color: var(--color-viewer-ink);
+    color: var(--color-magazine-ink);
     cursor: pointer;
     font-family: var(--font-mono);
     font-size: var(--text-xs);
@@ -1409,12 +1432,12 @@ const pages = await Promise.all(
   .magazine__fullscreen {
     min-height: var(--size-control-sm);
     padding: 0 var(--space-sm);
-    border: var(--rule-hair) solid var(--color-viewer-rule);
+    border: var(--rule-hair) solid var(--color-magazine-rule);
     display: inline-flex;
     align-items: center;
     gap: var(--space-xs);
     background: transparent;
-    color: var(--color-viewer-ink);
+    color: var(--color-magazine-ink);
     cursor: pointer;
     font-family: var(--font-mono);
     font-size: var(--text-xs);
@@ -1435,7 +1458,7 @@ const pages = await Promise.all(
   .magazine__hint {
     margin: 0;
     padding: var(--space-sm) var(--space-md);
-    color: var(--color-viewer-ink-subtle);
+    color: var(--color-magazine-ink-subtle);
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     text-align: center;
@@ -1455,7 +1478,7 @@ const pages = await Promise.all(
     display: grid;
     grid-template-rows: minmax(0, 1fr) auto;
     border: 0;
-    background: var(--color-viewer-canvas);
+    background: var(--color-magazine-canvas);
   }
 
   .magazine.is-expanded {
@@ -1490,19 +1513,19 @@ const pages = await Promise.all(
 
   .magazine.is-fullscreen.is-zoomed .magazine__book {
     cursor: grab;
-    will-change: transform;
   }
 
   .magazine.is-fullscreen.is-dragging .magazine__book {
     cursor: grabbing;
     transition: none;
+    will-change: transform;
   }
 
   @media (hover: hover) {
     .magazine__turn:not(:disabled):hover,
     .magazine__fullscreen:hover,
     .magazine__zoom-controls button:not(:disabled):hover {
-      background: var(--color-viewer-hover);
+      background: var(--color-magazine-hover);
     }
   }
 
@@ -1569,7 +1592,7 @@ const pages = await Promise.all(
       inset-block-end: max(var(--space-md), env(safe-area-inset-bottom));
       inset-inline: var(--space-md);
       min-width: 0;
-      color: var(--color-viewer-ink-subtle);
+      color: var(--color-magazine-ink-subtle);
       font-size: var(--text-xs);
       line-height: var(--leading-none);
       text-align: center;

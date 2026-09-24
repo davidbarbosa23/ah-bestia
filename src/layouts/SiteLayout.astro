@@ -162,6 +162,12 @@ const structuredData = {
           const destination = new URL(link.href, window.location.href);
           if (destination.origin !== window.location.origin) return;
 
+          if (link.hasAttribute('data-series-transition')) {
+            delete link.dataset.astroReload;
+            delete link.dataset.astroPrefetch;
+            return;
+          }
+
           const isCurrentPage = destination.pathname === window.location.pathname
             && destination.search === window.location.search
             && !destination.hash;

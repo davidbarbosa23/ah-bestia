@@ -32,9 +32,12 @@ const lang = Astro.params.lang as Lang;
 const content = gallery.content[lang];
 const previousGallery = getPreviousGallery(gallery.slug);
 const nextGallery = getNextGallery(gallery.slug);
+const galleryIndex = photoGalleries.findIndex(({ slug }) => slug === gallery.slug);
 const previousContent = previousGallery.content[lang];
 const nextContent = nextGallery.content[lang];
 const labels = ui[lang].photography.series;
+const seriesNumber = String(galleryIndex + 1).padStart(2, '0');
+const seriesTotal = String(photoGalleries.length).padStart(2, '0');
 const galleryImages = [
   ...gallery.images.filter(({ filename }) => filename === gallery.coverFilename),
   ...gallery.images.filter(({ filename }) => filename !== gallery.coverFilename),
@@ -54,6 +57,22 @@ const galleryViewerImages = gallery.magazine
       })),
     );
 const presentedImageCount = gallery.magazine?.pages.length ?? gallery.images.length;
+let hasUnpairedNarrowImage = false;
+const storyViewerImages = galleryViewerImages.map((entry, index) => {
+  const ratio = entry.image.width / entry.image.height;
+  const isLandscape = ratio >= 1.12;
+  const isFeature = !isLandscape && (index + 1) % 7 === 0;
+
+  if (isLandscape || isFeature) {
+    hasUnpairedNarrowImage = false;
+    return { ...entry, layout: isLandscape ? 'wide' : 'feature' };
+  }
+
+  const layout = hasUnpairedNarrowImage ? 'right' : 'left';
+  hasUnpairedNarrowImage = !hasUnpairedNarrowImage;
+  return { ...entry, layout };
+});
+const formatLabel = gallery.magazine ? labels.magazineEdition : labels.sequence;
 ---
 
 <SiteLayout
@@ -68,73 +87,51 @@ const presentedImageCount = gallery.magazine?.pages.length ?? gallery.images.len
 >
   <SiteHeader lang={lang} experience="photographer" />
   <main class="article-page series-page" id="main">
-    <div class="page-shell">
+    <div class="series-masthead page-shell">
       <a class="inner-page__back" href={`/${lang}/ph/`}><Icon name="arrow-left" />{labels.back}</a>
+      <p>{seriesNumber} / {seriesTotal}</p>
     </div>
 
-    <header class="article-hero series-hero">
-      <Image
-        src={gallery.cover}
-        widths={[480, 720, 1080, 1400]}
-        sizes="100vw"
-        quality={82}
-        priority
-        alt={`${content.cardTitle}. ${content.description}`}
-      />
-      <div class="article-hero__copy page-shell">
-        <p class="mono-label">{labels.kicker} · {content.location}</p>
-        <h1>{content.title}</h1>
-        <p>{content.description}</p>
+    <header class="series-opening page-shell">
+      <div class="series-opening__copy">
+        <div>
+          <p class="mono-label">{labels.kicker} · {content.location}</p>
+          <h1>{content.title}</h1>
+        </div>
+        <div class="series-opening__summary">
+          <p>{content.description}</p>
+          <p class="series-opening__facts">
+            <span>{presentedImageCount} {ui[lang].photography.photographs}</span>
+            <span>{formatLabel}</span>
+          </p>
+        </div>
       </div>
+
     </header>
 
     <article class="series-body page-shell">
-      <nav class="series-body__meta" aria-label={`${labels.previous} / ${labels.next}`}>
-        <div class="series-body__meta-group series-body__meta-group--previous">
-          <a
-            class="series-body__direction series-body__direction--previous"
-            href={`/${lang}/ph/${previousGallery.slug}/`}
-            aria-label={`${labels.previous}: ${previousContent.title}`}
-            rel="prev"
-          >
-            <svg viewBox="0 0 32 16" aria-hidden="true">
-              <path d="M30 8H3M9 2 3 8l6 6" />
-            </svg>
-            <span class="series-body__tooltip" aria-hidden="true">{previousContent.title}</span>
-          </a>
-          <p><strong>{presentedImageCount}</strong> {ui[lang].photography.photographs}</p>
-        </div>
-        <div class="series-body__meta-group series-body__meta-group--next">
-          <p>
-            <span class="series-body__source-label">{labels.source}</span>
-            <span class="series-body__source-name" title={gallery.sourceFolder}>{gallery.sourceFolder}</span>
-          </p>
-          <a
-            class="series-body__direction series-body__direction--next"
-            href={`/${lang}/ph/${nextGallery.slug}/`}
-            aria-label={`${labels.next}: ${nextContent.title}`}
-            rel="next"
-          >
-            <svg viewBox="0 0 32 16" aria-hidden="true">
-              <path d="M2 8h27m-6-6 6 6-6 6" />
-            </svg>
-            <span class="series-body__tooltip" aria-hidden="true">{nextContent.title}</span>
-          </a>
-        </div>
+      <nav class="series-path" aria-label={`${labels.previous} / ${labels.next}`}>
+        <a class="series-path__link series-path__link--previous" href={`/${lang}/ph/${previousGallery.slug}/`} rel="prev">
+          <svg viewBox="0 0 32 16" aria-hidden="true"><path d="M30 8H3M9 2 3 8l6 6" /></svg>
+          <span><small>{labels.previous}</small><strong>{previousContent.title}</strong></span>
+        </a>
+        <p class="series-path__current"><span>{seriesNumber} / {seriesTotal}</span><span>{formatLabel}</span></p>
+        <a class="series-path__link series-path__link--next" href={`/${lang}/ph/${nextGallery.slug}/`} rel="next">
+          <span><small>{labels.next}</small><strong>{nextContent.title}</strong></span>
+          <svg viewBox="0 0 32 16" aria-hidden="true"><path d="M2 8h27m-6-6 6 6-6 6" /></svg>
+        </a>
       </nav>
 
       {gallery.magazine ? (
         <PhotoMagazine gallery={gallery} lang={lang} />
       ) : (
-        <div class="series-gallery">
-          {galleryViewerImages.map(({ image, filename, viewer }, index) => {
+        <div class="series-gallery" aria-label={`${content.title} — ${ui[lang].photography.photographs}`}>
+          {storyViewerImages.map(({ image, filename, viewer, layout }, index) => {
             const number = index + 1;
             const alt = `${labels.photo} ${number} ${labels.from} ${content.title}`;
-            const isLandscape = image.width > image.height;
-            const isWide = isLandscape || index % 9 === 7;
 
             return (
-              <figure class:list={['series-photo', isWide && 'series-photo--wide']}>
+              <figure class:list={['series-photo', `series-photo--${layout}`]}>
                 <button
                   class="series-photo__open"
                   type="button"
@@ -149,15 +146,16 @@ const presentedImageCount = gallery.magazine?.pages.length ?? gallery.images.len
                   <Image
                     src={image}
                     widths={[480, 800, 1200, 1600]}
-                    sizes={isWide ? '(min-width: 92rem) 92rem, 100vw' : '(min-width: 92rem) 46rem, (min-width: 40rem) 50vw, 100vw'}
-                    quality={80}
-                    loading="lazy"
+                    sizes={layout === 'wide' ? '(min-width: 92rem) 92rem, 100vw' : '(min-width: 60rem) 46rem, (min-width: 40rem) 58vw, 100vw'}
+                    quality={index === 0 ? 84 : 80}
+                    priority={index === 0}
                     alt={alt}
+                    transition:name={index === 0 ? `gallery-cover-${gallery.slug}` : undefined}
                   />
                   <span class="series-photo__expand"><Icon name="arrow-up-right" /></span>
                 </button>
                 <figcaption>
-                  <span>{String(number).padStart(2, '0')} / {String(gallery.images.length).padStart(2, '0')}</span>
+                  <span>{String(number).padStart(2, '0')} / {String(presentedImageCount).padStart(2, '0')}</span>
                   <span aria-hidden="true">{filename}</span>
                 </figcaption>
               </figure>
@@ -166,12 +164,29 @@ const presentedImageCount = gallery.magazine?.pages.length ?? gallery.images.len
         </div>
       )}
 
-      <a class="article-next" href={`/${lang}/ph/${nextGallery.slug}/`}>
-        <span>{labels.next}</span>
-        <strong>{nextContent.title} <Icon name="arrow-right" /></strong>
-      </a>
+      <footer class="series-continuation">
+        <a href={`/${lang}/ph/${nextGallery.slug}/`} data-series-transition rel="next">
+          <div class="series-continuation__copy">
+            <span>{labels.continueWith}</span>
+            <strong>{nextContent.title}</strong>
+            <p>{nextContent.location} · {nextGallery.images.length} {ui[lang].photography.photographs}</p>
+            <Icon name="arrow-right" />
+          </div>
+          <figure>
+            <Image
+              src={nextGallery.cover}
+              widths={[480, 800, 1200, 1600]}
+              sizes="(min-width: 90rem) 39rem, (min-width: 60rem) 50vw, 100vw"
+              quality={82}
+              loading="lazy"
+              alt={`${nextContent.cardTitle}. ${nextContent.description}`}
+              transition:name={`gallery-cover-${nextGallery.slug}`}
+            />
+          </figure>
+        </a>
+      </footer>
     </article>
-    <PhotoLightbox lang={lang} />
+    {!gallery.magazine && <PhotoLightbox lang={lang} />}
   </main>
   <SiteFooter lang={lang} />
 </SiteLayout>

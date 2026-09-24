@@ -70,10 +70,20 @@ export const copy = {
       intro:
         'Machines, animals, streets, and the seconds when motion settles into form.',
       galleryTitle: 'Selected series from an ongoing archive.',
-      galleryHint: 'Hover to focus. Swipe on touch.',
+      galleryHint: 'Choose a series to enter its visual note.',
       pauseGallery: 'Pause projects',
       playGallery: 'Play projects',
       openNote: 'Open visual note',
+      processLabel: 'An evolving collection',
+      processTitle: 'The archive stays open.',
+      processBody:
+        'Portraits, machines, animals, streets, travel, movement, and whatever catches my attention next. The collection is intentionally open-ended, changing shape as new photographs and new subjects are added.',
+      processImageCaption: 'Working camera · Fujifilm X100VI',
+      collaborationLabel: 'Assignments and collaborations',
+      collaborationBody:
+        'For editorial assignments, commissions, or image-led collaborations, share the place, subject, and intended use.',
+      collaborationLink: 'Discuss a photography project',
+      collaborationSubject: 'Photography assignment or collaboration',
       images: [
         [
           'spain-track.jpg',
@@ -211,10 +221,20 @@ export const copy = {
       intro:
         'Máquinas, animales, calles y los segundos en que el movimiento encuentra una forma.',
       galleryTitle: 'Series seleccionadas de un archivo en proceso.',
-      galleryHint: 'Pasa el cursor para enfocar. Desliza en pantallas táctiles.',
+      galleryHint: 'Elige una serie para entrar en su nota visual.',
       pauseGallery: 'Pausar proyectos',
       playGallery: 'Reproducir proyectos',
       openNote: 'Abrir nota visual',
+      processLabel: 'Una colección en evolución',
+      processTitle: 'El archivo sigue abierto.',
+      processBody:
+        'Retratos, máquinas, animales, calles, viajes, movimiento y lo que llame mi atención después. La colección está abierta a cambiar de forma a medida que se sumen nuevas fotografías y nuevos temas.',
+      processImageCaption: 'Cámara de trabajo · Fujifilm X100VI',
+      collaborationLabel: 'Encargos y colaboraciones',
+      collaborationBody:
+        'Para encargos editoriales o colaboraciones centradas en la imagen, cuéntame el lugar, el tema y el uso previsto.',
+      collaborationLink: 'Hablemos de fotografía',
+      collaborationSubject: 'Encargo o colaboración fotográfica',
       images: [
         [
           'spain-track.jpg',
@@ -340,6 +360,9 @@ export interface UiCopy {
       photo: string;
       from: string;
       openFullscreen: string;
+      sequence: string;
+      magazineEdition: string;
+      continueWith: string;
     };
     lightbox: {
       viewer: string;
@@ -438,6 +461,9 @@ export const ui = {
         photo: 'Photograph',
         from: 'from',
         openFullscreen: 'Open full-screen view',
+        sequence: 'Continuous sequence',
+        magazineEdition: 'Magazine edition',
+        continueWith: 'Continue with',
       },
       lightbox: {
         viewer: 'Full-screen photo viewer',
@@ -550,6 +576,9 @@ export const ui = {
         photo: 'Fotografía',
         from: 'de',
         openFullscreen: 'Abrir vista de pantalla completa',
+        sequence: 'Secuencia continua',
+        magazineEdition: 'Edición de revista',
+        continueWith: 'Continuar con',
       },
       lightbox: {
         viewer: 'Visor de fotos en pantalla completa',
