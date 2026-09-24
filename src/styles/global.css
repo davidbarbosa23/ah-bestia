@@ -2287,7 +2287,7 @@ input[aria-invalid='true'] {
 }
 
 .series-continuation > a {
-  padding-block-start: var(--space-xl);
+  padding-block-start: var(--space-lg);
   display: grid;
   gap: var(--space-xl);
 }
@@ -2314,7 +2314,7 @@ input[aria-invalid='true'] {
   max-width: 12ch;
   color: var(--color-ink);
   font-family: var(--font-display);
-  font-size: var(--text-section-title);
+  font-size: clamp(var(--text-xl), 3.6vw, var(--text-3xl));
   line-height: var(--leading-heading);
 }
 
@@ -2327,8 +2327,11 @@ input[aria-invalid='true'] {
 
 .series-continuation figure {
   min-width: 0;
-  aspect-ratio: 16 / 10;
+  width: 100%;
+  max-inline-size: calc(var(--space-3xl) * 6.5);
+  aspect-ratio: 16 / 9;
   background: var(--color-graphite);
+  justify-self: end;
   overflow: hidden;
 }
 
@@ -2341,7 +2344,7 @@ input[aria-invalid='true'] {
 
 @media (min-width: 60rem) {
   .series-continuation > a {
-    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
     gap: var(--space-3xl);
   }
 }
