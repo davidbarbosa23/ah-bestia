@@ -1225,6 +1225,36 @@ const pages = await Promise.all(
     transform-origin: left center;
   }
 
+  .magazine__page[data-position='left']::after,
+  .magazine__page[data-position='right']::after {
+    position: absolute;
+    inset-block: 0;
+    z-index: var(--layer-content);
+    width: clamp(var(--space-sm), 7%, var(--space-xl));
+    content: '';
+    pointer-events: none;
+  }
+
+  .magazine__page[data-position='left']::after {
+    inset-inline-end: 0;
+    background: linear-gradient(
+      to left,
+      color-mix(in oklch, var(--color-graphite) 32%, transparent),
+      color-mix(in oklch, var(--color-graphite) 12%, transparent) 38%,
+      transparent
+    );
+  }
+
+  .magazine__page[data-position='right']::after {
+    inset-inline-start: 0;
+    background: linear-gradient(
+      to right,
+      color-mix(in oklch, var(--color-graphite) 32%, transparent),
+      color-mix(in oklch, var(--color-graphite) 12%, transparent) 38%,
+      transparent
+    );
+  }
+
   .magazine__page[data-position='single'] {
     inset-inline-start: 25%;
     box-shadow: var(--shadow-magazine-page);
