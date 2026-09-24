@@ -402,6 +402,7 @@ const pages = await Promise.all(
         const page = pages[index];
         const photo = page?.querySelector<HTMLElement>('.magazine__photo');
         if (!page || !photo) return;
+        delete surface.dataset.empty;
         const copy = photo.cloneNode(true) as HTMLElement;
         const image = copy.querySelector<HTMLImageElement>('img');
         if (image) {
@@ -421,6 +422,7 @@ const pages = await Promise.all(
         surface.replaceChildren();
         delete surface.dataset.fit;
         delete surface.dataset.tone;
+        delete surface.dataset.empty;
         surface.style.removeProperty('--magazine-photo-position');
       };
 
@@ -762,6 +764,8 @@ const pages = await Promise.all(
         copyPageToSurface(turningIndex, turnFront);
         if (bottomIndex !== undefined) {
           copyPageToSurface(bottomIndex, turnBottom);
+        } else {
+          turnBottom.dataset.empty = 'true';
         }
         setVisualPages(positionsFor(fromIndices));
 
@@ -1149,6 +1153,10 @@ const pages = await Promise.all(
 
   .magazine__turn-bottom[data-tone='paper'] {
     background: var(--color-paper-2);
+  }
+
+  .magazine__turn-bottom[data-empty='true'] {
+    background: var(--color-graphite);
   }
 
   .magazine__turn-bottom .magazine__photo,
