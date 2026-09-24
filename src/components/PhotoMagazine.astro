@@ -113,14 +113,9 @@ const pages = await Promise.all(
         ></div>
         <div class="magazine__turn-page" data-magazine-turn-page>
           <div
-            class="magazine__turn-face magazine__turn-face--front"
+            class="magazine__turn-face"
             data-magazine-turn-front
           ></div>
-          <div
-            class="magazine__turn-face magazine__turn-face--back"
-            data-magazine-turn-back
-          ></div>
-          <div class="magazine__turn-edge"></div>
         </div>
         <div
           class="magazine__turn-shadow magazine__turn-shadow--inner"
@@ -232,14 +227,13 @@ const pages = await Promise.all(
       const turnLayer = magazine.querySelector<HTMLElement>('[data-magazine-turn-layer]');
       const turnPage = magazine.querySelector<HTMLElement>('[data-magazine-turn-page]');
       const turnFront = magazine.querySelector<HTMLElement>('[data-magazine-turn-front]');
-      const turnBack = magazine.querySelector<HTMLElement>('[data-magazine-turn-back]');
       const turnBottom = magazine.querySelector<HTMLElement>('[data-magazine-turn-bottom]');
       const turnShadow = magazine.querySelector<HTMLElement>('[data-magazine-turn-shadow]');
       const turnInnerShadow = magazine.querySelector<HTMLElement>('[data-magazine-turn-inner-shadow]');
 
       if (!viewport || !book || !pages.length || !previous || !next || !count || !progress) return;
       if (!zoomControls || !zoomOut || !zoomReset || !zoomIn) return;
-      if (!turnLayer || !turnPage || !turnFront || !turnBack || !turnBottom) return;
+      if (!turnLayer || !turnPage || !turnFront || !turnBottom) return;
       if (!turnShadow || !turnInnerShadow) return;
 
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -421,6 +415,13 @@ const pages = await Promise.all(
           '--magazine-photo-position',
           page.style.getPropertyValue('--magazine-photo-position'),
         );
+      };
+
+      const clearTurnSurface = (surface: HTMLElement) => {
+        surface.replaceChildren();
+        delete surface.dataset.fit;
+        delete surface.dataset.tone;
+        surface.style.removeProperty('--magazine-photo-position');
       };
 
       const easePageTurn = (progress: number) => progress * progress * (3 - 2 * progress);
@@ -723,16 +724,12 @@ const pages = await Promise.all(
       const clearTurnLayer = () => {
         turnLayer.hidden = true;
         delete turnLayer.dataset.direction;
-        delete turnLayer.dataset.edge;
-        delete turnLayer.dataset.mode;
-        turnLayer.style.removeProperty('--magazine-turn-fold');
         turnPage.removeAttribute('style');
         turnBottom.removeAttribute('style');
         turnShadow.removeAttribute('style');
         turnInnerShadow.removeAttribute('style');
-        turnFront.replaceChildren();
-        turnBack.replaceChildren();
-        turnBottom.replaceChildren();
+        clearTurnSurface(turnFront);
+        clearTurnSurface(turnBottom);
         magazine.classList.remove('is-turning');
       };
 
@@ -741,12 +738,11 @@ const pages = await Promise.all(
         toIndices: number[],
         direction: 'next' | 'previous',
       ) => {
-        const hardTurn = fromIndices.length === 1 || toIndices.length === 1;
         const turningIndex = direction === 'next' ? toIndices[0] : toIndices.at(-1);
-        const bottomIndex = direction === 'next' ? toIndices.at(-1) : toIndices[0];
-        const hardFrontIndex = direction === 'next' ? fromIndices.at(-1) : fromIndices[0];
-        const hardBackIndex = direction === 'next' ? toIndices[0] : toIndices.at(-1);
-        if (turningIndex === undefined || bottomIndex === undefined) return;
+        const bottomIndex = toIndices.length > 1
+          ? direction === 'next' ? toIndices.at(-1) : toIndices[0]
+          : undefined;
+        if (turningIndex === undefined) return;
 
         const turnImagesReady = Promise.all(
           [...new Set([...fromIndices, ...toIndices])].map(loadPage),
@@ -763,18 +759,13 @@ const pages = await Promise.all(
         ]);
         if (signal.aborted) return;
 
-        if (hardTurn && hardFrontIndex !== undefined && hardBackIndex !== undefined) {
-          copyPageToSurface(hardFrontIndex, turnFront);
-          copyPageToSurface(hardBackIndex, turnBack);
-          setVisualPages(positionsFor(toIndices));
-        } else {
-          copyPageToSurface(turningIndex, turnFront);
+        copyPageToSurface(turningIndex, turnFront);
+        if (bottomIndex !== undefined) {
           copyPageToSurface(bottomIndex, turnBottom);
-          setVisualPages(positionsFor(fromIndices));
         }
+        setVisualPages(positionsFor(fromIndices));
 
         turnLayer.dataset.direction = direction;
-        turnLayer.dataset.mode = hardTurn ? 'hard' : 'soft';
         turnLayer.hidden = false;
         magazine.classList.add('is-turning');
 
@@ -789,20 +780,7 @@ const pages = await Promise.all(
 
           const drawFrame = (now: number) => {
             const rawProgress = Math.min(1, (now - startedAt) / duration);
-            if (hardTurn) {
-              const progress = easePageTurn(rawProgress);
-              const fold = Math.sin(Math.PI * rawProgress);
-              const rotation = (direction === 'next' ? -1 : 1) * 180 * progress;
-              turnLayer.style.setProperty('--magazine-turn-fold', fold.toFixed(4));
-              turnPage.style.left = direction === 'next' ? '50%' : '0';
-              turnPage.style.transform = `rotateY(${rotation}deg)`;
-              turnShadow.style.display = 'block';
-              turnShadow.style.left = direction === 'next' ? '50%' : '0';
-              turnShadow.style.opacity = String(fold * 0.58);
-              turnShadow.style.transform = `scaleX(${0.2 + fold * 0.8})`;
-            } else {
-              drawSoftTurn(rawProgress, direction, book.clientWidth / 2, book.clientHeight);
-            }
+            drawSoftTurn(rawProgress, direction, book.clientWidth / 2, book.clientHeight);
 
             if (rawProgress < 1 && !signal.aborted) {
               turnFrame = requestAnimationFrame(drawFrame);
@@ -1129,10 +1107,8 @@ const pages = await Promise.all(
     position: absolute;
     inset: 0;
     z-index: calc(var(--layer-overlay) + 1);
-    perspective: 1800px;
     overflow: hidden;
     pointer-events: none;
-    transform-style: preserve-3d;
   }
 
   .magazine__turn-layer[hidden] {
@@ -1157,28 +1133,14 @@ const pages = await Promise.all(
 
   .magazine__turn-page {
     z-index: var(--layer-overlay);
-    transform-style: preserve-3d;
-  }
-
-  .magazine__turn-layer[data-mode='soft'] .magazine__turn-page {
     transform-origin: 0 0;
-  }
-
-  .magazine__turn-layer[data-mode='hard'][data-direction='next'] .magazine__turn-page {
-    transform-origin: left center;
-  }
-
-  .magazine__turn-layer[data-mode='hard'][data-direction='previous'] .magazine__turn-page {
-    transform-origin: right center;
   }
 
   .magazine__turn-face {
     position: absolute;
     inset: 0;
     background: var(--color-graphite-2);
-    backface-visibility: hidden;
     overflow: hidden;
-    transform-style: preserve-3d;
   }
 
   .magazine__turn-face[data-tone='paper'] {
@@ -1187,31 +1149,6 @@ const pages = await Promise.all(
 
   .magazine__turn-bottom[data-tone='paper'] {
     background: var(--color-paper-2);
-  }
-
-  .magazine__turn-layer[data-mode='soft'] .magazine__turn-face--back,
-  .magazine__turn-layer[data-mode='soft'] .magazine__turn-edge {
-    display: none;
-  }
-
-  .magazine__turn-layer[data-mode='hard'] .magazine__turn-face--back {
-    transform: rotateY(180deg) translateZ(0.1px);
-  }
-
-  .magazine__turn-layer[data-mode='hard'] .magazine__turn-face::after {
-    position: absolute;
-    inset: 0;
-    content: '';
-    opacity: calc(0.12 + var(--magazine-turn-fold) * 0.72);
-    pointer-events: none;
-  }
-
-  .magazine__turn-layer[data-mode='hard'] .magazine__turn-face--front::after {
-    background: linear-gradient(90deg, transparent 46%, var(--color-magazine-turn-shade) 100%);
-  }
-
-  .magazine__turn-layer[data-mode='hard'] .magazine__turn-face--back::after {
-    background: linear-gradient(270deg, transparent 44%, var(--color-magazine-turn-shade-back) 100%);
   }
 
   .magazine__turn-bottom .magazine__photo,
@@ -1235,27 +1172,6 @@ const pages = await Promise.all(
     object-fit: contain;
   }
 
-  .magazine__turn-edge {
-    position: absolute;
-    inset-block: 0;
-    width: clamp(1px, 0.3vw, 4px);
-    background: linear-gradient(
-      90deg,
-      var(--color-magazine-turn-edge-light),
-      var(--color-magazine-turn-edge-dark)
-    );
-    opacity: calc(0.18 + var(--magazine-turn-fold) * 0.72);
-    pointer-events: none;
-  }
-
-  .magazine__turn-layer[data-mode='hard'][data-direction='next'] .magazine__turn-edge {
-    inset-inline-end: 0;
-  }
-
-  .magazine__turn-layer[data-mode='hard'][data-direction='previous'] .magazine__turn-edge {
-    inset-inline-start: 0;
-  }
-
   .magazine__turn-shadow {
     position: absolute;
     inset-block-start: 0;
@@ -1263,28 +1179,6 @@ const pages = await Promise.all(
     z-index: var(--layer-tooltip);
     pointer-events: none;
     will-change: transform, clip-path, opacity;
-  }
-
-  .magazine__turn-layer[data-mode='hard'] .magazine__turn-bottom,
-  .magazine__turn-layer[data-mode='hard'] .magazine__turn-shadow--inner {
-    display: none;
-  }
-
-  .magazine__turn-layer[data-mode='hard'] .magazine__turn-shadow--outer {
-    inset-block: 0;
-    width: 50%;
-    height: 100%;
-    opacity: 0;
-  }
-
-  .magazine__turn-layer[data-mode='hard'][data-direction='next'] .magazine__turn-shadow--outer {
-    background: linear-gradient(90deg, var(--color-magazine-turn-shadow), transparent 72%);
-    transform-origin: left center;
-  }
-
-  .magazine__turn-layer[data-mode='hard'][data-direction='previous'] .magazine__turn-shadow--outer {
-    background: linear-gradient(270deg, var(--color-magazine-turn-shadow), transparent 72%);
-    transform-origin: right center;
   }
 
   .magazine__page {
