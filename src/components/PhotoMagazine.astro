@@ -178,7 +178,10 @@ const pages = await Promise.all(
     </button>
   </div>
 
-  <p class="magazine__hint">{labels.magazine.hint}</p>
+  <p class="magazine__hint">
+    <span class="magazine__hint-full">{labels.magazine.hint}</span>
+    <span class="magazine__hint-compact">{labels.magazine.compactHint}</span>
+  </p>
 </section>
 
 <script>
@@ -851,6 +854,10 @@ const pages = await Promise.all(
     text-align: center;
   }
 
+  .magazine__hint-compact {
+    display: none;
+  }
+
   :global(body.magazine-expanded) {
     overflow: hidden;
     overscroll-behavior: none;
@@ -915,6 +922,20 @@ const pages = await Promise.all(
   @media (max-width: 47.99rem) {
     .magazine__viewport {
       padding: var(--space-md) calc(var(--size-control-sm) + var(--space-xs));
+    }
+
+    .magazine__hint {
+      padding: var(--space-xs) var(--space-sm);
+      font-size: calc(var(--text-xs) * 0.875);
+      line-height: var(--leading-caption);
+    }
+
+    .magazine__hint-full {
+      display: none;
+    }
+
+    .magazine__hint-compact {
+      display: inline;
     }
 
     .magazine__turn--previous {
