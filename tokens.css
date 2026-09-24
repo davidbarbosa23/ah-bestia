@@ -30,6 +30,15 @@
   --color-viewer-rule-strong: oklch(100% 0 0 / 0.3);
   --color-viewer-divider: oklch(100% 0 0 / 0.14);
   --color-viewer-hover: oklch(100% 0 0 / 0.12);
+  --color-magazine-canvas: oklch(90.5% 0.014 82);
+  --color-magazine-surface: oklch(97% 0.008 82 / 0.88);
+  --color-magazine-page: oklch(94% 0.012 82);
+  --color-magazine-ink: oklch(18% 0.014 250);
+  --color-magazine-ink-muted: oklch(36% 0.016 250);
+  --color-magazine-ink-subtle: oklch(45% 0.018 250);
+  --color-magazine-rule: oklch(18% 0.014 250 / 0.22);
+  --color-magazine-divider: oklch(18% 0.014 250 / 0.16);
+  --color-magazine-hover: oklch(18% 0.014 250 / 0.08);
 
   --dev-hero-background: none;
 
@@ -149,6 +158,13 @@
   --shadow-magazine-right-page:
     0.75rem 1.25rem 3rem oklch(4% 0.01 258 / 0.36),
     inset 1.1rem 0 1.5rem oklch(4% 0.01 258 / 0.18);
+  --shadow-magazine-page-surface: 0 1.5rem 4rem oklch(18% 0.014 250 / 0.2);
+  --shadow-magazine-left-page-surface:
+    -0.75rem 1.25rem 3rem oklch(18% 0.014 250 / 0.16),
+    inset -1.1rem 0 1.5rem oklch(18% 0.014 250 / 0.11);
+  --shadow-magazine-right-page-surface:
+    0.75rem 1.25rem 3rem oklch(18% 0.014 250 / 0.16),
+    inset 1.1rem 0 1.5rem oklch(18% 0.014 250 / 0.11);
   --page-gutter: clamp(1rem, 4vw, 4rem);
   --page-max: 92rem;
 }
@@ -166,6 +182,22 @@ html[data-theme='dark'] {
   --color-accent-ink: oklch(13% 0.016 258);
   --color-focus: oklch(74% 0.16 256);
   --color-overlay: oklch(7% 0.01 258 / 0.78);
+  --color-magazine-canvas: oklch(10% 0.005 258);
+  --color-magazine-surface: oklch(9% 0.006 258 / 0.72);
+  --color-magazine-page: oklch(24% 0.02 258);
+  --color-magazine-ink: oklch(100% 0 0);
+  --color-magazine-ink-muted: oklch(100% 0 0 / 0.68);
+  --color-magazine-ink-subtle: oklch(100% 0 0 / 0.62);
+  --color-magazine-rule: oklch(100% 0 0 / 0.18);
+  --color-magazine-divider: oklch(100% 0 0 / 0.14);
+  --color-magazine-hover: oklch(100% 0 0 / 0.12);
+  --shadow-magazine-page-surface: 0 1.5rem 4rem oklch(4% 0.01 258 / 0.52);
+  --shadow-magazine-left-page-surface:
+    -0.75rem 1.25rem 3rem oklch(4% 0.01 258 / 0.36),
+    inset -1.1rem 0 1.5rem oklch(4% 0.01 258 / 0.18);
+  --shadow-magazine-right-page-surface:
+    0.75rem 1.25rem 3rem oklch(4% 0.01 258 / 0.36),
+    inset 1.1rem 0 1.5rem oklch(4% 0.01 258 / 0.18);
 }
 
 body[data-experience='photographer'] {
