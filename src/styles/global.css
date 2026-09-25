@@ -1046,7 +1046,6 @@ html[data-theme='dark'] .theme-icon--moon {
 
 .photo-series__spread:hover .photo-series__detail,
 .photo-series__spread:focus-visible .photo-series__detail {
-  opacity: 0.58;
   transform: translateY(var(--space-xs));
 }
 

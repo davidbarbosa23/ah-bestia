@@ -82,8 +82,8 @@ const definitions: GalleryDefinition[] = [
     slug: 'spain-in-transit',
     assetFolder: 'spain',
     sourceFolder: 'Spain',
-    coverFilename: '_A741800.jpg',
-    indexDetailFilename: '_A740195.jpg',
+    coverFilename: 'Crossing.jpg',
+    indexDetailFilename: 'Estacion_Del_Norte.jpg',
     content: {
       en: {
         title: 'Spain, in transit',
@@ -98,6 +98,29 @@ const definitions: GalleryDefinition[] = [
         description:
           'Movimiento, distancia, paisaje y los espacios entre destinos.',
         location: 'España',
+      },
+    },
+  },
+  {
+    slug: 'random',
+    assetFolder: 'random',
+    sourceFolder: 'Random',
+    coverFilename: 'Crossing.jpg',
+    indexDetailFilename: 'Helicopter_Moon.jpg',
+    content: {
+      en: {
+        title: 'City in layers',
+        cardTitle: 'City in layers',
+        description:
+          'An open notebook of streets, landscapes, details, and passing light.',
+        location: 'Ongoing archive',
+      },
+      es: {
+        title: 'Ciudad en capas',
+        cardTitle: 'Ciudad en capas',
+        description:
+          'Un cuaderno abierto de calles, paisajes, detalles y luz pasajera.',
+        location: 'Archivo en proceso',
       },
     },
   },
@@ -174,8 +197,8 @@ const definitions: GalleryDefinition[] = [
     slug: 'dogs',
     assetFolder: 'dogs',
     sourceFolder: 'Dogs',
-    coverFilename: '_A746900.jpg',
-    indexDetailFilename: '_A746877.jpg',
+    coverFilename: '16.jpg',
+    indexDetailFilename: '15.jpg',
     content: {
       en: {
         title: 'After play',
@@ -197,8 +220,8 @@ const definitions: GalleryDefinition[] = [
     slug: 'achira',
     assetFolder: 'cat-achira',
     sourceFolder: 'Cat_Achira',
-    coverFilename: '_A745963.jpg',
-    indexDetailFilename: '_A746056-2.jpg',
+    coverFilename: '01.jpg',
+    indexDetailFilename: '04.jpg',
     content: {
       en: {
         title: 'Achira',
@@ -217,25 +240,23 @@ const definitions: GalleryDefinition[] = [
     },
   },
   {
-    slug: 'random',
-    assetFolder: 'random',
-    sourceFolder: 'Random',
-    coverFilename: '_A745670-1-3.jpg',
-    indexDetailFilename: 'ASC04981.jpg',
+    slug: 'aroma-colombiano',
+    assetFolder: 'Aroma-Colombiano',
+    sourceFolder: 'Aroma_Colombiano',
+    coverFilename: 'Aroma_Colombiano.jpg',
+    indexDetailFilename: 'Bass.jpg',
     content: {
       en: {
-        title: 'City in layers',
-        cardTitle: 'City in layers',
-        description:
-          'An open notebook of streets, landscapes, details, and passing light.',
-        location: 'Ongoing archive',
+        title: 'Aroma Colombiano',
+        cardTitle: 'Aroma Colombiano',
+        description: 'Portraits of Colombian Andean music',
+        location: 'Aroma Colombiano',
       },
       es: {
-        title: 'Ciudad en capas',
-        cardTitle: 'Ciudad en capas',
-        description:
-          'Un cuaderno abierto de calles, paisajes, detalles y luz pasajera.',
-        location: 'Archivo en proceso',
+        title: 'Aroma Colombiano',
+        cardTitle: 'Aroma Colombiano',
+        description: 'Retratos de Música Andina Colombiana',
+        location: 'Aroma Colombiano',
       },
     },
   },
@@ -259,6 +280,29 @@ const definitions: GalleryDefinition[] = [
         description:
           'Un estudio de retrato editorial entre sombras, textura y una silueta western.',
         location: 'Sesión de retrato',
+      },
+    },
+  },
+  {
+    slug: 'self-portrait',
+    assetFolder: 'Self-Portrait',
+    sourceFolder: 'Self-Portrait',
+    coverFilename: '01.jpg',
+    indexDetailFilename: '03.jpg',
+    content: {
+      en: {
+        title: 'Self Portrait',
+        cardTitle: 'Self Portrait',
+        description:
+          'A study in self-direction, presence, and the changing character of light.',
+        location: 'Self portraiture',
+      },
+      es: {
+        title: 'Autorretrato',
+        cardTitle: 'Autorretrato',
+        description:
+          'Un estudio de autodirección, presencia y el carácter cambiante de la luz.',
+        location: 'Autorretrato',
       },
     },
   },
