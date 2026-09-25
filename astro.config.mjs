@@ -5,6 +5,11 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://ahbestia.com',
+  image: {
+    service: {
+      entrypoint: './src/services/photo-metadata-image-service.ts',
+    },
+  },
   integrations: [sitemap({
     filter: (page) => {
       const pathname = new URL(page).pathname;
