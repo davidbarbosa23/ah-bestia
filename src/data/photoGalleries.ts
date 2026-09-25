@@ -283,6 +283,29 @@ const definitions: GalleryDefinition[] = [
       },
     },
   },
+  {
+    slug: 'self-portrait',
+    assetFolder: 'Self-Portrait',
+    sourceFolder: 'Self-Portrait',
+    coverFilename: '01.jpg',
+    indexDetailFilename: '03.jpg',
+    content: {
+      en: {
+        title: 'Self Portrait',
+        cardTitle: 'Self Portrait',
+        description:
+          'A study in self-direction, presence, and the changing character of light.',
+        location: 'Self portraiture',
+      },
+      es: {
+        title: 'Autorretrato',
+        cardTitle: 'Autorretrato',
+        description:
+          'Un estudio de autodirección, presencia y el carácter cambiante de la luz.',
+        location: 'Autorretrato',
+      },
+    },
+  },
 ];
 
 const naturalFilenameOrder = new Intl.Collator('en', {
