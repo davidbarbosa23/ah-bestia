@@ -240,6 +240,27 @@ const definitions: GalleryDefinition[] = [
     },
   },
   {
+    slug: 'aroma-colombiano',
+    assetFolder: 'Aroma-Colombiano',
+    sourceFolder: 'Aroma_Colombiano',
+    coverFilename: 'Aroma_Colombiano.jpg',
+    indexDetailFilename: 'Bass.jpg',
+    content: {
+      en: {
+        title: 'Aroma Colombiano',
+        cardTitle: 'Aroma Colombiano',
+        description: 'Portraits of Colombian Andean music',
+        location: 'Aroma Colombiano',
+      },
+      es: {
+        title: 'Aroma Colombiano',
+        cardTitle: 'Aroma Colombiano',
+        description: 'Retratos de Música Andina Colombiana',
+        location: 'Aroma Colombiano',
+      },
+    },
+  },
+  {
     slug: 'umbra',
     assetFolder: 'Umbra',
     sourceFolder: 'Umbra',
