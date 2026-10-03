@@ -293,7 +293,12 @@ const pages = await Promise.all(
         duration: number;
       };
       const activeTurns: ActiveTurn[] = [];
-      const turnBuffer: Array<{ fromIndex: number; toIndex: number }> = [];
+      type BufferedTurn = {
+        fromIndex: number;
+        toIndex: number;
+        surfaces?: TurnSurfaces;
+      };
+      const turnBuffer: BufferedTurn[] = [];
 
       const normalizeIndex = (requestedIndex: number) => {
         const clampedIndex = Math.max(0, Math.min(lastIndex, requestedIndex));
@@ -357,7 +362,6 @@ const pages = await Promise.all(
       };
 
       const decodeImage = async (image: HTMLImageElement) => {
-        if (image.complete && image.naturalWidth > 0) return;
         await image.decode().catch(() => {
           // Keep the browser's normal loading and error behavior if decoding is interrupted.
         });
@@ -387,7 +391,7 @@ const pages = await Promise.all(
         const expanded = new Image();
         expanded.decoding = 'async';
         expanded.src = source;
-        const ready = expanded.decode().then(() => {
+        const ready = expanded.decode().then(async () => {
           if (signal.aborted || !isFullscreen()) return;
           // Keep the displayed image intact until its fullscreen replacement
           // is decoded, then update both source attributes in the same frame.
@@ -395,6 +399,7 @@ const pages = await Promise.all(
           image.src = source;
           image.removeAttribute('srcset');
           image.dataset.expandedLoaded = 'true';
+          await decodeImage(image);
         }).catch(() => {
           // A failed upgrade must leave the already visible photograph intact.
         }).finally(() => {
@@ -479,7 +484,7 @@ const pages = await Promise.all(
       const copyPageToSurface = (index: number, surface: HTMLElement) => {
         const page = pages[index];
         const photo = page?.querySelector<HTMLElement>('.magazine__photo');
-        if (!page || !photo) return;
+        if (!page || !photo) return Promise.resolve();
         delete surface.dataset.empty;
         const copy = photo.cloneNode(true) as HTMLElement;
         const sourceImage = photo.querySelector<HTMLImageElement>('img');
@@ -487,9 +492,9 @@ const pages = await Promise.all(
         if (image) {
           image.alt = '';
           image.loading = 'eager';
-          // Reuse the displayed bitmap throughout the turn. In fullscreen an
-          // async clone can paint blank while its large image is decoded again.
-          image.decoding = 'sync';
+          // Pin the clone to the displayed bitmap rather than selecting a
+          // different responsive source for a temporary animation surface.
+          image.decoding = 'async';
           image.removeAttribute('srcset');
           image.removeAttribute('sizes');
           image.src = sourceImage?.currentSrc || sourceImage?.src || image.src;
@@ -504,6 +509,9 @@ const pages = await Promise.all(
           '--magazine-photo-position',
           page.style.getPropertyValue('--magazine-photo-position'),
         );
+        // A decoded source does not guarantee that a new image element is
+        // paintable. Prepare the clone before exposing its paper background.
+        return image ? decodeImage(image) : Promise.resolve();
       };
 
       const easePageTurn = (progress: number) => progress * progress * (3 - 2 * progress);
@@ -827,7 +835,6 @@ const pages = await Promise.all(
         activeTurns.forEach((turn) => turn.layer.remove());
         activeTurns.length = 0;
         turnBuffer.length = 0;
-        settledIndex = currentIndex;
         magazine.classList.remove('is-turning');
       };
 
@@ -846,11 +853,10 @@ const pages = await Promise.all(
           preloadNextExpandedTurn(visible);
         }
 
-        const positions = positionsFor(visible);
-        const bufferedTurn = turnBuffer.at(-1);
-        const latestTurn = bufferedTurn
-          ? { direction: bufferedTurn.toIndex > bufferedTurn.fromIndex ? 'next' : 'previous' }
-          : activeTurns.at(-1);
+        const latestTurn = activeTurns.at(-1);
+        // Navigation can run ahead while images load. Only prepared sheets
+        // may replace the spread that is actually being painted.
+        const positions = positionsFor(visibleIndices(latestTurn?.toIndex ?? settledIndex));
         if (latestTurn) {
           // The receiving side stays on the last landed sheet; the other side
           // reveals the newest destination beneath the moving sheets.
@@ -895,7 +901,7 @@ const pages = await Promise.all(
       const drawTurns = (now: number) => {
         turnFrame = undefined;
         if (signal.aborted) return;
-        const started = turnBuffer.length > 0;
+        const started = Boolean(turnBuffer[0]?.surfaces);
         // Measure once before writing any sheet styles, even during rapid flipping.
         const { width, height: pageHeight } = book.getBoundingClientRect();
         const pageWidth = width / 2;
@@ -920,19 +926,21 @@ const pages = await Promise.all(
         if (activeTurns.length > 0) {
           turnFrame = requestAnimationFrame(drawTurns);
         } else {
-          magazine.classList.remove('is-turning');
-          settledIndex = currentIndex;
+          magazine.classList.toggle('is-turning', turnBuffer.length > 0);
         }
         // Replace the static outgoing page only after its clipped turn surface
         // has been mounted and drawn, so both changes reach the same paint.
         if (landed || started) render();
       };
 
-      const startTurn = (fromIndex: number, toIndex: number, startedAt: number, duration: number) => {
+      const prepareTurn = async (fromIndex: number, toIndex: number): Promise<TurnSurfaces> => {
         const direction = toIndex > fromIndex ? 'next' : 'previous';
         const fromIndices = visibleIndices(fromIndex);
         const toIndices = visibleIndices(toIndex);
-        [...new Set([...fromIndices, ...toIndices])].forEach((index) => void loadPage(index));
+        await Promise.all([...new Set([...fromIndices, ...toIndices])].map(async (index) => {
+          await loadPage(index);
+          if (isFullscreen()) await loadExpandedPage(index);
+        }));
         const layer = turnLayer.cloneNode(true) as HTMLElement;
         const surfaces: TurnSurfaces = {
           layer,
@@ -942,27 +950,39 @@ const pages = await Promise.all(
           turnShadow: layer.querySelector<HTMLElement>('[data-magazine-turn-shadow]')!,
           turnInnerShadow: layer.querySelector<HTMLElement>('[data-magazine-turn-inner-shadow]')!,
         };
-        copyPageToSurface(direction === 'next' ? toIndices[0] : toIndices.at(-1)!, surfaces.turnFront);
-        copyPageToSurface(direction === 'next' ? fromIndices.at(-1)! : fromIndices[0], surfaces.turnBottom);
+        await Promise.all([
+          copyPageToSurface(direction === 'next' ? toIndices[0] : toIndices.at(-1)!, surfaces.turnFront),
+          copyPageToSurface(direction === 'next' ? fromIndices.at(-1)! : fromIndices[0], surfaces.turnBottom),
+        ]);
         layer.dataset.direction = direction;
+        return surfaces;
+      };
+
+      const startTurn = (request: BufferedTurn, startedAt: number, duration: number) => {
+        const surfaces = request.surfaces!;
+        const { layer } = surfaces;
+        const direction = request.toIndex > request.fromIndex ? 'next' : 'previous';
         layer.hidden = false;
         book.append(layer);
         const turn: ActiveTurn = {
-          ...surfaces, toIndex, direction, sequence: ++turnSequence,
+          ...surfaces, toIndex: request.toIndex, direction, sequence: ++turnSequence,
           progress: 0, startedAt, updatedAt: startedAt, duration,
         };
         activeTurns.push(turn);
       };
 
       const flushTurnBuffer = (now: number) => {
-        if (turnBuffer.length === 0) return;
+        const requests: BufferedTurn[] = [];
+        // Preserve input order even if a later spread finishes decoding first.
+        while (turnBuffer[0]?.surfaces) requests.push(turnBuffer.shift()!);
+        if (requests.length === 0) return;
         const styles = getComputedStyle(magazine);
         const normalDuration = durationInMilliseconds(styles.getPropertyValue('--dur-page-turn'), 720);
         const minimumDuration = durationInMilliseconds(styles.getPropertyValue('--dur-long'), 420);
         const fanDuration = durationInMilliseconds(styles.getPropertyValue('--dur-micro'), 120);
-        const sheetCount = activeTurns.length + turnBuffer.length;
+        const sheetCount = activeTurns.length + requests.length;
         const duration = Math.max(minimumDuration, normalDuration / (1 + (sheetCount - 1) * 0.2));
-        const spacing = fanDuration / Math.max(3, turnBuffer.length);
+        const spacing = fanDuration / Math.max(3, requests.length);
 
         activeTurns.forEach((turn) => {
           advanceTurn(turn, now);
@@ -971,19 +991,29 @@ const pages = await Promise.all(
           turn.duration = Math.min(turn.duration, duration);
         });
 
-        const requests = turnBuffer.splice(0);
-        requests.forEach(({ fromIndex, toIndex }) => {
+        requests.forEach((request) => {
           const previousTurn = activeTurns.at(-1);
           const startedAt = Math.max(now, previousTurn ? previousTurn.startedAt + spacing : now);
-          startTurn(fromIndex, toIndex, startedAt, duration);
+          startTurn(request, startedAt, duration);
+        });
+      };
+
+      const showWithoutMotion = () => {
+        const targetIndex = currentIndex;
+        clearTurns();
+        render();
+        void Promise.all(visibleIndices(targetIndex).map(async (pageIndex) => {
+          await loadPage(pageIndex);
+          if (isFullscreen()) await loadExpandedPage(pageIndex);
+        })).then(() => {
+          if (signal.aborted || currentIndex !== targetIndex) return;
+          settledIndex = targetIndex;
+          render();
         });
       };
 
       reducedMotion.addEventListener('change', () => {
-        if (reducedMotion.matches) {
-          clearTurns();
-          render();
-        }
+        if (reducedMotion.matches) showWithoutMotion();
       }, { signal });
 
       const goTo = (index: number) => {
@@ -998,13 +1028,19 @@ const pages = await Promise.all(
         const fromIndex = currentIndex;
         resetZoom();
         currentIndex = nextIndex;
-        if (reducedMotion.matches) clearTurns();
-        else {
-          turnBuffer.push({ fromIndex, toIndex: nextIndex });
+        if (reducedMotion.matches) {
+          showWithoutMotion();
+        } else {
+          const request: BufferedTurn = { fromIndex, toIndex: nextIndex };
+          turnBuffer.push(request);
           magazine.classList.add('is-turning');
-          if (turnFrame === undefined) turnFrame = requestAnimationFrame(drawTurns);
+          void prepareTurn(fromIndex, nextIndex).then((surfaces) => {
+            if (signal.aborted || !turnBuffer.includes(request)) return;
+            request.surfaces = surfaces;
+            if (turnFrame === undefined) turnFrame = requestAnimationFrame(drawTurns);
+          });
         }
-        render(reducedMotion.matches);
+        render(false);
       };
 
       const goPrevious = () => goTo(currentIndex > 1 ? currentIndex - 2 : currentIndex - 1);
