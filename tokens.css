@@ -108,6 +108,8 @@
   --dur-short: 220ms;
   --dur-long: 420ms;
   --dur-page-turn: 720ms;
+  --dur-magazine-controls-idle: 2400ms;
+  --opacity-magazine-controls-idle: 0.22;
 
   --rule-hair: 1px;
   --outline-control: 2px;
@@ -135,6 +137,9 @@
   --magazine-spread-max-by-height: 105svh;
   --magazine-fullscreen-spread-max-by-height: 132dvh;
   --magazine-photo-position: 50% 50%;
+  --magazine-count-width: 10ch;
+  --size-magazine-navigation: 28rem;
+  --size-magazine-navigation-compact: 22rem;
   --back-to-top-padding: 0.45rem 0.35rem 0.3rem;
   --back-to-top-label-gap: 0.05rem;
   --back-to-top-rest-scale: 0.94;

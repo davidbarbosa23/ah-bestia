@@ -67,7 +67,7 @@ const pages = await Promise.all(
   data-exit-fullscreen-label={labels.magazine.exitFullscreen}
   aria-label={`${labels.magazine.reader}: ${content.title}`}
   tabindex="0"
-  style={`--magazine-spread-ratio: ${pageWidth * 2} / ${pageHeight}; --magazine-spread-max-by-height: ${spreadMaxByHeight}; --magazine-fullscreen-spread-max-by-height: ${fullscreenSpreadMaxByHeight};`}
+  style={`--magazine-spread-ratio: ${pageWidth * 2} / ${pageHeight}; --magazine-spread-max-by-height: ${spreadMaxByHeight}; --magazine-fullscreen-spread-max-by-height: ${fullscreenSpreadMaxByHeight}; --magazine-count-width: ${String(pages.length).length * 3 + 4}ch;`}
 >
   <h2 class="sr-only">{labels.magazine.reader}: {content.title}</h2>
 
@@ -147,21 +147,26 @@ const pages = await Promise.all(
   </div>
 
   <div class="magazine__toolbar">
-    <output class="magazine__count" data-magazine-count aria-live="polite">
-      {labels.magazine.page} 1 {labels.magazine.of} {pages.length}
-    </output>
-    <input
-      class="magazine__progress"
-      data-magazine-progress
-      type="range"
-      min="1"
-      step="1"
-      value="1"
-      max={pages.length}
-      aria-label={labels.magazine.goToPage}
-      aria-valuetext={`${labels.magazine.page} 1 ${labels.magazine.of} ${pages.length}`}
-      disabled
-    />
+    <div class="magazine__navigation">
+      <div class="magazine__count">
+        <output class="sr-only" data-magazine-count aria-live="polite">
+          {labels.magazine.page} 1 {labels.magazine.of} {pages.length}
+        </output>
+        <span data-magazine-compact-count aria-hidden="true">1 / {pages.length}</span>
+      </div>
+      <input
+        class="magazine__progress"
+        data-magazine-progress
+        type="range"
+        min="1"
+        step="1"
+        value="1"
+        max={pages.length}
+        aria-label={labels.magazine.goToPage}
+        aria-valuetext={`${labels.magazine.page} 1 ${labels.magazine.of} ${pages.length}`}
+        disabled
+      />
+    </div>
     <div
       class="magazine__zoom-controls"
       data-magazine-zoom-controls
@@ -195,6 +200,7 @@ const pages = await Promise.all(
       type="button"
       data-magazine-fullscreen
       aria-label={labels.magazine.fullscreen}
+      title={labels.magazine.fullscreen}
       hidden
     >
       <span data-magazine-fullscreen-text>{labels.magazine.fullscreen}</span>
@@ -225,6 +231,7 @@ const pages = await Promise.all(
       const previous = magazine.querySelector<HTMLButtonElement>('[data-magazine-previous]');
       const next = magazine.querySelector<HTMLButtonElement>('[data-magazine-next]');
       const count = magazine.querySelector<HTMLOutputElement>('[data-magazine-count]');
+      const compactCount = magazine.querySelector<HTMLElement>('[data-magazine-compact-count]');
       const progress = magazine.querySelector<HTMLInputElement>('[data-magazine-progress]');
       const fullscreen = magazine.querySelector<HTMLButtonElement>('[data-magazine-fullscreen]');
       const fullscreenText = magazine.querySelector<HTMLElement>('[data-magazine-fullscreen-text]');
@@ -239,7 +246,7 @@ const pages = await Promise.all(
       const turnShadow = magazine.querySelector<HTMLElement>('[data-magazine-turn-shadow]');
       const turnInnerShadow = magazine.querySelector<HTMLElement>('[data-magazine-turn-inner-shadow]');
 
-      if (!viewport || !book || !pages.length || !previous || !next || !count || !progress) return;
+      if (!viewport || !book || !pages.length || !previous || !next || !count || !compactCount || !progress) return;
       if (!zoomControls || !zoomOut || !zoomReset || !zoomIn) return;
       if (!turnLayer || !turnPage || !turnFront || !turnBottom) return;
       if (!turnShadow || !turnInnerShadow) return;
@@ -315,6 +322,26 @@ const pages = await Promise.all(
 
       const isFallbackExpanded = () => magazine.classList.contains('is-expanded');
       const isFullscreen = () => document.fullscreenElement === magazine || isFallbackExpanded();
+
+      const controlsIdleDelay = durationInMilliseconds(
+        getComputedStyle(magazine).getPropertyValue('--dur-magazine-controls-idle'),
+        2400,
+      );
+      let controlsIdleTimer: ReturnType<typeof setTimeout> | undefined;
+      const revealControls = () => {
+        if (!isFullscreen()) return;
+        clearTimeout(controlsIdleTimer);
+        magazine.classList.add('is-controls-active');
+        controlsIdleTimer = setTimeout(() => {
+          magazine.classList.remove('is-controls-active');
+          controlsIdleTimer = undefined;
+        }, controlsIdleDelay);
+      };
+
+      // Keep the controls discoverable without covering the photographs while reading.
+      for (const event of ['pointermove', 'pointerdown', 'keydown', 'focusin', 'input', 'wheel']) {
+        magazine.addEventListener(event, revealControls, { signal, passive: true });
+      }
 
       const clampPosition = () => {
         const maxX = Math.max(0, (book.offsetWidth - viewport.clientWidth) / 2);
@@ -889,7 +916,9 @@ const pages = await Promise.all(
         count.value = visible.length === 1
           ? `${pageLabel} ${currentIndex + 1} ${ofLabel} ${pages.length}`
           : `${pagesLabel} ${currentIndex + 1}–${endIndex + 1} ${ofLabel} ${pages.length}`;
-
+        compactCount.textContent = visible.length === 1
+          ? `${currentIndex + 1} / ${pages.length}`
+          : `${currentIndex + 1}–${endIndex + 1} / ${pages.length}`;
       };
 
       const advanceTurn = (turn: ActiveTurn, now: number) => {
@@ -1053,14 +1082,18 @@ const pages = await Promise.all(
           : magazine.dataset.fullscreenLabel ?? '';
         magazine.classList.toggle('is-fullscreen', active);
         fullscreen?.setAttribute('aria-label', label);
+        fullscreen?.setAttribute('title', label);
         if (fullscreenText) fullscreenText.textContent = label;
         zoomControls.hidden = !active;
         pointerId = undefined;
         pointerCaptured = false;
         magazine.classList.remove('is-dragging');
         if (active) {
+          revealControls();
           render();
         } else {
+          clearTimeout(controlsIdleTimer);
+          magazine.classList.remove('is-controls-active');
           restorePageSources();
         }
         resetZoom();
@@ -1261,8 +1294,9 @@ const pages = await Promise.all(
       }
 
       signal.addEventListener('abort', () => {
+        clearTimeout(controlsIdleTimer);
         clearTurns();
-        magazine.classList.remove('is-expanded', 'is-fullscreen');
+        magazine.classList.remove('is-expanded', 'is-fullscreen', 'is-controls-active');
         document.body.classList.remove('magazine-expanded');
       }, { once: true });
 
@@ -1293,7 +1327,7 @@ const pages = await Promise.all(
 
   .magazine__viewport {
     position: relative;
-    padding: var(--space-lg) calc(var(--size-control) + var(--space-sm));
+    padding: var(--space-sm) calc(var(--size-control) + var(--space-xs));
     display: grid;
     place-items: center;
     overflow: hidden;
@@ -1510,7 +1544,7 @@ const pages = await Promise.all(
     display: grid;
     place-items: center;
     background: var(--color-magazine-surface);
-    color: var(--color-magazine-ink);
+    color: var(--color-magazine-ink-muted);
     cursor: pointer;
     transform: translateY(-50%);
     transition:
@@ -1534,24 +1568,35 @@ const pages = await Promise.all(
   .magazine__turn:focus-visible,
   .magazine__fullscreen:focus-visible,
   .magazine__zoom-controls button:focus-visible {
-    outline: var(--outline-control) solid var(--color-magazine-ink);
+    outline: var(--outline-control) solid var(--color-focus);
     outline-offset: var(--outline-offset-control);
   }
 
   .magazine__toolbar {
-    padding: var(--space-sm) var(--space-md);
-    border-block: var(--rule-hair) solid var(--color-magazine-divider);
+    padding: var(--space-2xs) var(--space-sm);
+    border-block-start: var(--rule-hair) solid var(--color-magazine-divider);
     display: grid;
-    grid-template-columns: auto minmax(4rem, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: var(--space-md);
+    gap: var(--space-sm);
     color: var(--color-magazine-ink-muted);
     font-family: var(--font-mono);
     font-size: var(--text-xs);
   }
 
+  .magazine__navigation {
+    min-width: 0;
+    display: grid;
+    /* Reserve the longest page count so scrubbing never moves the range track. */
+    grid-template-columns: var(--magazine-count-width) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
   .magazine__count {
-    min-width: 9.5rem;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    line-height: var(--leading-caption);
   }
 
   .magazine__progress {
@@ -1623,7 +1668,7 @@ const pages = await Promise.all(
     display: grid;
     place-items: center;
     background: transparent;
-    color: var(--color-magazine-ink);
+    color: var(--color-magazine-ink-muted);
     cursor: pointer;
     font-family: var(--font-mono);
     font-size: var(--text-xs);
@@ -1639,17 +1684,28 @@ const pages = await Promise.all(
   }
 
   .magazine__fullscreen {
-    min-height: var(--size-control-sm);
-    padding: 0 var(--space-sm);
+    min-width: var(--size-control);
+    min-height: var(--size-control);
+    padding: 0;
     border: var(--rule-hair) solid var(--color-magazine-rule);
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    justify-self: end;
     gap: var(--space-xs);
     background: transparent;
-    color: var(--color-magazine-ink);
+    color: var(--color-magazine-ink-muted);
     cursor: pointer;
     font-family: var(--font-mono);
     font-size: var(--text-xs);
+  }
+
+  .magazine__fullscreen[hidden] {
+    display: none;
+  }
+
+  .magazine__fullscreen [data-magazine-fullscreen-text] {
+    display: none;
   }
 
   .magazine__fullscreen-icon--exit {
@@ -1666,14 +1722,15 @@ const pages = await Promise.all(
 
   .magazine__hint {
     margin: 0;
-    padding: var(--space-sm) var(--space-md);
+    padding: 0 var(--space-sm) var(--space-xs);
     color: var(--color-magazine-ink-subtle);
     font-family: var(--font-mono);
-    font-size: var(--text-xs);
+    font-size: calc(var(--text-xs) * 0.875);
+    line-height: var(--leading-caption);
     text-align: center;
   }
 
-  .magazine__hint-compact {
+  .magazine__hint-full {
     display: none;
   }
 
@@ -1683,9 +1740,10 @@ const pages = await Promise.all(
   }
 
   .magazine.is-fullscreen {
+    position: relative;
     padding: var(--space-xs);
     display: grid;
-    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr);
     border: 0;
     background: var(--color-magazine-canvas);
   }
@@ -1713,7 +1771,56 @@ const pages = await Promise.all(
   }
 
   .magazine.is-fullscreen .magazine__toolbar {
-    grid-template-columns: auto minmax(4rem, 1fr) auto auto;
+    position: absolute;
+    inset: 0;
+    z-index: var(--layer-overlay);
+    display: block;
+    padding: 0;
+    border: 0;
+    pointer-events: none;
+  }
+
+  .magazine.is-fullscreen .magazine__navigation {
+    position: absolute;
+    inset-block-end: max(var(--space-xs), env(safe-area-inset-bottom));
+    inset-inline: max(var(--space-lg), env(safe-area-inset-left)) max(var(--space-lg), env(safe-area-inset-right));
+    width: min(var(--size-magazine-navigation-compact), calc(100% - max(var(--space-lg), env(safe-area-inset-left)) - max(var(--space-lg), env(safe-area-inset-right))));
+    margin-inline: auto;
+    padding: 0 var(--space-xs);
+    gap: var(--space-xs);
+    border: var(--rule-hair) solid var(--color-magazine-rule);
+    border-radius: var(--radius-sm);
+    background: var(--color-magazine-surface);
+    pointer-events: auto;
+  }
+
+  .magazine.is-fullscreen .magazine__zoom-controls {
+    position: absolute;
+    inset-block-start: max(var(--space-xs), env(safe-area-inset-top));
+    inset-inline-start: max(var(--space-xs), env(safe-area-inset-left));
+    background: var(--color-magazine-surface);
+    pointer-events: auto;
+  }
+
+  .magazine.is-fullscreen .magazine__fullscreen {
+    position: absolute;
+    inset-block-start: max(var(--space-xs), env(safe-area-inset-top));
+    inset-inline-end: max(var(--space-xs), env(safe-area-inset-right));
+    background: var(--color-magazine-surface);
+    pointer-events: auto;
+  }
+
+  .magazine.is-fullscreen :is(.magazine__navigation, .magazine__zoom-controls, .magazine__fullscreen, .magazine__turn) {
+    opacity: var(--opacity-magazine-controls-idle);
+    transition: opacity var(--dur-short) var(--ease-out), background var(--dur-micro) var(--ease-out);
+  }
+
+  .magazine.is-fullscreen:is(.is-controls-active, :has(:focus-visible), :has(:active)) :is(.magazine__navigation, .magazine__zoom-controls, .magazine__fullscreen, .magazine__turn) {
+    opacity: 1;
+  }
+
+  .magazine.is-fullscreen .magazine__turn:disabled {
+    opacity: 0.25;
   }
 
   .magazine.is-fullscreen .magazine__hint {
@@ -1731,6 +1838,10 @@ const pages = await Promise.all(
   }
 
   @media (hover: hover) {
+    .magazine.is-fullscreen:has(.magazine__navigation:hover, .magazine__zoom-controls:hover, .magazine__fullscreen:hover, .magazine__turn:hover) :is(.magazine__navigation, .magazine__zoom-controls, .magazine__fullscreen, .magazine__turn:not(:disabled)) {
+      opacity: 1;
+    }
+
     .magazine__turn:not(:disabled):hover,
     .magazine__fullscreen:hover,
     .magazine__zoom-controls button:not(:disabled):hover {
@@ -1738,113 +1849,65 @@ const pages = await Promise.all(
     }
   }
 
-  @media (max-width: 47.99rem) {
+  @media (min-width: 48rem) {
+    .magazine.is-fullscreen .magazine__navigation {
+      inset-inline: max(var(--space-xs), env(safe-area-inset-left)) max(var(--space-xs), env(safe-area-inset-right));
+      width: min(var(--size-magazine-navigation), calc(100% - max(var(--space-xs), env(safe-area-inset-left)) - max(var(--space-xs), env(safe-area-inset-right))));
+      padding: var(--space-2xs) var(--space-sm);
+      gap: var(--space-sm);
+    }
+
     .magazine__viewport {
-      padding: var(--space-md) calc(var(--size-control-sm) + var(--space-xs));
+      padding: var(--space-lg) calc(var(--size-control) + var(--space-sm));
     }
 
     .magazine__hint {
-      padding: var(--space-xs) var(--space-sm);
-      font-size: calc(var(--text-xs) * 0.875);
-      line-height: var(--leading-caption);
+      padding: 0 var(--space-md) var(--space-sm);
+      font-size: var(--text-xs);
     }
 
     .magazine__hint-full {
-      display: none;
-    }
-
-    .magazine__hint-compact {
       display: inline;
     }
 
-    .magazine__turn--previous {
-      inset-inline-start: var(--space-xs);
-    }
-
-    .magazine__turn--next {
-      inset-inline-end: var(--space-xs);
-    }
-
-    .magazine__toolbar {
-      grid-template-columns: auto 1fr;
-    }
-
-    .magazine__progress {
-      grid-column: 1 / -1;
-      grid-row: 2;
-    }
-
-    .magazine__fullscreen {
-      justify-self: end;
-    }
-
-    .magazine__fullscreen [data-magazine-fullscreen-text] {
+    .magazine__hint-compact {
       display: none;
     }
 
-    .magazine__count {
-      min-width: 0;
+    .magazine__turn--previous {
+      inset-inline-start: var(--space-sm);
     }
 
-    .magazine.is-fullscreen .magazine__toolbar {
-      position: absolute;
-      inset: 0;
-      z-index: var(--layer-overlay);
-      display: block;
-      padding: 0;
-      border: 0;
-      pointer-events: none;
+    .magazine__turn--next {
+      inset-inline-end: var(--space-sm);
     }
 
-    .magazine.is-fullscreen .magazine__count {
-      position: absolute;
-      inset-block-end: max(var(--space-md), env(safe-area-inset-bottom));
-      inset-inline: var(--space-md);
-      min-width: 0;
-      color: var(--color-magazine-ink-subtle);
-      font-size: var(--text-xs);
-      line-height: var(--leading-none);
-      text-align: center;
-      transform: scale(0.8);
-      transform-origin: center bottom;
-      pointer-events: auto;
+    .magazine__toolbar {
+      padding-inline: var(--space-md);
+      gap: var(--space-md);
     }
 
-    .magazine.is-fullscreen .magazine__progress {
-      position: absolute;
-      inset-block-end: calc(max(var(--space-md), env(safe-area-inset-bottom)) + var(--space-lg));
-      inset-inline: var(--space-md);
-      width: calc(100% - var(--space-md) * 2);
-      pointer-events: auto;
+    .magazine__fullscreen {
+      padding-inline: var(--space-sm);
     }
 
-    .magazine.is-fullscreen .magazine__turn {
-      width: var(--size-control-sm);
-      height: var(--size-control-sm);
+    .magazine__fullscreen [data-magazine-fullscreen-text] {
+      display: inline;
     }
 
-    .magazine.is-fullscreen .magazine__zoom-controls {
-      position: absolute;
-      inset-block-start: max(var(--space-xs), env(safe-area-inset-top));
-      inset-inline-start: max(var(--space-xs), env(safe-area-inset-left));
-      pointer-events: auto;
-    }
-
-    .magazine.is-fullscreen .magazine__fullscreen {
-      position: absolute;
-      inset-block-start: max(var(--space-xs), env(safe-area-inset-top));
-      inset-inline-end: max(var(--space-xs), env(safe-area-inset-right));
-      min-width: var(--size-control-sm);
-      padding-inline: 0;
-      justify-content: center;
-      pointer-events: auto;
+    .magazine.is-fullscreen .magazine__fullscreen [data-magazine-fullscreen-text] {
+      display: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .magazine.is-fullscreen :is(.magazine__navigation, .magazine__zoom-controls, .magazine__fullscreen, .magazine__turn),
     .magazine__book,
     .magazine__turn,
     .magazine__progress,
+    .magazine__navigation,
+    .magazine__zoom-controls,
+    .magazine__fullscreen,
     .magazine__turn-layer {
       transition: none;
     }
