@@ -217,29 +217,6 @@ const definitions: GalleryDefinition[] = [
     },
   },
   {
-    slug: 'achira',
-    assetFolder: 'cat-achira',
-    sourceFolder: 'Cat_Achira',
-    coverFilename: '01.jpg',
-    indexDetailFilename: '04.jpg',
-    content: {
-      en: {
-        title: 'Achira',
-        cardTitle: 'Achira',
-        description:
-          'A small portrait study of a new arrival finding her place.',
-        location: 'Portrait of a new arrival',
-      },
-      es: {
-        title: 'Achira',
-        cardTitle: 'Achira',
-        description:
-          'Un pequeño estudio de una recién llegada encontrando su lugar.',
-        location: 'Retrato de una recién llegada',
-      },
-    },
-  },
-  {
     slug: 'aroma-colombiano',
     assetFolder: 'Aroma-Colombiano',
     sourceFolder: 'Aroma_Colombiano',
