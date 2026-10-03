@@ -1,0 +1,22 @@
+---
+import SiteLayout from '../../../../layouts/SiteLayout.astro';
+import SiteHeader from '../../../../components/SiteHeader.astro';
+import SiteFooter from '../../../../components/SiteFooter.astro';
+import PhotoGrid from '../../../../components/PhotoGrid.astro';
+import PhotoLightbox from '../../../../components/PhotoLightbox.astro';
+import { languages, ui, type Lang } from '../../../../i18n/content';
+import { archivePhotos } from '../../../../data/photoArchive';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+const lang = Astro.params.lang as Lang;
+const labels = ui[lang].photography.grid;
+---
+
+<SiteLayout lang={lang} experience="photographer" title={labels.metaTitle} description={labels.description} image={archivePhotos[0].image} imageAlt={archivePhotos[0].annotation.alt[lang]} schemaType="ImageGallery">
+  <SiteHeader lang={lang} experience="photographer" />
+  <PhotoGrid lang={lang} />
+  <PhotoLightbox lang={lang} />
+  <SiteFooter lang={lang} />
+</SiteLayout>

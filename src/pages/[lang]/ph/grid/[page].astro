@@ -1,0 +1,28 @@
+---
+import SiteLayout from '../../../../layouts/SiteLayout.astro';
+import SiteHeader from '../../../../components/SiteHeader.astro';
+import SiteFooter from '../../../../components/SiteFooter.astro';
+import PhotoGrid from '../../../../components/PhotoGrid.astro';
+import PhotoLightbox from '../../../../components/PhotoLightbox.astro';
+import { languages, ui, type Lang } from '../../../../i18n/content';
+import { archivePhotos, PHOTO_BATCH_SIZE } from '../../../../data/photoArchive';
+
+export function getStaticPaths() {
+  const pages = Math.ceil(archivePhotos.length / PHOTO_BATCH_SIZE);
+  return languages.flatMap((lang) => Array.from({ length: pages - 1 }, (_, index) => ({
+    params: { lang, page: String(index + 2) }, props: { page: index + 2 },
+  })));
+}
+interface Props { page: number; }
+const { page } = Astro.props as Props;
+const lang = Astro.params.lang as Lang;
+const labels = ui[lang].photography.grid;
+const firstPhoto = archivePhotos[(page - 1) * PHOTO_BATCH_SIZE];
+---
+
+<SiteLayout lang={lang} experience="photographer" title={`${labels.metaTitle} · ${page}`} description={labels.description} image={firstPhoto.image} imageAlt={firstPhoto.annotation.alt[lang]} schemaType="ImageGallery">
+  <SiteHeader lang={lang} experience="photographer" />
+  <PhotoGrid lang={lang} page={page} />
+  <PhotoLightbox lang={lang} />
+  <SiteFooter lang={lang} />
+</SiteLayout>

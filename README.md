@@ -82,6 +82,8 @@ Every public experience is generated in English and Spanish:
 | `/en/dev/labs/`, `/es/dev/labs/` | Developer experiments |
 | `/en/dev/labs/[slug]/`, `/es/dev/labs/[slug]/` | Individual interactive lab |
 | `/en/ph/`, `/es/ph/` | Photography portfolio |
+| `/en/ph/grid/`, `/es/ph/grid/` | All photographs in a searchable masonry grid with tag filters and infinite scroll |
+| `/en/ph/grid/[page]/`, `/es/ph/grid/[page]/` | Paginated archive for direct links and browsing without JavaScript |
 | `/en/ph/[slug]/`, `/es/ph/[slug]/` | Individual photography series |
 
 The legacy `/:lang/dev/projects/` route redirects to the Labs archive.
@@ -108,6 +110,7 @@ The legacy `/:lang/dev/projects/` route redirects to the Labs archive.
 
 - Update shared interface and portfolio copy in `src/i18n/content.ts`. Keep English and Spanish entries in sync.
 - Define photography series in `src/data/photoGalleries.ts` and store their source images under `src/assets/photography/galleries/`.
+- Add visually reviewed tags and English/Spanish image descriptions in `src/data/photoTags.ts` for every new gallery image. The grid includes all gallery folders, including images outside the series index, and checks annotation coverage when building. It renders 18 photographs initially and fetches archive metadata once on the first search, filter, or scroll that needs more photos. Multiple selected tags must all match; text search recognizes both languages.
 - Define developer experiments in `src/data/labs.ts`; their routes are generated from the project slug.
 - Reuse values from `tokens.css` when styling components. `pnpm check:tokens` rejects color literals, undefined variables, and un-tokenized typography or elevation values in project styles.
 
