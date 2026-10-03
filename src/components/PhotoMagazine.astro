@@ -267,7 +267,6 @@ const pages = await Promise.all(
       let pinchStartScale = minimumScale;
       let baseBookWidth = 0;
       let turnFrame: number | undefined;
-      let lastTurnAt = Number.NEGATIVE_INFINITY;
       let turnSequence = 0;
 
       type TurnDirection = 'next' | 'previous';
@@ -284,10 +283,12 @@ const pages = await Promise.all(
         direction: TurnDirection;
         sequence: number;
         progress: number;
+        startedAt: number;
         updatedAt: number;
         duration: number;
       };
       const activeTurns: ActiveTurn[] = [];
+      const turnBuffer: Array<{ fromIndex: number; toIndex: number }> = [];
 
       const normalizeIndex = (requestedIndex: number) => {
         const clampedIndex = Math.max(0, Math.min(lastIndex, requestedIndex));
@@ -774,6 +775,7 @@ const pages = await Promise.all(
         turnFrame = undefined;
         activeTurns.forEach((turn) => turn.layer.remove());
         activeTurns.length = 0;
+        turnBuffer.length = 0;
         settledIndex = currentIndex;
         magazine.classList.remove('is-turning');
       };
@@ -794,7 +796,10 @@ const pages = await Promise.all(
         }
 
         const positions = positionsFor(visible);
-        const latestTurn = activeTurns.at(-1);
+        const bufferedTurn = turnBuffer.at(-1);
+        const latestTurn = bufferedTurn
+          ? { direction: bufferedTurn.toIndex > bufferedTurn.fromIndex ? 'next' : 'previous' }
+          : activeTurns.at(-1);
         if (latestTurn) {
           // The receiving side stays on the last landed sheet; the other side
           // reveals the newest destination beneath the moving sheets.
@@ -823,13 +828,15 @@ const pages = await Promise.all(
       };
 
       const advanceTurn = (turn: ActiveTurn, now: number) => {
-        turn.progress = Math.min(1, turn.progress + Math.max(0, now - turn.updatedAt) / turn.duration);
+        if (now <= turn.updatedAt) return;
+        turn.progress = Math.min(1, turn.progress + (now - turn.updatedAt) / turn.duration);
         turn.updatedAt = now;
       };
 
       const drawTurns = (now: number) => {
         turnFrame = undefined;
         if (signal.aborted) return;
+        flushTurnBuffer(now);
         // Measure once before writing any sheet styles, even during rapid flipping.
         const pageWidth = book.clientWidth / 2;
         const pageHeight = book.clientHeight;
@@ -859,25 +866,7 @@ const pages = await Promise.all(
         if (landed) render();
       };
 
-      const startTurn = (fromIndex: number, toIndex: number) => {
-        const now = performance.now();
-        const styles = getComputedStyle(magazine);
-        const normalDuration = durationInMilliseconds(styles.getPropertyValue('--dur-page-turn'), 720);
-        const minimumDuration = durationInMilliseconds(styles.getPropertyValue('--dur-short'), 220);
-        const cadence = now - lastTurnAt;
-        const duration = cadence < normalDuration
-          ? Math.max(minimumDuration, Math.min(normalDuration, cadence * 1.5))
-          : normalDuration;
-        lastTurnAt = now;
-        activeTurns.forEach((turn) => {
-          advanceTurn(turn, now);
-          // Shorten remaining time without restarting or jumping the fold.
-          const remaining = (1 - turn.progress) * turn.duration;
-          if (remaining > duration * 0.75) {
-            turn.duration = duration * 0.75 / (1 - turn.progress);
-          }
-        });
-
+      const startTurn = (fromIndex: number, toIndex: number, startedAt: number, duration: number) => {
         const direction = toIndex > fromIndex ? 'next' : 'previous';
         const fromIndices = visibleIndices(fromIndex);
         const toIndices = visibleIndices(toIndex);
@@ -898,12 +887,34 @@ const pages = await Promise.all(
         book.append(layer);
         const turn: ActiveTurn = {
           ...surfaces, toIndex, direction, sequence: ++turnSequence,
-          progress: 0, updatedAt: now, duration,
+          progress: 0, startedAt, updatedAt: startedAt, duration,
         };
         activeTurns.push(turn);
-        magazine.classList.add('is-turning');
-        drawSoftTurn(turn, 0, direction, book.clientWidth / 2, book.clientHeight);
-        if (turnFrame === undefined) turnFrame = requestAnimationFrame(drawTurns);
+      };
+
+      const flushTurnBuffer = (now: number) => {
+        if (turnBuffer.length === 0) return;
+        const styles = getComputedStyle(magazine);
+        const normalDuration = durationInMilliseconds(styles.getPropertyValue('--dur-page-turn'), 720);
+        const minimumDuration = durationInMilliseconds(styles.getPropertyValue('--dur-long'), 420);
+        const fanDuration = durationInMilliseconds(styles.getPropertyValue('--dur-micro'), 120);
+        const sheetCount = activeTurns.length + turnBuffer.length;
+        const duration = Math.max(minimumDuration, normalDuration / (1 + (sheetCount - 1) * 0.2));
+        const spacing = fanDuration / Math.max(3, turnBuffer.length);
+
+        activeTurns.forEach((turn) => {
+          advanceTurn(turn, now);
+          // Speed up the whole stack without rushing older sheets to the end.
+          // Their progress stays ahead of the newer sheets throughout the turn.
+          turn.duration = Math.min(turn.duration, duration);
+        });
+
+        const requests = turnBuffer.splice(0);
+        requests.forEach(({ fromIndex, toIndex }) => {
+          const previousTurn = activeTurns.at(-1);
+          const startedAt = Math.max(now, previousTurn ? previousTurn.startedAt + spacing : now);
+          startTurn(fromIndex, toIndex, startedAt, duration);
+        });
       };
 
       reducedMotion.addEventListener('change', () => {
@@ -920,7 +931,11 @@ const pages = await Promise.all(
         resetZoom();
         currentIndex = nextIndex;
         if (reducedMotion.matches) clearTurns();
-        else startTurn(fromIndex, nextIndex);
+        else {
+          turnBuffer.push({ fromIndex, toIndex: nextIndex });
+          magazine.classList.add('is-turning');
+          if (turnFrame === undefined) turnFrame = requestAnimationFrame(drawTurns);
+        }
         render();
       };
 
