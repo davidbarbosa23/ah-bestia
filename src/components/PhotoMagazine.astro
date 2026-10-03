@@ -328,7 +328,7 @@ const pages = await Promise.all(
         clampPosition();
         const centerOffsetX = (viewport.clientWidth - book.offsetWidth) / 2 - book.offsetLeft;
         const centerOffsetY = (viewport.clientHeight - book.offsetHeight) / 2 - book.offsetTop;
-        book.style.transform = `translate3d(${centerOffsetX + translateX}px, ${centerOffsetY + translateY}px, 0)`;
+        book.style.transform = `translate(${centerOffsetX + translateX}px, ${centerOffsetY + translateY}px)`;
         zoomReset.textContent = `${Math.round(scale * 100)}%`;
         zoomOut.disabled = scale <= minimumScale;
         zoomIn.disabled = scale >= maximumScale;
@@ -369,17 +369,34 @@ const pages = await Promise.all(
         return decodeImage(image);
       };
 
+      const expandedLoads = new WeakMap<HTMLImageElement, Promise<void>>();
+
       const loadExpandedPage = (index: number) => {
         const image = pages[index]?.querySelector<HTMLImageElement>('[data-magazine-image]');
         const source = image?.dataset.expandedSrc;
         if (!image || !source) return Promise.resolve();
-        if (image.dataset.expandedLoaded !== 'true') {
+        if (image.dataset.expandedLoaded === 'true') return decodeImage(image);
+        const pending = expandedLoads.get(image);
+        if (pending) return pending;
+
+        const expanded = new Image();
+        expanded.decoding = 'async';
+        expanded.src = source;
+        const ready = expanded.decode().then(() => {
+          if (signal.aborted || !isFullscreen()) return;
+          // Keep the displayed image intact until its fullscreen replacement
+          // is decoded, then update both source attributes in the same frame.
           image.loading = 'eager';
-          image.removeAttribute('srcset');
           image.src = source;
+          image.removeAttribute('srcset');
           image.dataset.expandedLoaded = 'true';
-        }
-        return decodeImage(image);
+        }).catch(() => {
+          // A failed upgrade must leave the already visible photograph intact.
+        }).finally(() => {
+          expandedLoads.delete(image);
+        });
+        expandedLoads.set(image, ready);
+        return ready;
       };
 
       const preloadAround = (indices: number[]) => {
@@ -397,6 +414,18 @@ const pages = await Promise.all(
         const nextStart = normalizeIndex(lastVisible + 1);
         if (nextStart <= lastVisible) return;
         visibleIndices(nextStart).forEach((index) => void loadExpandedPage(index));
+      };
+
+      const restorePageSources = () => {
+        pages.forEach((page) => {
+          const image = page.querySelector<HTMLImageElement>('[data-magazine-image]');
+          if (!image || image.dataset.expandedLoaded !== 'true') return;
+          // Fullscreen textures must not remain the source for subsequent
+          // inline turns. The browser can reuse the responsive images in cache.
+          image.srcset = image.dataset.srcset ?? '';
+          image.src = image.dataset.src ?? '';
+          delete image.dataset.expandedLoaded;
+        });
       };
 
       type PagePosition = 'left' | 'right' | 'single';
@@ -448,10 +477,17 @@ const pages = await Promise.all(
         if (!page || !photo) return;
         delete surface.dataset.empty;
         const copy = photo.cloneNode(true) as HTMLElement;
+        const sourceImage = photo.querySelector<HTMLImageElement>('img');
         const image = copy.querySelector<HTMLImageElement>('img');
         if (image) {
           image.alt = '';
           image.loading = 'eager';
+          // Reuse the displayed bitmap throughout the turn. In fullscreen an
+          // async clone can paint blank while its large image is decoded again.
+          image.decoding = 'sync';
+          image.removeAttribute('srcset');
+          image.removeAttribute('sizes');
+          image.src = sourceImage?.currentSrc || sourceImage?.src || image.src;
         }
         surface.replaceChildren(copy);
         surface.dataset.fit = page.dataset.fit ?? 'cover';
@@ -692,7 +728,7 @@ const pages = await Promise.all(
           ? `linear-gradient(to right, rgb(0 0 0 / ${opacity}), transparent)`
           : `linear-gradient(to left, rgb(0 0 0 / ${opacity}), transparent)`;
         turnShadow.style.transformOrigin = `${outerTranslate}px 100px`;
-        turnShadow.style.transform = `translate3d(${globalPosition.x - outerTranslate}px, ${globalPosition.y - 100}px, 0) rotate(${shadowAngle}rad)`;
+        turnShadow.style.transform = `translate(${globalPosition.x - outerTranslate}px, ${globalPosition.y - 100}px) rotate(${shadowAngle}rad)`;
         turnShadow.style.clipPath = shadowClipPath(
           outerArea,
           start,
@@ -716,7 +752,7 @@ const pages = await Promise.all(
           ? `linear-gradient(to left, rgb(0 0 0 / ${opacity}) 5%, rgb(0 0 0 / 0.05) 15%, rgb(0 0 0 / ${opacity}) 35%, transparent 100%)`
           : `linear-gradient(to right, rgb(0 0 0 / ${opacity}) 5%, rgb(0 0 0 / 0.05) 15%, rgb(0 0 0 / ${opacity}) 35%, transparent 100%)`;
         turnInnerShadow.style.transformOrigin = `${innerTranslate}px 100px`;
-        turnInnerShadow.style.transform = `translate3d(${globalPosition.x - innerTranslate}px, ${globalPosition.y - 100}px, 0) rotate(${shadowAngle}rad)`;
+        turnInnerShadow.style.transform = `translate(${globalPosition.x - innerTranslate}px, ${globalPosition.y - 100}px) rotate(${shadowAngle}rad)`;
         turnInnerShadow.style.clipPath = shadowClipPath(
           turnedArea,
           start,
@@ -746,7 +782,7 @@ const pages = await Promise.all(
         const pagePosition = direction === 'next' ? fold.rect.topLeft : fold.rect.topRight;
         const pageAngle = direction === 'next' ? -fold.angle : fold.angle;
         const globalPagePosition = toBookPoint(pagePosition, direction, pageWidth);
-        turnPage.style.transform = `translate3d(${globalPagePosition.x}px, ${globalPagePosition.y}px, 0) rotate(${pageAngle}rad)`;
+        turnPage.style.transform = `translate(${globalPagePosition.x}px, ${globalPagePosition.y}px) rotate(${pageAngle}rad)`;
         turnPage.style.clipPath = paperClipPath(
           fold.flippingArea,
           pagePosition,
@@ -758,7 +794,7 @@ const pages = await Promise.all(
           ? { x: 0, y: 0 }
           : { x: pageWidth, y: 0 };
         const globalBottomPosition = toBookPoint(bottomPosition, direction, pageWidth);
-        turnBottom.style.transform = `translate3d(${globalBottomPosition.x}px, ${globalBottomPosition.y}px, 0)`;
+        turnBottom.style.transform = `translate(${globalBottomPosition.x}px, ${globalBottomPosition.y}px)`;
         turnBottom.style.clipPath = paperClipPath(
           fold.bottomArea,
           bottomPosition,
@@ -768,6 +804,15 @@ const pages = await Promise.all(
         );
 
         drawPaperShadows(surfaces, fold, direction, pageWidth, pageHeight);
+      };
+
+      const redrawTurns = () => {
+        if (activeTurns.length === 0) return;
+        const pageWidth = book.clientWidth / 2;
+        const pageHeight = book.clientHeight;
+        activeTurns.forEach((turn) => {
+          drawSoftTurn(turn, turn.progress, turn.direction, pageWidth, pageHeight);
+        });
       };
 
       const clearTurns = () => {
@@ -785,7 +830,7 @@ const pages = await Promise.all(
         next.disabled = visibleIndices(currentIndex).at(-1) === lastIndex;
       };
 
-      const render = () => {
+      const render = (updateVisuals = true) => {
         currentIndex = normalizeIndex(currentIndex);
         const visible = visibleIndices(currentIndex);
         const visibleSet = new Set(visible);
@@ -811,7 +856,7 @@ const pages = await Promise.all(
             if (position === receivingSide) positions.set(index, position);
           });
         }
-        setVisualPages(positions);
+        if (updateVisuals) setVisualPages(positions);
         pages.forEach((page, index) => {
           const active = visibleSet.has(index);
           page.setAttribute('aria-hidden', String(!active));
@@ -836,6 +881,7 @@ const pages = await Promise.all(
       const drawTurns = (now: number) => {
         turnFrame = undefined;
         if (signal.aborted) return;
+        const started = turnBuffer.length > 0;
         flushTurnBuffer(now);
         // Measure once before writing any sheet styles, even during rapid flipping.
         const pageWidth = book.clientWidth / 2;
@@ -863,7 +909,9 @@ const pages = await Promise.all(
           magazine.classList.remove('is-turning');
           settledIndex = currentIndex;
         }
-        if (landed) render();
+        // Replace the static outgoing page only after its clipped turn surface
+        // has been mounted and drawn, so both changes reach the same paint.
+        if (landed || started) render();
       };
 
       const startTurn = (fromIndex: number, toIndex: number, startedAt: number, duration: number) => {
@@ -936,7 +984,7 @@ const pages = await Promise.all(
           magazine.classList.add('is-turning');
           if (turnFrame === undefined) turnFrame = requestAnimationFrame(drawTurns);
         }
-        render();
+        render(reducedMotion.matches);
       };
 
       const goPrevious = () => goTo(currentIndex > 1 ? currentIndex - 2 : currentIndex - 1);
@@ -956,10 +1004,11 @@ const pages = await Promise.all(
         magazine.classList.remove('is-dragging');
         if (active) {
           render();
-          requestAnimationFrame(renderZoom);
         } else {
-          resetZoom();
+          restorePageSources();
         }
+        resetZoom();
+        redrawTurns();
       };
 
       const enterFallbackFullscreen = () => {
@@ -1120,6 +1169,7 @@ const pages = await Promise.all(
         book.style.removeProperty('width');
         baseBookWidth = book.offsetWidth;
         renderZoom();
+        redrawTurns();
       };
 
       viewport.addEventListener('touchend', finishPinch, { signal });
@@ -1173,6 +1223,10 @@ const pages = await Promise.all(
     outline: none;
   }
 
+  .magazine::backdrop {
+    background: var(--color-magazine-canvas);
+  }
+
   .magazine:focus-visible {
     outline: var(--outline-focus) solid var(--color-focus);
     outline-offset: var(--outline-offset-focus);
@@ -1183,7 +1237,6 @@ const pages = await Promise.all(
     padding: var(--space-lg) calc(var(--size-control) + var(--space-sm));
     display: grid;
     place-items: center;
-    perspective: 1600px;
     overflow: hidden;
   }
 
@@ -1192,8 +1245,8 @@ const pages = await Promise.all(
     width: min(100%, 72rem, var(--magazine-spread-max-by-height));
     aspect-ratio: var(--magazine-spread-ratio);
     touch-action: pan-y;
-    transform-style: preserve-3d;
-    transition: transform var(--dur-micro) var(--ease-out);
+    /* The curl uses 2D geometry; keep every sheet in one ordered paint stack. */
+    isolation: isolate;
   }
 
   .magazine__pages {
@@ -1224,7 +1277,6 @@ const pages = await Promise.all(
     height: 100%;
     background: var(--color-magazine-page);
     overflow: hidden;
-    will-change: transform, clip-path;
   }
 
   .magazine__turn-bottom {
@@ -1282,7 +1334,6 @@ const pages = await Promise.all(
     inset-inline-start: 0;
     z-index: var(--layer-tooltip);
     pointer-events: none;
-    will-change: transform, clip-path, opacity;
   }
 
   .magazine__page {
@@ -1294,7 +1345,6 @@ const pages = await Promise.all(
     opacity: 0;
     overflow: hidden;
     pointer-events: none;
-    transform-style: preserve-3d;
     visibility: hidden;
   }
 
@@ -1338,7 +1388,7 @@ const pages = await Promise.all(
       color-mix(in oklch, var(--color-magazine-ink) 9%, transparent) 38%,
       transparent
     );
-    opacity: 0.7;
+    opacity: 0.3;
   }
 
   .magazine__page[data-position='right']::after {
@@ -1349,7 +1399,7 @@ const pages = await Promise.all(
       color-mix(in oklch, var(--color-magazine-ink) 9%, transparent) 38%,
       transparent
     );
-    opacity: 0.7;
+    opacity: 0.3;
   }
 
   .magazine__page[data-position='single'] {

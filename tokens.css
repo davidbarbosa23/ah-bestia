@@ -33,7 +33,7 @@
   --color-magazine-canvas: oklch(90.5% 0.014 82);
   --color-magazine-surface: oklch(97% 0.008 82 / 0.88);
   --color-magazine-page: oklch(94% 0.012 82);
-  --color-magazine-ink: oklch(18% 0.014 250);
+  --color-magazine-ink: oklch(65% 0 0);
   --color-magazine-ink-muted: oklch(36% 0.016 250);
   --color-magazine-ink-subtle: oklch(45% 0.018 250);
   --color-magazine-rule: oklch(18% 0.014 250 / 0.22);
