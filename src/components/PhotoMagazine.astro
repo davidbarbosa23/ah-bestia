@@ -253,6 +253,8 @@ const pages = await Promise.all(
       const minimumScale = 1;
       const maximumScale = 3;
       let currentIndex = 0;
+      let requestedIndex = 0;
+      const pendingTurns: number[] = [];
       let pointerId: number | undefined;
       let pointerStartX = 0;
       let pointerStartY = 0;
@@ -823,6 +825,11 @@ const pages = await Promise.all(
         });
       };
 
+      const updateNavigation = () => {
+        previous.disabled = requestedIndex === 0;
+        next.disabled = visibleIndices(requestedIndex).at(-1) === lastIndex;
+      };
+
       const render = () => {
         currentIndex = normalizeIndex(currentIndex);
         const visible = visibleIndices(currentIndex);
@@ -841,8 +848,7 @@ const pages = await Promise.all(
         });
 
         const endIndex = visible.at(-1) ?? currentIndex;
-        previous.disabled = currentIndex === 0;
-        next.disabled = endIndex === lastIndex;
+        updateNavigation();
         progress.value = endIndex + 1;
         count.value = visible.length === 1
           ? `${pageLabel} ${currentIndex + 1} ${ofLabel} ${pages.length}`
@@ -850,28 +856,41 @@ const pages = await Promise.all(
 
       };
 
-      const goTo = async (requestedIndex: number) => {
-        const nextIndex = normalizeIndex(requestedIndex);
-        if (nextIndex === currentIndex || isTurning) return;
-        const direction = nextIndex > currentIndex ? 'next' : 'previous';
-        const fromIndices = visibleIndices(currentIndex);
-        const toIndices = visibleIndices(nextIndex);
+      const processTurns = async () => {
+        if (isTurning || signal.aborted) return;
         isTurning = true;
-        previous.disabled = true;
-        next.disabled = true;
-        resetZoom();
-        if (!reducedMotion.matches) {
-          await animateTurn(fromIndices, toIndices, direction);
+        try {
+          while (pendingTurns.length > 0 && !signal.aborted) {
+            const nextIndex = pendingTurns.shift()!;
+            const direction = nextIndex > currentIndex ? 'next' : 'previous';
+            const fromIndices = visibleIndices(currentIndex);
+            const toIndices = visibleIndices(nextIndex);
+            resetZoom();
+            if (!reducedMotion.matches) {
+              await animateTurn(fromIndices, toIndices, direction);
+            }
+            if (signal.aborted) return;
+            currentIndex = nextIndex;
+            clearTurnLayer();
+            render();
+          }
+        } finally {
+          isTurning = false;
         }
-        if (signal.aborted) return;
-        currentIndex = nextIndex;
-        clearTurnLayer();
-        render();
-        isTurning = false;
       };
 
-      const goPrevious = () => goTo(currentIndex > 1 ? currentIndex - 2 : currentIndex - 1);
-      const goNext = () => goTo(currentIndex > 0 ? currentIndex + 2 : currentIndex + 1);
+      const goTo = (index: number) => {
+        const nextIndex = normalizeIndex(index);
+        if (nextIndex === requestedIndex || signal.aborted) return;
+        // Keep every accepted request, including reversals, in click order.
+        requestedIndex = nextIndex;
+        pendingTurns.push(nextIndex);
+        updateNavigation();
+        void processTurns();
+      };
+
+      const goPrevious = () => goTo(requestedIndex > 1 ? requestedIndex - 2 : requestedIndex - 1);
+      const goNext = () => goTo(requestedIndex > 0 ? requestedIndex + 2 : requestedIndex + 1);
 
       const syncFullscreenState = () => {
         const active = isFullscreen();
@@ -1081,6 +1100,7 @@ const pages = await Promise.all(
 
         document.addEventListener('fullscreenchange', syncFullscreenState, { signal });
         signal.addEventListener('abort', () => {
+          pendingTurns.length = 0;
           if (turnFrame !== undefined) cancelAnimationFrame(turnFrame);
           resolveTurn?.();
           resolveTurn = undefined;
