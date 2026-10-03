@@ -879,7 +879,7 @@ const pages = await Promise.all(
         progress.disabled = pages.length < 2;
         progress.setAttribute('aria-valuetext', `${pageLabel} ${progress.value} ${ofLabel} ${pages.length}`);
         const percentage = lastIndex > 0 ? (progress.valueAsNumber - 1) / lastIndex * 100 : 0;
-        progress.style.backgroundImage = `linear-gradient(to right, var(--color-accent) ${percentage}%, var(--color-magazine-rule) ${percentage}%)`;
+        progress.style.backgroundSize = `${percentage}% var(--space-3xs), 100% var(--space-3xs)`;
         count.value = visible.length === 1
           ? `${pageLabel} ${currentIndex + 1} ${ofLabel} ${pages.length}`
           : `${pagesLabel} ${currentIndex + 1}–${endIndex + 1} ${ofLabel} ${pages.length}`;
@@ -986,16 +986,15 @@ const pages = await Promise.all(
         }
       }, { signal });
 
-      const goTo = (index: number, animate = true) => {
+      const goTo = (index: number) => {
         const nextIndex = normalizeIndex(index);
-        if (!animate && !signal.aborted) {
-          if (nextIndex !== currentIndex) resetZoom();
-          currentIndex = nextIndex;
-          clearTurns();
-          render();
+        if (signal.aborted) return;
+        if (nextIndex === currentIndex) {
+          // Moving between the two pages of one spread still updates the
+          // slider, without interrupting a turn already in progress.
+          render(false);
           return;
         }
-        if (nextIndex === currentIndex || signal.aborted) return;
         const fromIndex = currentIndex;
         resetZoom();
         currentIndex = nextIndex;
@@ -1048,7 +1047,7 @@ const pages = await Promise.all(
 
       previous.addEventListener('click', () => void goPrevious(), { signal });
       next.addEventListener('click', () => void goNext(), { signal });
-      progress.addEventListener('input', () => goTo(progress.valueAsNumber - 1, false), { signal });
+      progress.addEventListener('input', () => goTo(progress.valueAsNumber - 1), { signal });
 
       magazine.addEventListener('keydown', (event) => {
         if (isFallbackExpanded() && event.key === 'Escape') {
@@ -1527,7 +1526,10 @@ const pages = await Promise.all(
     padding: 0;
     border: 0;
     appearance: none;
-    background: linear-gradient(var(--color-magazine-rule), var(--color-magazine-rule)) center / 100% var(--space-3xs) no-repeat;
+    background:
+      linear-gradient(var(--color-accent), var(--color-accent)) left center / 0% var(--space-3xs) no-repeat,
+      linear-gradient(var(--color-magazine-rule), var(--color-magazine-rule)) left center / 100% var(--space-3xs) no-repeat;
+    transition: background-size var(--dur-short) var(--ease-out);
     cursor: pointer;
     touch-action: pan-y;
   }
@@ -1806,6 +1808,7 @@ const pages = await Promise.all(
   @media (prefers-reduced-motion: reduce) {
     .magazine__book,
     .magazine__turn,
+    .magazine__progress,
     .magazine__turn-layer {
       transition: none;
     }
