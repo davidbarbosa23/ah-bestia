@@ -383,7 +383,7 @@ export interface UiCopy {
       page: string;
       pages: string;
       of: string;
-      progress: string;
+      goToPage: string;
       zoomControls: string;
       hint: string;
       compactHint: string;
@@ -484,7 +484,7 @@ export const ui = {
         page: 'Page',
         pages: 'Pages',
         of: 'of',
-        progress: 'Magazine reading progress',
+        goToPage: 'Go to page',
         zoomControls: 'Zoom controls',
         hint: 'Use the arrow keys or swipe to turn pages. In full screen, scroll or use + / - to zoom.',
         compactHint: 'Swipe or use ← / →.',
@@ -599,7 +599,7 @@ export const ui = {
         page: 'Página',
         pages: 'Páginas',
         of: 'de',
-        progress: 'Progreso de lectura de la revista',
+        goToPage: 'Ir a la página',
         zoomControls: 'Controles de zoom',
         hint: 'Usa las teclas de flecha o desliza para pasar las páginas. En pantalla completa, usa la rueda o + / - para ampliar.',
         compactHint: 'Desliza o usa ← / →.',

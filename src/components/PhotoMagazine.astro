@@ -150,13 +150,18 @@ const pages = await Promise.all(
     <output class="magazine__count" data-magazine-count aria-live="polite">
       {labels.magazine.page} 1 {labels.magazine.of} {pages.length}
     </output>
-    <progress
+    <input
       class="magazine__progress"
       data-magazine-progress
+      type="range"
+      min="1"
+      step="1"
       value="1"
       max={pages.length}
-      aria-label={labels.magazine.progress}
-    ></progress>
+      aria-label={labels.magazine.goToPage}
+      aria-valuetext={`${labels.magazine.page} 1 ${labels.magazine.of} ${pages.length}`}
+      disabled
+    />
     <div
       class="magazine__zoom-controls"
       data-magazine-zoom-controls
@@ -220,7 +225,7 @@ const pages = await Promise.all(
       const previous = magazine.querySelector<HTMLButtonElement>('[data-magazine-previous]');
       const next = magazine.querySelector<HTMLButtonElement>('[data-magazine-next]');
       const count = magazine.querySelector<HTMLOutputElement>('[data-magazine-count]');
-      const progress = magazine.querySelector<HTMLProgressElement>('[data-magazine-progress]');
+      const progress = magazine.querySelector<HTMLInputElement>('[data-magazine-progress]');
       const fullscreen = magazine.querySelector<HTMLButtonElement>('[data-magazine-fullscreen]');
       const fullscreenText = magazine.querySelector<HTMLElement>('[data-magazine-fullscreen-text]');
       const zoomControls = magazine.querySelector<HTMLElement>('[data-magazine-zoom-controls]');
@@ -492,6 +497,9 @@ const pages = await Promise.all(
         surface.replaceChildren(copy);
         surface.dataset.fit = page.dataset.fit ?? 'cover';
         surface.dataset.tone = page.dataset.tone ?? 'ink';
+        // Match the static page's spine shading before and after the handoff.
+        surface.dataset.position = index === 0 || (index !== lastIndex && index % 2 === 0)
+          ? 'right' : 'left';
         surface.style.setProperty(
           '--magazine-photo-position',
           page.style.getPropertyValue('--magazine-photo-position'),
@@ -793,8 +801,6 @@ const pages = await Promise.all(
         const bottomPosition = direction === 'next'
           ? { x: 0, y: 0 }
           : { x: pageWidth, y: 0 };
-        const globalBottomPosition = toBookPoint(bottomPosition, direction, pageWidth);
-        turnBottom.style.transform = `translate(${globalBottomPosition.x}px, ${globalBottomPosition.y}px)`;
         turnBottom.style.clipPath = paperClipPath(
           fold.bottomArea,
           bottomPosition,
@@ -808,8 +814,8 @@ const pages = await Promise.all(
 
       const redrawTurns = () => {
         if (activeTurns.length === 0) return;
-        const pageWidth = book.clientWidth / 2;
-        const pageHeight = book.clientHeight;
+        const { width, height: pageHeight } = book.getBoundingClientRect();
+        const pageWidth = width / 2;
         activeTurns.forEach((turn) => {
           drawSoftTurn(turn, turn.progress, turn.direction, pageWidth, pageHeight);
         });
@@ -865,7 +871,15 @@ const pages = await Promise.all(
 
         const endIndex = visible.at(-1) ?? currentIndex;
         updateNavigation();
-        progress.value = endIndex + 1;
+        // Preserve the chosen page within a spread so native arrow keys can
+        // reach both pages without snapping the slider to the spread's end.
+        if (!visible.includes(progress.valueAsNumber - 1)) {
+          progress.value = String(endIndex + 1);
+        }
+        progress.disabled = pages.length < 2;
+        progress.setAttribute('aria-valuetext', `${pageLabel} ${progress.value} ${ofLabel} ${pages.length}`);
+        const percentage = lastIndex > 0 ? (progress.valueAsNumber - 1) / lastIndex * 100 : 0;
+        progress.style.backgroundImage = `linear-gradient(to right, var(--color-accent) ${percentage}%, var(--color-magazine-rule) ${percentage}%)`;
         count.value = visible.length === 1
           ? `${pageLabel} ${currentIndex + 1} ${ofLabel} ${pages.length}`
           : `${pagesLabel} ${currentIndex + 1}–${endIndex + 1} ${ofLabel} ${pages.length}`;
@@ -882,10 +896,10 @@ const pages = await Promise.all(
         turnFrame = undefined;
         if (signal.aborted) return;
         const started = turnBuffer.length > 0;
-        flushTurnBuffer(now);
         // Measure once before writing any sheet styles, even during rapid flipping.
-        const pageWidth = book.clientWidth / 2;
-        const pageHeight = book.clientHeight;
+        const { width, height: pageHeight } = book.getBoundingClientRect();
+        const pageWidth = width / 2;
+        flushTurnBuffer(now);
         let landed = false;
         activeTurns.forEach((turn) => {
           advanceTurn(turn, now);
@@ -972,8 +986,15 @@ const pages = await Promise.all(
         }
       }, { signal });
 
-      const goTo = (index: number) => {
+      const goTo = (index: number, animate = true) => {
         const nextIndex = normalizeIndex(index);
+        if (!animate && !signal.aborted) {
+          if (nextIndex !== currentIndex) resetZoom();
+          currentIndex = nextIndex;
+          clearTurns();
+          render();
+          return;
+        }
         if (nextIndex === currentIndex || signal.aborted) return;
         const fromIndex = currentIndex;
         resetZoom();
@@ -1027,6 +1048,7 @@ const pages = await Promise.all(
 
       previous.addEventListener('click', () => void goPrevious(), { signal });
       next.addEventListener('click', () => void goNext(), { signal });
+      progress.addEventListener('input', () => goTo(progress.valueAsNumber - 1, false), { signal });
 
       magazine.addEventListener('keydown', (event) => {
         if (isFallbackExpanded() && event.key === 'Escape') {
@@ -1034,6 +1056,8 @@ const pages = await Promise.all(
           exitFallbackFullscreen();
           return;
         }
+        // Let the native slider handle arrows, Home, End and Page Up/Down.
+        if (event.target === progress) return;
         if (isFullscreen() && (event.key === '+' || event.key === '=')) {
           event.preventDefault();
           setScale(scale + 0.25);
@@ -1283,6 +1307,12 @@ const pages = await Promise.all(
     z-index: var(--layer-content);
   }
 
+  .magazine__turn-layer[data-direction='next'] .magazine__turn-bottom {
+    /* Use the same layout position as the static right page. A fractional
+       transform can resample the photograph when the turn takes over. */
+    inset-inline-start: 50%;
+  }
+
   .magazine__turn-page {
     z-index: var(--layer-overlay);
     transform-origin: 0 0;
@@ -1370,8 +1400,8 @@ const pages = await Promise.all(
     transform-origin: left center;
   }
 
-  .magazine__page[data-position='left']::after,
-  .magazine__page[data-position='right']::after {
+  :is(.magazine__page, .magazine__turn-bottom, .magazine__turn-face)[data-position='left']::after,
+  :is(.magazine__page, .magazine__turn-bottom, .magazine__turn-face)[data-position='right']::after {
     position: absolute;
     inset-block: 0;
     z-index: var(--layer-content);
@@ -1380,7 +1410,7 @@ const pages = await Promise.all(
     pointer-events: none;
   }
 
-  .magazine__page[data-position='left']::after {
+  :is(.magazine__page, .magazine__turn-bottom, .magazine__turn-face)[data-position='left']::after {
     inset-inline-end: 0;
     background: linear-gradient(
       to left,
@@ -1391,7 +1421,7 @@ const pages = await Promise.all(
     opacity: 0.3;
   }
 
-  .magazine__page[data-position='right']::after {
+  :is(.magazine__page, .magazine__turn-bottom, .magazine__turn-face)[data-position='right']::after {
     inset-inline-start: 0;
     background: linear-gradient(
       to right,
@@ -1491,23 +1521,47 @@ const pages = await Promise.all(
 
   .magazine__progress {
     width: 100%;
-    height: var(--space-3xs);
+    min-width: 0;
+    height: var(--size-control);
+    margin: 0;
+    padding: 0;
     border: 0;
-    border-radius: var(--radius-round);
-    overflow: hidden;
     appearance: none;
-    background: var(--color-magazine-rule);
+    background: linear-gradient(var(--color-magazine-rule), var(--color-magazine-rule)) center / 100% var(--space-3xs) no-repeat;
+    cursor: pointer;
+    touch-action: pan-y;
   }
 
-  .magazine__progress::-webkit-progress-bar {
-    background: var(--color-magazine-rule);
+  .magazine__progress:focus-visible {
+    outline: var(--outline-control) solid var(--color-accent);
+    outline-offset: var(--outline-offset-control);
   }
 
-  .magazine__progress::-webkit-progress-value {
+  .magazine__progress::-webkit-slider-runnable-track {
+    height: var(--space-3xs);
+    background: transparent;
+  }
+
+  .magazine__progress::-webkit-slider-thumb {
+    width: var(--space-md);
+    height: var(--space-md);
+    margin-top: calc((var(--space-3xs) - var(--space-md)) / 2);
+    border: var(--rule-hair) solid var(--color-magazine-surface);
+    border-radius: var(--radius-round);
+    appearance: none;
     background: var(--color-accent);
   }
 
-  .magazine__progress::-moz-progress-bar {
+  .magazine__progress::-moz-range-track {
+    height: var(--space-3xs);
+    background: transparent;
+  }
+
+  .magazine__progress::-moz-range-thumb {
+    width: var(--space-md);
+    height: var(--space-md);
+    border: var(--rule-hair) solid var(--color-magazine-surface);
+    border-radius: var(--radius-round);
     background: var(--color-accent);
   }
 
@@ -1719,7 +1773,11 @@ const pages = await Promise.all(
     }
 
     .magazine.is-fullscreen .magazine__progress {
-      display: none;
+      position: absolute;
+      inset-block-end: calc(max(var(--space-md), env(safe-area-inset-bottom)) + var(--space-lg));
+      inset-inline: var(--space-md);
+      width: calc(100% - var(--space-md) * 2);
+      pointer-events: auto;
     }
 
     .magazine.is-fullscreen .magazine__turn {
