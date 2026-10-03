@@ -253,8 +253,7 @@ const pages = await Promise.all(
       const minimumScale = 1;
       const maximumScale = 3;
       let currentIndex = 0;
-      let requestedIndex = 0;
-      const pendingTurns: number[] = [];
+      let settledIndex = 0;
       let pointerId: number | undefined;
       let pointerStartX = 0;
       let pointerStartY = 0;
@@ -267,9 +266,28 @@ const pages = await Promise.all(
       let pinchStartDistance = 0;
       let pinchStartScale = minimumScale;
       let baseBookWidth = 0;
-      let isTurning = false;
       let turnFrame: number | undefined;
-      let resolveTurn: (() => void) | undefined;
+      let lastTurnAt = Number.NEGATIVE_INFINITY;
+      let turnSequence = 0;
+
+      type TurnDirection = 'next' | 'previous';
+      type TurnSurfaces = {
+        layer: HTMLElement;
+        turnPage: HTMLElement;
+        turnFront: HTMLElement;
+        turnBottom: HTMLElement;
+        turnShadow: HTMLElement;
+        turnInnerShadow: HTMLElement;
+      };
+      type ActiveTurn = TurnSurfaces & {
+        toIndex: number;
+        direction: TurnDirection;
+        sequence: number;
+        progress: number;
+        updatedAt: number;
+        duration: number;
+      };
+      const activeTurns: ActiveTurn[] = [];
 
       const normalizeIndex = (requestedIndex: number) => {
         const clampedIndex = Math.max(0, Math.min(lastIndex, requestedIndex));
@@ -443,14 +461,6 @@ const pages = await Promise.all(
         );
       };
 
-      const clearTurnSurface = (surface: HTMLElement) => {
-        surface.replaceChildren();
-        delete surface.dataset.fit;
-        delete surface.dataset.tone;
-        delete surface.dataset.empty;
-        surface.style.removeProperty('--magazine-photo-position');
-      };
-
       const easePageTurn = (progress: number) => progress * progress * (3 - 2 * progress);
 
       const distanceBetween = (one: PaperPoint | null, two: PaperPoint | null) => {
@@ -603,6 +613,7 @@ const pages = await Promise.all(
         position: PaperPoint,
         angle: number,
         direction: 'next' | 'previous',
+        exclude = false,
       ) => {
         const coordinates = area.flatMap((point) => {
           if (!point) return [];
@@ -612,6 +623,11 @@ const pages = await Promise.all(
           const rotated = rotatePaperPoint(relative, { x: 0, y: 0 }, angle);
           return [`${rotated.x.toFixed(2)}px ${rotated.y.toFixed(2)}px`];
         });
+        if (exclude && coordinates.length > 0) {
+          // Keep the outgoing sheet everywhere except the area peeled back by its fold.
+          const first = coordinates[0];
+          return `polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, ${first}, ${coordinates.join(', ')}, ${first}, 0 0)`;
+        }
         return `polygon(${coordinates.join(', ')})`;
       };
 
@@ -637,11 +653,13 @@ const pages = await Promise.all(
       };
 
       const drawPaperShadows = (
+        surfaces: TurnSurfaces,
         fold: PaperFold,
         direction: 'next' | 'previous',
         pageWidth: number,
         pageHeight: number,
       ) => {
+        const { turnShadow, turnInnerShadow } = surfaces;
         const start = fold.sideIntersect ?? fold.topIntersect;
         const end = fold.sideIntersect ? fold.bottomIntersect : fold.bottomIntersect;
         if (!start || !end) {
@@ -708,11 +726,13 @@ const pages = await Promise.all(
       };
 
       const drawSoftTurn = (
+        surfaces: TurnSurfaces,
         progress: number,
         direction: 'next' | 'previous',
         pageWidth: number,
         pageHeight: number,
       ) => {
+        const { turnPage, turnBottom } = surfaces;
         const margin = Math.min(pageHeight / 10, pageWidth * 0.16);
         const eased = easePageTurn(Math.min(progress, 0.999));
         const localPosition = {
@@ -743,91 +763,24 @@ const pages = await Promise.all(
           bottomPosition,
           0,
           direction,
+          true,
         );
 
-        drawPaperShadows(fold, direction, pageWidth, pageHeight);
+        drawPaperShadows(surfaces, fold, direction, pageWidth, pageHeight);
       };
 
-      const clearTurnLayer = () => {
-        turnLayer.hidden = true;
-        delete turnLayer.dataset.direction;
-        turnPage.removeAttribute('style');
-        turnBottom.removeAttribute('style');
-        turnShadow.removeAttribute('style');
-        turnInnerShadow.removeAttribute('style');
-        clearTurnSurface(turnFront);
-        clearTurnSurface(turnBottom);
+      const clearTurns = () => {
+        if (turnFrame !== undefined) cancelAnimationFrame(turnFrame);
+        turnFrame = undefined;
+        activeTurns.forEach((turn) => turn.layer.remove());
+        activeTurns.length = 0;
+        settledIndex = currentIndex;
         magazine.classList.remove('is-turning');
       };
 
-      const animateTurn = async (
-        fromIndices: number[],
-        toIndices: number[],
-        direction: 'next' | 'previous',
-      ) => {
-        const turningIndex = direction === 'next' ? toIndices[0] : toIndices.at(-1);
-        const bottomIndex = toIndices.length > 1
-          ? direction === 'next' ? toIndices.at(-1) : toIndices[0]
-          : undefined;
-        if (turningIndex === undefined) return;
-
-        const turnImagesReady = Promise.all(
-          [...new Set([...fromIndices, ...toIndices])].map(loadPage),
-        );
-        const loadBudget = durationInMilliseconds(
-          getComputedStyle(magazine).getPropertyValue('--dur-micro'),
-          120,
-        );
-        await Promise.race([
-          turnImagesReady,
-          new Promise<void>((resolve) => window.setTimeout(
-            resolve,
-            loadBudget,
-          )),
-        ]);
-        if (signal.aborted) return;
-
-        copyPageToSurface(turningIndex, turnFront);
-        if (bottomIndex !== undefined) {
-          copyPageToSurface(bottomIndex, turnBottom);
-        } else {
-          turnBottom.dataset.empty = 'true';
-        }
-        setVisualPages(positionsFor(fromIndices));
-
-        turnLayer.dataset.direction = direction;
-        turnLayer.hidden = false;
-        magazine.classList.add('is-turning');
-
-        const duration = durationInMilliseconds(
-          getComputedStyle(magazine).getPropertyValue('--dur-page-turn'),
-          720,
-        );
-
-        await new Promise<void>((resolve) => {
-          resolveTurn = resolve;
-          const startedAt = performance.now();
-
-          const drawFrame = (now: number) => {
-            const rawProgress = Math.min(1, (now - startedAt) / duration);
-            drawSoftTurn(rawProgress, direction, book.clientWidth / 2, book.clientHeight);
-
-            if (rawProgress < 1 && !signal.aborted) {
-              turnFrame = requestAnimationFrame(drawFrame);
-              return;
-            }
-            turnFrame = undefined;
-            resolveTurn = undefined;
-            resolve();
-          };
-
-          turnFrame = requestAnimationFrame(drawFrame);
-        });
-      };
-
       const updateNavigation = () => {
-        previous.disabled = requestedIndex === 0;
-        next.disabled = visibleIndices(requestedIndex).at(-1) === lastIndex;
+        previous.disabled = currentIndex === 0;
+        next.disabled = visibleIndices(currentIndex).at(-1) === lastIndex;
       };
 
       const render = () => {
@@ -840,7 +793,20 @@ const pages = await Promise.all(
           preloadNextExpandedTurn(visible);
         }
 
-        setVisualPages(positionsFor(visible));
+        const positions = positionsFor(visible);
+        const latestTurn = activeTurns.at(-1);
+        if (latestTurn) {
+          // The receiving side stays on the last landed sheet; the other side
+          // reveals the newest destination beneath the moving sheets.
+          const receivingSide = latestTurn.direction === 'next' ? 'left' : 'right';
+          positions.forEach((position, index) => {
+            if (position === receivingSide) positions.delete(index);
+          });
+          positionsFor(visibleIndices(settledIndex)).forEach((position, index) => {
+            if (position === receivingSide) positions.set(index, position);
+          });
+        }
+        setVisualPages(positions);
         pages.forEach((page, index) => {
           const active = visibleSet.has(index);
           page.setAttribute('aria-hidden', String(!active));
@@ -856,41 +822,110 @@ const pages = await Promise.all(
 
       };
 
-      const processTurns = async () => {
-        if (isTurning || signal.aborted) return;
-        isTurning = true;
-        try {
-          while (pendingTurns.length > 0 && !signal.aborted) {
-            const nextIndex = pendingTurns.shift()!;
-            const direction = nextIndex > currentIndex ? 'next' : 'previous';
-            const fromIndices = visibleIndices(currentIndex);
-            const toIndices = visibleIndices(nextIndex);
-            resetZoom();
-            if (!reducedMotion.matches) {
-              await animateTurn(fromIndices, toIndices, direction);
-            }
-            if (signal.aborted) return;
-            currentIndex = nextIndex;
-            clearTurnLayer();
-            render();
-          }
-        } finally {
-          isTurning = false;
-        }
+      const advanceTurn = (turn: ActiveTurn, now: number) => {
+        turn.progress = Math.min(1, turn.progress + Math.max(0, now - turn.updatedAt) / turn.duration);
+        turn.updatedAt = now;
       };
+
+      const drawTurns = (now: number) => {
+        turnFrame = undefined;
+        if (signal.aborted) return;
+        // Measure once before writing any sheet styles, even during rapid flipping.
+        const pageWidth = book.clientWidth / 2;
+        const pageHeight = book.clientHeight;
+        let landed = false;
+        activeTurns.forEach((turn) => {
+          advanceTurn(turn, now);
+          // Before crossing the spine, earlier sheets sit on top. After it,
+          // later sheets stack above the sheets that are landing.
+          const order = turn.progress < 0.5
+            ? turnSequence - turn.sequence + 1
+            : turnSequence + turn.sequence + 1;
+          turn.layer.style.zIndex = `calc(var(--layer-overlay) + ${order})`;
+          drawSoftTurn(turn, turn.progress, turn.direction, pageWidth, pageHeight);
+        });
+        while (activeTurns[0]?.progress === 1) {
+          const turn = activeTurns.shift()!;
+          settledIndex = turn.toIndex;
+          turn.layer.remove();
+          landed = true;
+        }
+        if (activeTurns.length > 0) {
+          turnFrame = requestAnimationFrame(drawTurns);
+        } else {
+          magazine.classList.remove('is-turning');
+          settledIndex = currentIndex;
+        }
+        if (landed) render();
+      };
+
+      const startTurn = (fromIndex: number, toIndex: number) => {
+        const now = performance.now();
+        const styles = getComputedStyle(magazine);
+        const normalDuration = durationInMilliseconds(styles.getPropertyValue('--dur-page-turn'), 720);
+        const minimumDuration = durationInMilliseconds(styles.getPropertyValue('--dur-short'), 220);
+        const cadence = now - lastTurnAt;
+        const duration = cadence < normalDuration
+          ? Math.max(minimumDuration, Math.min(normalDuration, cadence * 1.5))
+          : normalDuration;
+        lastTurnAt = now;
+        activeTurns.forEach((turn) => {
+          advanceTurn(turn, now);
+          // Shorten remaining time without restarting or jumping the fold.
+          const remaining = (1 - turn.progress) * turn.duration;
+          if (remaining > duration * 0.75) {
+            turn.duration = duration * 0.75 / (1 - turn.progress);
+          }
+        });
+
+        const direction = toIndex > fromIndex ? 'next' : 'previous';
+        const fromIndices = visibleIndices(fromIndex);
+        const toIndices = visibleIndices(toIndex);
+        [...new Set([...fromIndices, ...toIndices])].forEach((index) => void loadPage(index));
+        const layer = turnLayer.cloneNode(true) as HTMLElement;
+        const surfaces: TurnSurfaces = {
+          layer,
+          turnPage: layer.querySelector<HTMLElement>('[data-magazine-turn-page]')!,
+          turnFront: layer.querySelector<HTMLElement>('[data-magazine-turn-front]')!,
+          turnBottom: layer.querySelector<HTMLElement>('[data-magazine-turn-bottom]')!,
+          turnShadow: layer.querySelector<HTMLElement>('[data-magazine-turn-shadow]')!,
+          turnInnerShadow: layer.querySelector<HTMLElement>('[data-magazine-turn-inner-shadow]')!,
+        };
+        copyPageToSurface(direction === 'next' ? toIndices[0] : toIndices.at(-1)!, surfaces.turnFront);
+        copyPageToSurface(direction === 'next' ? fromIndices.at(-1)! : fromIndices[0], surfaces.turnBottom);
+        layer.dataset.direction = direction;
+        layer.hidden = false;
+        book.append(layer);
+        const turn: ActiveTurn = {
+          ...surfaces, toIndex, direction, sequence: ++turnSequence,
+          progress: 0, updatedAt: now, duration,
+        };
+        activeTurns.push(turn);
+        magazine.classList.add('is-turning');
+        drawSoftTurn(turn, 0, direction, book.clientWidth / 2, book.clientHeight);
+        if (turnFrame === undefined) turnFrame = requestAnimationFrame(drawTurns);
+      };
+
+      reducedMotion.addEventListener('change', () => {
+        if (reducedMotion.matches) {
+          clearTurns();
+          render();
+        }
+      }, { signal });
 
       const goTo = (index: number) => {
         const nextIndex = normalizeIndex(index);
-        if (nextIndex === requestedIndex || signal.aborted) return;
-        // Keep every accepted request, including reversals, in click order.
-        requestedIndex = nextIndex;
-        pendingTurns.push(nextIndex);
-        updateNavigation();
-        void processTurns();
+        if (nextIndex === currentIndex || signal.aborted) return;
+        const fromIndex = currentIndex;
+        resetZoom();
+        currentIndex = nextIndex;
+        if (reducedMotion.matches) clearTurns();
+        else startTurn(fromIndex, nextIndex);
+        render();
       };
 
-      const goPrevious = () => goTo(requestedIndex > 1 ? requestedIndex - 2 : requestedIndex - 1);
-      const goNext = () => goTo(requestedIndex > 0 ? requestedIndex + 2 : requestedIndex + 1);
+      const goPrevious = () => goTo(currentIndex > 1 ? currentIndex - 2 : currentIndex - 1);
+      const goNext = () => goTo(currentIndex > 0 ? currentIndex + 2 : currentIndex + 1);
 
       const syncFullscreenState = () => {
         const active = isFullscreen();
@@ -1099,16 +1134,13 @@ const pages = await Promise.all(
         }, { signal });
 
         document.addEventListener('fullscreenchange', syncFullscreenState, { signal });
-        signal.addEventListener('abort', () => {
-          pendingTurns.length = 0;
-          if (turnFrame !== undefined) cancelAnimationFrame(turnFrame);
-          resolveTurn?.();
-          resolveTurn = undefined;
-          clearTurnLayer();
-          magazine.classList.remove('is-expanded', 'is-fullscreen');
-          document.body.classList.remove('magazine-expanded');
-        }, { once: true });
       }
+
+      signal.addEventListener('abort', () => {
+        clearTurns();
+        magazine.classList.remove('is-expanded', 'is-fullscreen');
+        document.body.classList.remove('magazine-expanded');
+      }, { once: true });
 
       render();
     });
