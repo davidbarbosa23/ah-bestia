@@ -1,0 +1,122 @@
+---
+import { Image } from 'astro:assets';
+import { archivePhotos } from '../data/photoArchive';
+import { ui, type Lang } from '../i18n/content';
+import Icon from './Icon.astro';
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const labels = ui[lang].photography;
+// The opening archive batch already mixes series; reuse its small image variants.
+const previewPhotos = archivePhotos.slice(12, 18);
+const photoCount = new Intl.NumberFormat(lang).format(archivePhotos.length);
+---
+
+<section class="photography-explore" aria-labelledby="photo-explore-title">
+  <a class="photography-explore__link" href={`/${lang}/ph/grid/`} aria-labelledby="photo-explore-action" aria-describedby="photo-explore-description">
+    <div class="photography-explore__copy">
+      <p class="photography-explore__count">{photoCount} {labels.photographs}</p>
+      <h2 id="photo-explore-title">{labels.grid.title}</h2>
+      <p id="photo-explore-description">{labels.grid.description}</p>
+      <span class="button photography-explore__action" id="photo-explore-action">{labels.grid.open}<Icon name="arrow-right" /></span>
+    </div>
+    <div class="photography-explore__preview" aria-hidden="true">
+      {previewPhotos.map(({ image }) => (
+        <Image src={image} width={Math.min(480, image.width)} widths={[240, 480]} sizes="(min-width: 80rem) 11vw, (min-width: 60rem) 15vw, 26vw" quality={80} loading="lazy" fetchpriority="low" alt="" />
+      ))}
+    </div>
+  </a>
+</section>
+
+<style>
+  .photography-explore {
+    margin-block-end: var(--space-2xl);
+  }
+  .photography-explore__link {
+    display: grid;
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-paper-2);
+    transition: border-color var(--dur-short) var(--ease-out);
+  }
+  .photography-explore__link:hover {
+    border-color: var(--color-rule-2);
+  }
+  .photography-explore__copy {
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: var(--space-md);
+    min-width: 0;
+  }
+  .photography-explore__count {
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+  .photography-explore__copy h2 {
+    font-size: var(--text-2xl);
+    line-height: var(--leading-portfolio-hero);
+  }
+  #photo-explore-description {
+    max-width: 45ch;
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+  .photography-explore__action {
+    max-width: 100%;
+    padding-block: var(--space-sm);
+    margin-block-start: var(--space-xs);
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-size: var(--text-sm);
+    white-space: normal;
+    text-align: start;
+  }
+  .photography-explore__action :global(.icon) {
+    flex-shrink: 0;
+    transition: transform var(--dur-short) var(--ease-out);
+  }
+  .photography-explore__link:is(:hover, :focus-visible) .photography-explore__action :global(.icon) {
+    transform: translateX(var(--space-2xs));
+  }
+  .photography-explore__preview {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-xs);
+    min-width: 0;
+  }
+  .photography-explore__preview img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+  }
+  @media (min-width: 60rem) {
+    .photography-explore {
+      margin-block-end: var(--space-3xl);
+    }
+    .photography-explore__link {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: center;
+      gap: var(--space-xl);
+      padding: var(--space-xl);
+    }
+    .photography-explore__copy h2 {
+      font-size: var(--text-3xl);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .photography-explore__link,
+    .photography-explore__action :global(.icon) {
+      transition: none;
+    }
+    .photography-explore__link:is(:hover, :focus-visible) .photography-explore__action :global(.icon) {
+      transform: none;
+    }
+  }
+</style>
