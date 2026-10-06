@@ -49,7 +49,7 @@ export const copy = {
         ['2021-NOW', 'Mercado Libre', 'Senior Software Engineer'],
         ['2020', 'Quantum Connexion', 'Software Engineer'],
         ['2016-2019', 'Tradeview / iLikeWebSites', 'Web Developer & Designer'],
-        ['2015-2016', 'Rampa / Data Solutions Group', 'Web Designer'],
+        ['2015-2016', 'Rampa', 'Web Designer'],
       ],
       projectsTitle: 'Selected experiments.',
       projectsIntro:
@@ -202,7 +202,7 @@ export const copy = {
           'Tradeview / iLikeWebSites',
           'Desarrollador y Diseñador Web',
         ],
-        ['2015-2016', 'Rampa / Data Solutions Group', 'Diseñador Web'],
+        ['2015-2016', 'Rampa', 'Diseñador Web'],
       ],
       projectsTitle: 'Experimentos seleccionados.',
       projectsIntro:
