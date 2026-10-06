@@ -210,6 +210,7 @@ const count = labels.count.replace('{shown}', String(offset + photos.length)).re
     border-radius: var(--radius-sm);
   }
   .photo-grid__media::after {
+    display: none;
     content: '';
     position: absolute;
     inset: 0;
@@ -230,7 +231,7 @@ const count = labels.count.replace('{shown}', String(offset + photos.length)).re
   .photo-grid__action {
     position: absolute;
     z-index: var(--layer-overlay);
-    display: inline-flex;
+    display: none;
     align-items: center;
     justify-content: center;
     gap: var(--space-xs);
@@ -267,8 +268,8 @@ const count = labels.count.replace('{shown}', String(offset + photos.length)).re
     outline-color: var(--color-viewer-ink);
     outline-offset: var(--outline-offset-inset);
   }
-  .photo-grid:not([data-grid-ready]) .photo-grid__folder,
-  .photo-grid[data-grid-folder-selected] .photo-grid__folder {
+  .photo-grid:not([data-grid-ready]) [data-grid-folder],
+  .photo-grid[data-grid-folder-selected] [data-grid-folder] {
     display: none;
   }
   [data-grid-folder-active] {
@@ -302,14 +303,37 @@ const count = labels.count.replace('{shown}', String(offset + photos.length)).re
   }
   .photo-grid__card figcaption {
     display: grid;
-    gap: var(--space-3xs);
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--space-xs);
     padding-block-start: var(--space-xs);
     font-size: var(--text-xs);
     line-height: var(--leading-caption);
     overflow-wrap: anywhere;
   }
-  .photo-grid__card figcaption span:last-child {
+  .photo-grid__caption {
+    display: grid;
+    gap: var(--space-3xs);
+  }
+  .photo-grid__caption span:last-child {
     color: var(--color-muted);
+  }
+  .photo-grid__folder-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--size-control);
+    min-height: var(--size-control);
+    padding: var(--space-xs);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-ink);
+    font-size: var(--text-base);
+    cursor: pointer;
+  }
+  .photo-grid__folder-icon:hover {
+    background: var(--color-paper-2);
   }
   .photo-grid__pagination,
   .photo-grid__error {
@@ -349,6 +373,18 @@ const count = labels.count.replace('{shown}', String(offset + photos.length)).re
     font-size: var(--text-sm);
   }
   @media (min-width: 40rem) {
+    .photo-grid__media::after {
+      display: block;
+    }
+    .photo-grid__action {
+      display: inline-flex;
+    }
+    .photo-grid__folder-icon {
+      display: none;
+    }
+    .photo-grid__card figcaption {
+      grid-template-columns: minmax(0, 1fr);
+    }
     .photo-grid__tag-list {
       flex-wrap: wrap;
       overflow: visible;

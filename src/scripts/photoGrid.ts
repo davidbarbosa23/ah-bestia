@@ -117,14 +117,16 @@ export function setupPhotoGrid() {
     image.decoding = 'async';
     image.srcset = photo.srcset;
     image.src = photo.src;
-    const folder = card.querySelector<HTMLButtonElement>('[data-grid-folder]')!;
     const folderName = formatPhotoFolder(photo.folder);
-    folder.dataset.gridFolder = photo.folder;
-    folder.setAttribute('aria-label', `${labels.filterFolder}: ${folderName}`);
-    folder.title = `${labels.filterFolder}: ${folderName}`;
-    folder.querySelector('span')!.textContent = folderName;
-    const title = card.querySelector('figcaption span:first-child')!;
-    const tags = card.querySelector('figcaption span:last-child')!;
+    card.querySelectorAll<HTMLButtonElement>('[data-grid-folder]').forEach((folder) => {
+      folder.dataset.gridFolder = photo.folder;
+      folder.setAttribute('aria-label', `${labels.filterFolder}: ${folderName}`);
+      folder.title = `${labels.filterFolder}: ${folderName}`;
+      const name = folder.querySelector('[data-grid-folder-name]');
+      if (name) name.textContent = folderName;
+    });
+    const title = card.querySelector('[data-grid-title]')!;
+    const tags = card.querySelector('[data-grid-tag-label]')!;
     title.textContent = photo.title;
     tags.textContent = photo.tagLabel;
     return card;

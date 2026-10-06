@@ -3,11 +3,10 @@ import type { ArchivePhoto } from '../data/photoArchive';
 import { photoGridSizes } from '../data/photoArchive';
 import { ui, type Lang } from '../i18n/content';
 import Icon from './Icon.astro';
-import { formatPhotoFolder } from '../utils/photoFolder';
+import PhotoGridFolderAction from './PhotoGridFolderAction.astro';
 
 interface Props { photo: ArchivePhoto; lang: Lang; priority?: boolean; }
 const { photo, lang, priority = false } = Astro.props;
-const folderName = formatPhotoFolder(photo.folder);
 ---
 
 <figure class="photo-grid__card" data-grid-card data-photo-id={photo.id}>
@@ -36,14 +35,10 @@ const folderName = formatPhotoFolder(photo.folder);
       />
       <span class="photo-grid__action photo-grid__view"><Icon name="fullscreen" /><span>{ui[lang].photography.grid.viewPhoto}</span></span>
     </a>
-    <button
-      type="button"
-      class="photo-grid__action photo-grid__folder"
-      data-grid-folder={photo.folder}
-      aria-label={`${ui[lang].photography.grid.filterFolder}: ${folderName}`}
-      aria-controls="photo-grid-items"
-      title={`${ui[lang].photography.grid.filterFolder}: ${folderName}`}
-    ><Icon name="folder" /><span>{folderName}</span></button>
+    <PhotoGridFolderAction folder={photo.folder} lang={lang} />
   </div>
-  <figcaption><span>{photo.title}</span><span>{photo.tagLabel}</span></figcaption>
+  <figcaption>
+    <div class="photo-grid__caption"><span data-grid-title>{photo.title}</span><span data-grid-tag-label>{photo.tagLabel}</span></div>
+    <PhotoGridFolderAction folder={photo.folder} lang={lang} compact />
+  </figcaption>
 </figure>
