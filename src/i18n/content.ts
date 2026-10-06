@@ -39,7 +39,7 @@ export const copy = {
       aboutBody:
         'I work from ambiguous requirements to shipped software: clarifying the problem, shaping the interface, and building systems teams can maintain. My background in graphic design helps me connect product intent, technical decisions, and the details users notice.',
       current: 'Currently',
-      currentValue: 'Senior Software Engineer, Mercado Libre',
+      currentValue: 'Senior Software Engineer',
       location: 'Based in',
       locationValue: 'Bogotá, Colombia',
       focus: 'Working with',
@@ -55,7 +55,8 @@ export const copy = {
       projectsIntro:
         'Small web tools and interface experiments, documented from the problem and decisions through to a working result.',
       projectName: 'Fixed Gear Calculator',
-      projectPreviewAlt: 'The working calculator: gearing controls beside a wheel showing skid patches.',
+      projectPreviewAlt:
+        'The working calculator: gearing controls beside a wheel showing skid patches.',
       projectDesc:
         'A bilingual gearing calculator for track and fixed-gear riders, translating chainring and sprocket choices into ratios, skid patches, development, and speed.',
       projectMeta: 'Product experiment · Calculation UI',
@@ -187,7 +188,7 @@ export const copy = {
       aboutBody:
         'Trabajo desde requisitos ambiguos hasta software en producción: aclaro el problema, doy forma a la interfaz y construyo sistemas que el equipo puede mantener. Mi formación en diseño gráfico me ayuda a conectar la intención del producto, las decisiones técnicas y los detalles que las personas perciben.',
       current: 'Actualmente',
-      currentValue: 'Ingeniero de Software Senior, Mercado Libre',
+      currentValue: 'Ingeniero de Software Senior',
       location: 'Desde',
       locationValue: 'Bogotá, Colombia',
       focus: 'Trabajo con',
@@ -207,7 +208,8 @@ export const copy = {
       projectsIntro:
         'Pequeñas herramientas web y experimentos de interfaz, documentados desde el problema y las decisiones hasta un resultado funcional.',
       projectName: 'Calculadora de piñón fijo',
-      projectPreviewAlt: 'La calculadora en funcionamiento: controles de transmisión y una rueda con puntos de derrape.',
+      projectPreviewAlt:
+        'La calculadora en funcionamiento: controles de transmisión y una rueda con puntos de derrape.',
       projectDesc:
         'Una calculadora bilingüe para ciclistas de pista y piñón fijo que convierte elecciones de plato, piñón, cubierta y cadencia en relación, puntos de derrape, desarrollo y velocidad.',
       projectMeta: 'Experimento de producto · Interfaz de cálculo',
@@ -317,11 +319,14 @@ export const copy = {
 export type ErrorCode = '404' | '500';
 
 interface ErrorPageCopy {
-  errors: Record<ErrorCode, {
-    title: string;
-    description: string;
-    primary: string;
-  }>;
+  errors: Record<
+    ErrorCode,
+    {
+      title: string;
+      description: string;
+      primary: string;
+    }
+  >;
   actionsLabel: string;
 }
 
@@ -380,11 +385,11 @@ export interface UiCopy {
     sourceCardLabel: string;
     sourceCardResult: string;
   };
-    photography: {
-      photographs: string;
-      metaTitleSuffix: string;
-      grid: PhotoGridCopy;
-      series: {
+  photography: {
+    photographs: string;
+    metaTitleSuffix: string;
+    grid: PhotoGridCopy;
+    series: {
       back: string;
       kicker: string;
       source: string;
@@ -472,7 +477,8 @@ export const ui = {
       locale: 'en_US',
       jobTitle: 'Senior Software Engineer',
       photographerHeroAlt: 'A Fujifilm X100VI camera emerging from deep shadow',
-      photographerHeroSocialAlt: 'A Fujifilm X100VI camera emerging from shadow',
+      photographerHeroSocialAlt:
+        'A Fujifilm X100VI camera emerging from shadow',
     },
     header: {
       searchPlaceholder: 'Labs, about, contact…',
@@ -487,7 +493,8 @@ export const ui = {
       metaTitleSuffix: 'Photography by David Barbosa',
       grid: {
         title: 'All photographs.',
-        description: 'Explore the archive by subject. Portraits, streets, machines, and the moments in between.',
+        description:
+          'Explore the archive by subject. Portraits, streets, machines, and the moments in between.',
         metaTitle: 'Photo grid - David Barbosa',
         open: 'Explore all photographs',
         back: 'Back to the series',
@@ -505,17 +512,30 @@ export const ui = {
         loadMore: 'Load more photographs',
         loading: 'Loading photographs…',
         end: 'You’ve seen all matching photographs.',
-        empty: 'No photographs match. Try another subject or clear the filters.',
+        empty:
+          'No photographs match. Try another subject or clear the filters.',
         error: 'More photographs couldn’t load. Please try again.',
         retry: 'Try again',
         previousPage: 'Previous photographs',
         nextPage: 'Next photographs',
-        noScript: 'Use the page links to explore the archive. Enable JavaScript to search and filter.',
+        noScript:
+          'Use the page links to explore the archive. Enable JavaScript to search and filter.',
         archive: 'Photo archive',
         tags: {
-          portrait: 'Portrait', people: 'People', action: 'Action', car: 'Car', street: 'Street', nature: 'Nature',
-          architecture: 'Architecture', animals: 'Animals', bicycle: 'Bicycle', motorcycle: 'Motorcycle',
-          travel: 'Travel', detail: 'Detail', editorial: 'Editorial', 'black-and-white': 'Black & white',
+          portrait: 'Portrait',
+          people: 'People',
+          action: 'Action',
+          car: 'Car',
+          street: 'Street',
+          nature: 'Nature',
+          architecture: 'Architecture',
+          animals: 'Animals',
+          bicycle: 'Bicycle',
+          motorcycle: 'Motorcycle',
+          travel: 'Travel',
+          detail: 'Detail',
+          editorial: 'Editorial',
+          'black-and-white': 'Black & white',
         },
       },
       series: {
@@ -567,7 +587,8 @@ export const ui = {
       sprocket: 'Rear sprocket',
       tire: 'Tire',
       skid: 'Count both leading feet',
-      skidHelp: 'Use both left-foot-forward and right-foot-forward skid positions.',
+      skidHelp:
+        'Use both left-foot-forward and right-foot-forward skid positions.',
       units: 'Units',
       metric: 'Metric',
       imperial: 'Imperial',
@@ -576,7 +597,8 @@ export const ui = {
       ratio: 'Ratio',
       ratioHelp: 'Rear-wheel turns for every complete turn of the cranks.',
       patches: 'Skid patches',
-      patchesHelp: 'Distinct tire positions that touch the road while skidding.',
+      patchesHelp:
+        'Distinct tire positions that touch the road while skidding.',
       rollout: 'Rollout',
       rolloutHelp: 'Distance travelled by one complete turn of the cranks.',
       equivalent: 'Equivalent gears within 2%',
@@ -619,8 +641,10 @@ export const ui = {
     metadata: {
       locale: 'es_CO',
       jobTitle: 'Ingeniero de Software Senior',
-      photographerHeroAlt: 'Una cámara Fujifilm X100VI emergiendo de una sombra profunda',
-      photographerHeroSocialAlt: 'Una cámara Fujifilm X100VI emergiendo de la sombra',
+      photographerHeroAlt:
+        'Una cámara Fujifilm X100VI emergiendo de una sombra profunda',
+      photographerHeroSocialAlt:
+        'Una cámara Fujifilm X100VI emergiendo de la sombra',
     },
     header: {
       searchPlaceholder: 'Labs, acerca, contacto…',
@@ -635,14 +659,16 @@ export const ui = {
       metaTitleSuffix: 'Fotografía de David Barbosa',
       grid: {
         title: 'Todas las fotografías.',
-        description: 'Explora el archivo por tema. Retratos, calles, máquinas y los momentos entre ellos.',
+        description:
+          'Explora el archivo por tema. Retratos, calles, máquinas y los momentos entre ellos.',
         metaTitle: 'Cuadrícula de fotos - David Barbosa',
         open: 'Explorar todas las fotografías',
         back: 'Volver a las series',
         search: 'Buscar fotografías',
         searchPlaceholder: 'Prueba retrato, auto, calle…',
         filters: 'Filtrar por tipo de fotografía',
-        filterHint: 'Selecciona etiquetas para combinar todos los temas elegidos.',
+        filterHint:
+          'Selecciona etiquetas para combinar todos los temas elegidos.',
         viewPhoto: 'Abrir foto',
         filterFolder: 'Filtrar por carpeta',
         folderFilter: 'Carpeta: {folder}',
@@ -653,17 +679,30 @@ export const ui = {
         loadMore: 'Cargar más fotografías',
         loading: 'Cargando fotografías…',
         end: 'Has visto todas las fotografías que coinciden.',
-        empty: 'No hay fotografías que coincidan. Prueba otro tema o limpia los filtros.',
+        empty:
+          'No hay fotografías que coincidan. Prueba otro tema o limpia los filtros.',
         error: 'No se pudieron cargar más fotografías. Inténtalo de nuevo.',
         retry: 'Intentar de nuevo',
         previousPage: 'Fotografías anteriores',
         nextPage: 'Fotografías siguientes',
-        noScript: 'Usa los enlaces de página para explorar el archivo. Activa JavaScript para buscar y filtrar.',
+        noScript:
+          'Usa los enlaces de página para explorar el archivo. Activa JavaScript para buscar y filtrar.',
         archive: 'Archivo fotográfico',
         tags: {
-          portrait: 'Retrato', people: 'Personas', action: 'Acción', car: 'Auto', street: 'Calle', nature: 'Naturaleza',
-          architecture: 'Arquitectura', animals: 'Animales', bicycle: 'Bicicleta', motorcycle: 'Moto',
-          travel: 'Viaje', detail: 'Detalle', editorial: 'Editorial', 'black-and-white': 'Blanco y negro',
+          portrait: 'Retrato',
+          people: 'Personas',
+          action: 'Acción',
+          car: 'Auto',
+          street: 'Calle',
+          nature: 'Naturaleza',
+          architecture: 'Arquitectura',
+          animals: 'Animales',
+          bicycle: 'Bicicleta',
+          motorcycle: 'Moto',
+          travel: 'Viaje',
+          detail: 'Detalle',
+          editorial: 'Editorial',
+          'black-and-white': 'Blanco y negro',
         },
       },
       series: {
@@ -709,7 +748,8 @@ export const ui = {
     },
     calculator: {
       title: 'Calculadora de piñón fijo',
-      subtitle: 'Cambia la configuración. El análisis se actualiza de inmediato.',
+      subtitle:
+        'Cambia la configuración. El análisis se actualiza de inmediato.',
       setup: 'Configuración',
       chainring: 'Plato',
       sprocket: 'Piñón trasero',
@@ -722,11 +762,14 @@ export const ui = {
       analysis: 'Análisis',
       diagram: 'Diagrama de rueda trasera, plato y puntos de derrape',
       ratio: 'Relación',
-      ratioHelp: 'Vueltas de la rueda trasera por cada vuelta completa de las bielas.',
+      ratioHelp:
+        'Vueltas de la rueda trasera por cada vuelta completa de las bielas.',
       patches: 'Skid patches',
-      patchesHelp: 'Posiciones distintas de la cubierta que tocan el suelo al derrapar.',
+      patchesHelp:
+        'Posiciones distintas de la cubierta que tocan el suelo al derrapar.',
       rollout: 'Desarrollo',
-      rolloutHelp: 'Distancia recorrida por cada vuelta completa de las bielas.',
+      rolloutHelp:
+        'Distancia recorrida por cada vuelta completa de las bielas.',
       equivalent: 'Relaciones equivalentes dentro del 2%',
       equivalentHelp: 'Elige una combinación para cargarla en la calculadora.',
       cadence: 'Cadencia / velocidad',
