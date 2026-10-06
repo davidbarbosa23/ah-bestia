@@ -2468,22 +2468,24 @@ html[lang='es'] .photography-intro h1 { font-size: var(--text-portfolio-hero-es)
   .developer-project__preview img, .photography-entry__image img { transition: none; transform: none; }
 }
 
-/* Internal series keep the mode switch available with a quieter active state. */
-.site-header--quiet .experience-switch {
+/* Shared header uses the quiet mode switch established on photographic series. */
+.site-header .experience-switch {
   border-color: transparent;
   background: transparent;
 }
 
-.site-header--quiet .experience-switch__option.is-active {
+.site-header .experience-switch__option.is-active {
   background: transparent;
   color: var(--color-ink);
 }
 
-.site-header--quiet .experience-switch__option + .experience-switch__option {
+.site-header .experience-switch__option + .experience-switch__option {
   border-inline-start: 0;
 }
 
-.site-header--quiet .experience-switch__option.is-active::after {
+.site-header .experience-switch__option.is-active::after {
+  content: '';
+  position: absolute;
   display: block;
   inset-inline: var(--space-xs);
   inset-block-end: var(--space-2xs);

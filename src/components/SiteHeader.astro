@@ -6,9 +6,8 @@ interface Props {
   lang: Lang;
   experience?: 'developer' | 'photographer';
   languageHref?: string;
-  quiet?: boolean;
 }
-const { lang, experience, languageHref, quiet = false } = Astro.props;
+const { lang, experience, languageHref } = Astro.props;
 const t = copy[lang];
 const labels = ui[lang];
 const altLang = lang === 'en' ? 'es' : 'en';
@@ -16,7 +15,7 @@ const altPath = languageHref ?? alternatePath(Astro.url.pathname, lang);
 const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
 ---
 
-<header class:list={['site-header', experience && `site-header--${experience}`, quiet && 'site-header--quiet']} data-site-header>
+<header class:list={['site-header', experience && `site-header--${experience}`]} data-site-header>
   <div class="site-header__inner">
     <a class="wordmark" href={homePath} aria-label={labels.common.homeLabel}>
       <span aria-hidden="true">db/</span><span>David Barbosa</span>
@@ -42,18 +41,6 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
     </nav>
   </div>
 </header>
-
-<style>
-  @media (max-width: 767px) {
-    :global(.site-header--developer .theme-button), :global(.site-header--developer .language-link) { width: var(--size-control-sm); }
-    :global(.site-header--developer .experience-switch) { height: var(--size-control-sm); grid-template-columns: repeat(2, minmax(var(--size-control-sm), 1fr)); }
-  }
-  @media (max-width: 359px) {
-    :global(.site-header--developer .site-header__inner) { grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-xs); }
-    :global(.site-header--developer .experience-switch) { grid-column: 1 / -1; grid-row: 2; }
-    :global(.site-header--developer .site-tools) { grid-column: 2; grid-row: 1; }
-  }
-</style>
 
 <script>
   const syncThemeLabel = () => {
