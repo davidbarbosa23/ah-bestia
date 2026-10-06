@@ -49,6 +49,7 @@ export const archivePhotos = Array.from({ length: Math.max(...groups.map((group)
 
 export interface ArchivePhoto {
   id: string;
+  folder: string;
   filename: string;
   src: string;
   srcset: string;
@@ -79,7 +80,7 @@ export async function prepareArchivePhotos(lang: Lang, photos = archivePhotos): 
     }
     const title = photo.gallery?.content[lang].cardTitle ?? (photo.folder === 'cat-achira' ? 'Achira' : ui[lang].photography.grid.archive);
     return {
-      id: photo.id, filename: photo.filename, ...await optimized,
+      id: photo.id, folder: photo.folder, filename: photo.filename, ...await optimized,
       width: photo.image.width, height: photo.image.height,
       alt: photo.annotation.alt[lang], title,
       tags: photo.annotation.tags,

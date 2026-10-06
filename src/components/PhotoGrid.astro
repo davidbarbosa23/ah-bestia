@@ -42,6 +42,7 @@ const count = labels.count.replace('{shown}', String(offset + photos.length)).re
     </fieldset>
     <div class="photo-grid__filter-summary">
       <p id="photo-filter-hint">{labels.filterHint}</p>
+      <button type="button" class="photo-grid__tag" data-grid-folder-active aria-label={labels.clearFolder} aria-controls="photo-grid-items" hidden><span data-grid-folder-label></span><Icon name="x" /></button>
       <button type="button" class="photo-grid__clear" data-grid-clear hidden>{labels.clear}</button>
     </div>
   </form>
@@ -50,6 +51,7 @@ const count = labels.count.replace('{shown}', String(offset + photos.length)).re
   <div class="photo-grid__items" id="photo-grid-items" data-grid-items>
     {photos.map((photo, index) => <PhotoGridCard photo={photo} lang={lang} priority={index === 0} />)}
   </div>
+  <template data-grid-card-template><PhotoGridCard photo={photos[0]} lang={lang} /></template>
   <p class="photo-grid__empty" data-grid-empty hidden>{labels.empty}</p>
   <div class="photo-grid__error" role="alert" data-grid-error hidden>
     <p>{labels.error}</p>
@@ -202,6 +204,19 @@ const count = labels.count.replace('{shown}', String(offset + photos.length)).re
   .photo-grid__card {
     min-width: 0;
   }
+  .photo-grid__media {
+    position: relative;
+    isolation: isolate;
+    border-radius: var(--radius-sm);
+  }
+  .photo-grid__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(transparent, var(--color-hero-scrim-strong));
+    pointer-events: none;
+  }
   .photo-grid__open {
     display: block;
     background: var(--color-paper-2);
@@ -212,8 +227,77 @@ const count = labels.count.replace('{shown}', String(offset + photos.length)).re
     height: auto;
     border-radius: inherit;
   }
-  .photo-grid__open:hover img {
-    opacity: 0.9;
+  .photo-grid__action {
+    position: absolute;
+    z-index: var(--layer-overlay);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    min-height: var(--size-control);
+    max-width: calc(100% - var(--space-md));
+    padding: var(--space-xs) var(--space-sm);
+    border: var(--rule-hair) solid var(--color-viewer-rule-strong);
+    border-radius: var(--radius-sm);
+    background: var(--color-viewer-surface);
+    color: var(--color-viewer-ink);
+    font-size: var(--text-xs);
+    line-height: var(--leading-caption);
+    text-align: start;
+    overflow-wrap: anywhere;
+  }
+  .photo-grid__action .icon {
+    flex-shrink: 0;
+  }
+  .photo-grid__view {
+    top: var(--space-xs);
+    right: var(--space-xs);
+    pointer-events: none;
+  }
+  .photo-grid__folder {
+    bottom: var(--space-xs);
+    left: var(--space-xs);
+    cursor: pointer;
+  }
+  .photo-grid__folder:hover {
+    background: var(--color-viewer-canvas);
+  }
+  .photo-grid__open:focus-visible,
+  .photo-grid__folder:focus-visible {
+    outline-color: var(--color-viewer-ink);
+    outline-offset: var(--outline-offset-inset);
+  }
+  .photo-grid:not([data-grid-ready]) .photo-grid__folder {
+    display: none;
+  }
+  [data-grid-folder-active] {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .photo-grid__action,
+    .photo-grid__media::after {
+      opacity: 0;
+    }
+    .photo-grid__folder {
+      pointer-events: none;
+    }
+    .photo-grid__media:hover .photo-grid__action,
+    .photo-grid__media:focus-within .photo-grid__action,
+    .photo-grid__media:hover::after,
+    .photo-grid__media:focus-within::after {
+      opacity: 1;
+    }
+    .photo-grid__media:hover .photo-grid__folder,
+    .photo-grid__media:focus-within .photo-grid__folder {
+      pointer-events: auto;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .photo-grid__action,
+    .photo-grid__media::after {
+      transition: opacity var(--dur-micro) var(--ease-out);
+    }
   }
   .photo-grid__card figcaption {
     display: grid;

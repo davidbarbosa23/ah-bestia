@@ -333,6 +333,10 @@ export interface PhotoGridCopy {
   searchPlaceholder: string;
   filters: string;
   filterHint: string;
+  viewPhoto: string;
+  filterFolder: string;
+  folderFilter: string;
+  clearFolder: string;
   all: string;
   clear: string;
   count: string;
@@ -489,6 +493,10 @@ export const ui = {
         searchPlaceholder: 'Try portrait, car, street…',
         filters: 'Filter by photography type',
         filterHint: 'Select tags to match all selected subjects.',
+        viewPhoto: 'Open photo',
+        filterFolder: 'Filter by folder',
+        folderFilter: 'Folder: {folder}',
+        clearFolder: 'Clear folder filter',
         all: 'All photos',
         clear: 'Clear filters',
         count: '{shown} of {total} photographs',
@@ -633,6 +641,10 @@ export const ui = {
         searchPlaceholder: 'Prueba retrato, auto, calle…',
         filters: 'Filtrar por tipo de fotografía',
         filterHint: 'Selecciona etiquetas para combinar todos los temas elegidos.',
+        viewPhoto: 'Abrir foto',
+        filterFolder: 'Filtrar por carpeta',
+        folderFilter: 'Carpeta: {folder}',
+        clearFolder: 'Quitar filtro de carpeta',
         all: 'Todas las fotos',
         clear: 'Limpiar filtros',
         count: '{shown} de {total} fotografías',
