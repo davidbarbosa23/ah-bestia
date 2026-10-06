@@ -37,7 +37,7 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Barandillas curvas y cables diagonales de un puente en Bilbao',
   ),
   'spain/Bilbao_Rail.jpg': photo(
-    ['travel', 'nature'],
+    ['travel'],
     'Red funicular above branching tracks surrounded by trees',
     'Funicular rojo sobre vías que se bifurcan entre árboles',
   ),
@@ -132,7 +132,7 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Torre de la catedral entre calles estrechas de Santiago de Compostela',
   ),
   'spain/Segovia_Alcazar.jpg': photo(
-    ['architecture', 'nature', 'travel'],
+    ['architecture', 'travel'],
     'Aerial view of the Alcázar and its wooded surroundings in Segovia',
     'Vista aérea del Alcázar y sus alrededores arbolados en Segovia',
   ),
@@ -142,7 +142,7 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Vista aérea de la catedral de Segovia entre tejados urbanos',
   ),
   'spain/Segovia.jpg': photo(
-    ['architecture', 'street', 'travel', 'black-and-white'],
+    ['architecture', 'street', 'travel'],
     'Stone aqueduct arches above a street in Segovia',
     'Arcos del acueducto de piedra sobre una calle de Segovia',
   ),
@@ -183,12 +183,12 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Cuadro y ruedas de bicicleta Crew negra sobre fondo blanco',
   ),
   'random/Crossing.jpg': photo(
-    ['street', 'action', 'people'],
-    'Cyclist moving through a pedestrian crossing at night',
-    'Ciclista pasando por un cruce peatonal de noche',
+    ['street', 'people'],
+    'Person moving through a pedestrian crossing at night',
+    'Persona pasando por un cruce peatonal de noche',
   ),
   'random/Helicopter_Moon.jpg': photo(
-    ['nature', 'action'],
+    ['nature'],
     'Helicopter below a bright moon in a blue sky',
     'Helicóptero bajo una luna brillante en un cielo azul',
   ),
@@ -596,12 +596,12 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Retrato sentada mirando hacia arriba con una mano junto a las gafas amarillas',
   ),
   'friends/Rola/1026.jpg': photo(
-    ['portrait', 'people'],
+    ['portrait', 'people', 'editorial'],
     'Portrait adjusting yellow-tinted glasses with both hands against a dark backdrop',
     'Retrato ajustando las gafas amarillas con ambas manos sobre fondo oscuro',
   ),
   'friends/Rola/1027.jpg': photo(
-    ['portrait', 'people'],
+    ['portrait', 'people', 'editorial'],
     'Close portrait in a black high-neck top and yellow-tinted glasses with blue side light',
     'Retrato cercano con blusa negra de cuello alto, gafas amarillas y luz lateral azul',
   ),
