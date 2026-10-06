@@ -136,6 +136,11 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Aerial view of the Alcázar and its wooded surroundings in Segovia',
     'Vista aérea del Alcázar y sus alrededores arbolados en Segovia',
   ),
+  'spain/Segovia_Alcazar_2.jpg': photo(
+    ['architecture', 'nature', 'travel'],
+    'Alcázar of Segovia in warm evening light with a village and golden fields beyond',
+    'Alcázar de Segovia bajo la luz cálida del atardecer con un pueblo y campos dorados al fondo',
+  ),
   'spain/Segovia_Catedral.jpg': photo(
     ['architecture', 'travel'],
     'Aerial view of Segovia cathedral among dense city rooftops',
@@ -150,6 +155,16 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     ['nature', 'architecture', 'travel'],
     'Seaside fortress above the turquoise water at Tossa de Mar',
     'Fortaleza costera sobre el agua turquesa de Tossa de Mar',
+  ),
+  'spain/Zaragoza_Catedral.jpg': photo(
+    ['architecture', 'travel'],
+    'Sunlit church towers and patterned tiled domes against a blue sky in Zaragoza',
+    'Torres de iglesia iluminadas por el sol y cúpulas de tejas decoradas bajo un cielo azul en Zaragoza',
+  ),
+  'spain/Zaragoza_Delicias.jpg': photo(
+    ['architecture', 'detail', 'travel'],
+    'Station clock beneath angular skylights in warm light at Zaragoza Delicias',
+    'Reloj de estación bajo tragaluces angulares iluminados por una luz cálida en Zaragoza Delicias',
   ),
 
   'random/ASC06794.jpg': photo(

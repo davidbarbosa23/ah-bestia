@@ -32,7 +32,10 @@ const stories: Record<string, StorySpread[]> = {
       photograph('Estacion_Del_Norte.jpg', 'Passing silhouettes frame the clock on a railway station facade.', 'Las siluetas de transeúntes enmarcan el reloj de una estación de tren.'),
       photograph('Renfe.jpg', 'Red and white trains wait beside a station platform.', 'Trenes rojos y blancos esperan junto al andén de una estación.'),
     ),
-    feature(photograph('Bilbao_Rail.jpg', 'A red railcar approaches branching tracks surrounded by trees.', 'Un vagón rojo se acerca por vías que se bifurcan entre árboles.')),
+    pair(
+      photograph('Zaragoza_Delicias.jpg', 'A station clock sits beneath angular skylights in warm light at Zaragoza Delicias.', 'Un reloj de estación aparece bajo tragaluces angulares iluminados por una luz cálida en Zaragoza Delicias.'),
+      photograph('Bilbao_Rail.jpg', 'A red railcar approaches branching tracks surrounded by trees.', 'Un vagón rojo se acerca por vías que se bifurcan entre árboles.'),
+    ),
     pair(
       photograph('Canyon.jpg', 'A close view of a bicycle frame, cables, and saddle in deep shadow.', 'Detalle del cuadro, los cables y el sillín de una bicicleta entre sombras.'),
       photograph('Market.jpg', 'Warm overhead lights and a circular number sign inside a market.', 'Luces cálidas y un letrero circular con un número en el interior de un mercado.'),
@@ -45,10 +48,12 @@ const stories: Record<string, StorySpread[]> = {
       photograph('Madrid_Basilica.jpg', 'A dark vintage car passes an arched stone doorway.', 'Un automóvil antiguo oscuro pasa frente a una entrada de piedra con arco.'),
       photograph('Madrir_Real_Basilica.jpg', 'People stand before a candlelit altar in an ornate church interior.', 'Varias personas están frente a un altar iluminado por velas en una iglesia ornamentada.'),
     ),
+    feature(photograph('Zaragoza_Catedral.jpg', 'Sunlit towers and patterned tiled domes rise above trees against a blue sky in Zaragoza.', 'Torres iluminadas por el sol y cúpulas de tejas decoradas se alzan sobre los árboles bajo un cielo azul en Zaragoza.')),
     pair(
       photograph('Segovia_Alcazar.jpg', 'An aerial view of a castle and the winding roads below it.', 'Vista aérea de un castillo y de las carreteras sinuosas a sus pies.'),
-      photograph('Segovia_Catedral.jpg', 'An aerial view of a cathedral among densely packed tiled roofs.', 'Vista aérea de una catedral entre tejados de tejas muy próximos.'),
+      photograph('Segovia_Alcazar_2.jpg', 'The Alcázar of Segovia catches warm evening light beneath a village and golden fields.', 'El Alcázar de Segovia recibe la luz cálida del atardecer con un pueblo y campos dorados al fondo.'),
     ),
+    feature(photograph('Segovia_Catedral.jpg', 'An aerial view of a cathedral among densely packed tiled roofs.', 'Vista aérea de una catedral entre tejados de tejas muy próximos.')),
     feature(photograph('Segovia.jpg', 'Stone aqueduct arches rise above a warmly lit window at dusk.', 'Los arcos de un acueducto de piedra se alzan sobre una ventana iluminada al anochecer.')),
     pair(
       photograph('Santiago_De_Compostela.jpg', 'A cathedral tower appears between the facades of a narrow street.', 'La torre de una catedral aparece entre las fachadas de una calle estrecha.'),
