@@ -78,7 +78,7 @@ const formatLabel = gallery.magazine ? labels.magazineEdition : labels.sequence;
 <SiteLayout
   lang={lang}
   experience="photographer"
-  title={`${content.title} — ${ui[lang].photography.metaTitleSuffix}`}
+  title={`${content.title} - ${ui[lang].photography.metaTitleSuffix}`}
   description={content.description}
   image={gallery.cover}
   imageAlt={`${content.cardTitle}. ${content.description}`}
@@ -112,20 +112,20 @@ const formatLabel = gallery.magazine ? labels.magazineEdition : labels.sequence;
     <article class="series-body page-shell">
       <nav class="series-path" aria-label={`${labels.previous} / ${labels.next}`}>
         <a class="series-path__link series-path__link--previous" href={`/${lang}/ph/${previousGallery.slug}/`} rel="prev">
-          <svg viewBox="0 0 32 16" aria-hidden="true"><path d="M30 8H3M9 2 3 8l6 6" /></svg>
+          <Icon name="arrow-left" />
           <span><small>{labels.previous}</small><strong>{previousContent.title}</strong></span>
         </a>
         <p class="series-path__current"><span>{seriesNumber} / {seriesTotal}</span><span>{formatLabel}</span></p>
         <a class="series-path__link series-path__link--next" href={`/${lang}/ph/${nextGallery.slug}/`} rel="next">
           <span><small>{labels.next}</small><strong>{nextContent.title}</strong></span>
-          <svg viewBox="0 0 32 16" aria-hidden="true"><path d="M2 8h27m-6-6 6 6-6 6" /></svg>
+          <Icon name="arrow-right" />
         </a>
       </nav>
 
       {gallery.magazine ? (
         <PhotoMagazine gallery={gallery} lang={lang} />
       ) : (
-        <div class="series-gallery" aria-label={`${content.title} — ${ui[lang].photography.photographs}`}>
+        <div class="series-gallery" aria-label={`${content.title} - ${ui[lang].photography.photographs}`}>
           {storyViewerImages.map(({ image, filename, viewer, layout }, index) => {
             const number = index + 1;
             const alt = `${labels.photo} ${number} ${labels.from} ${content.title}`;

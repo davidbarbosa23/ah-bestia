@@ -154,8 +154,10 @@ const structuredData = {
     {includeStructuredData && <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
     <script is:inline>
       (() => {
-        const saved = localStorage.getItem('theme');
-        document.documentElement.dataset.theme = saved === 'light' ? 'light' : 'dark';
+        let saved;
+        try { saved = localStorage.getItem('theme'); } catch {}
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = saved === 'light' || saved === 'dark' ? saved : systemDark ? 'dark' : 'light';
       })();
     </script>
     <ClientRouter fallback="swap" />

@@ -27,7 +27,7 @@ const translations = {
   es: getErrorTranslation('es'),
 } satisfies Record<Lang, ErrorTranslation>;
 const initial = translations.en.ui.error.errors[code];
-const pageTitle = `${code} — ${initial.title} — David Barbosa`;
+const pageTitle = `${code} - ${initial.title} - David Barbosa`;
 ---
 
 <SiteLayout
@@ -134,7 +134,7 @@ const pageTitle = `${code} — ${initial.title} — David Barbosa`;
     if (!locale || !error) return;
 
     document.documentElement.lang = language;
-    document.title = `${code} — ${error.title} — David Barbosa`;
+    document.title = `${code} - ${error.title} - David Barbosa`;
     document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute('content', error.description);
 
     setText('[data-error-title]', error.title);

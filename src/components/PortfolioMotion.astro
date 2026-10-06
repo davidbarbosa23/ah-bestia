@@ -1,0 +1,38 @@
+<!-- Native animation leaf. Layout and content render without JavaScript. -->
+<script>
+  const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let observer: IntersectionObserver | undefined;
+  let animations: Animation[] = [];
+  const cleanup = () => {
+    observer?.disconnect();
+    observer = undefined;
+    animations.forEach((animation) => animation.cancel());
+    animations = [];
+  };
+  const setup = () => {
+    cleanup();
+    if (preference.matches || document.documentElement.dataset.languageTransition === 'true') return;
+    const easing = getComputedStyle(document.documentElement).getPropertyValue('--ease-out').trim();
+    const reveal = (element: HTMLElement, delay = 0, image = false) => {
+      const animation = element.animate([
+        { opacity: 0, transform: image ? 'translateX(24px) scale(.97)' : 'translateY(24px)' },
+        { opacity: 1, transform: 'none' },
+      ], { duration: image ? 900 : 720, delay, easing, fill: 'backwards' });
+      animations.push(animation);
+      animation.finished.then(() => { animations = animations.filter((item) => item !== animation); }).catch(() => {});
+    };
+    document.querySelectorAll<HTMLElement>('[data-hero-reveal]').forEach((element, index) => reveal(element, index * 90));
+    document.querySelectorAll<HTMLElement>('[data-hero-image]').forEach((element) => reveal(element, 120, true));
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting || !(entry.target instanceof HTMLElement)) return;
+        observer?.unobserve(entry.target);
+        reveal(entry.target);
+      });
+    }, { threshold: .08 });
+    document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((element) => observer?.observe(element));
+  };
+  document.addEventListener('astro:page-load', setup);
+  document.addEventListener('astro:before-swap', cleanup);
+  preference.addEventListener('change', () => preference.matches ? cleanup() : setup());
+</script>

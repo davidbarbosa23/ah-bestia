@@ -21,6 +21,12 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
       <span aria-hidden="true">db/</span><span>David Barbosa</span>
     </a>
 
+    {experience === 'developer' && <nav class="primary-navigation" aria-label={t.modes.developer}>
+      <a href={`/${lang}/dev/#work`}>{t.nav.work}</a>
+      <a href={`/${lang}/dev/#about`}>{t.nav.about}</a>
+      <a href={`/${lang}/dev/#contact`}>{t.nav.contact}</a>
+    </nav>}
+
     {experience && (
       <nav class="experience-switch" aria-label={t.modes.label}>
         <a class:list={['experience-switch__option', experience === 'developer' && 'is-active']} href={`/${lang}/dev/`} aria-current={experience === 'developer' ? 'page' : undefined} aria-label={t.modes.developer}>
@@ -34,11 +40,11 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
 
     <nav class="site-tools" aria-label={labels.common.utilityNavigation}>
       {experience === 'developer' && <button class="jump-button" type="button" data-command-open aria-label={`${t.nav.search} (Ctrl K)`} aria-haspopup="dialog" aria-controls="command-dialog" aria-expanded="false">
-        <span>{t.nav.search}</span><kbd>Ctrl K</kbd>
+        <Icon name="search" /><span class="jump-button__label">{t.nav.search}</span><kbd>Ctrl K</kbd>
       </button>}
       <button class="theme-button" type="button" data-theme-toggle data-theme-light-label={t.theme.light} data-theme-dark-label={t.theme.dark} aria-label={t.theme.light} title={t.theme.light}>
-        <svg class="theme-icon theme-icon--sun" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path></svg>
-        <svg class="theme-icon theme-icon--moon" aria-hidden="true" viewBox="0 0 24 24"><path d="M20.5 15.5A8.5 8.5 0 0 1 8.5 3.5a8.5 8.5 0 1 0 12 12Z"></path></svg>
+        <Icon name="sun" class="theme-icon theme-icon--sun" />
+        <Icon name="moon" class="theme-icon theme-icon--moon" />
       </button>
       <a class="language-link" href={altPath} hreflang={altLang} lang={altLang} aria-label={labels.common.switchLanguage} title={labels.common.switchLanguage} data-language-link>{altLang.toUpperCase()}</a>
     </nav>
@@ -113,7 +119,7 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
       const root = document.documentElement;
       const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
       root.dataset.theme = next;
-      localStorage.setItem('theme', next);
+      try { localStorage.setItem('theme', next); } catch { /* The theme also works without storage. */ }
       syncThemeLabel();
       return;
     }
@@ -124,6 +130,15 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
     }
 
     const dialog = document.querySelector('[data-command]');
+    const item = event.target.closest<HTMLAnchorElement>('[data-command-item]');
+    if (item && dialog instanceof HTMLDialogElement) {
+      commandReturnFocus = null;
+      dialog.close();
+      const destination = new URL(item.href);
+      if (destination.pathname === window.location.pathname && destination.hash) {
+        requestAnimationFrame(() => document.getElementById(destination.hash.slice(1))?.focus({ preventScroll: true }));
+      }
+    }
     if (event.target === dialog && dialog instanceof HTMLDialogElement) dialog.close();
   });
 

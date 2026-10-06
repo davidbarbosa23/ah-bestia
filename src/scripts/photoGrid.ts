@@ -289,10 +289,15 @@ export function setupPhotoGrid() {
     if (hasScrolled && entries.some((entry) => entry.isIntersecting)) void loadMore();
   }, { rootMargin: '240px 0px' });
   intersection?.observe(sentinel);
-  window.addEventListener('scroll', () => {
+  const beginBrowsing = () => {
     hasScrolled = true;
     if (sentinel.getBoundingClientRect().top < window.innerHeight + 240) void loadMore();
-  }, { signal, passive: true, once: true });
+  };
+  window.addEventListener('wheel', beginBrowsing, { signal, passive: true, once: true });
+  window.addEventListener('touchmove', beginBrowsing, { signal, passive: true, once: true });
+  window.addEventListener('keydown', (event) => {
+    if (['ArrowDown', 'PageDown', 'End', ' '].includes(event.key)) beginBrowsing();
+  }, { signal });
 
   const readUrl = () => {
     const params = new URLSearchParams(window.location.search);

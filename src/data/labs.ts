@@ -23,7 +23,7 @@ export interface LabProject {
 
 export const labsCopy = {
   en: {
-    metaTitle: 'Developer Labs — David Barbosa',
+    metaTitle: 'Developer Labs - David Barbosa',
     metaDescription:
       'I build small web tools and interface experiments, documenting each one from problem to working result.',
     back: 'Back home',
@@ -45,7 +45,7 @@ export const labsCopy = {
     outputLabel: '02 / output',
   },
   es: {
-    metaTitle: 'Labs de desarrollo — David Barbosa',
+    metaTitle: 'Labs de desarrollo - David Barbosa',
     metaDescription:
       'Construyo pequeñas herramientas web y experimentos de interfaz, documentando cada uno desde el problema hasta un resultado funcional.',
     back: 'Volver al inicio',
@@ -83,7 +83,7 @@ export const labProjects: LabProject[] = [
           'The original Surplace calculator contains a remarkable amount of cycling knowledge in a very small interface. This version keeps that directness, then makes the arithmetic easier to read, compare, and learn from.',
         question: 'The question',
         questionBody:
-          'What changes when one tooth moves from the chainring to the sprocket—and how can a rider understand the result without decoding a spreadsheet?',
+          'What changes when one tooth moves from the chainring to the sprocket, and how can a rider understand the result without decoding a spreadsheet?',
         approach: 'The approach',
         approachBody:
           'Keep every input visible, update the analysis immediately, and place a plain-language definition beside each number. The wheel diagram shows skid wear as part of the calculation, not decoration.',
