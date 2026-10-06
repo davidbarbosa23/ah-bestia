@@ -107,7 +107,7 @@ const structuredData = {
 ---
 
 <!doctype html>
-<html lang={lang} data-theme="light" transition:name="root" transition:animate="none">
+<html lang={lang} data-theme="dark" transition:name="root" transition:animate="none">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -123,7 +123,7 @@ const structuredData = {
         </script>
       </>
     )}
-    <meta name="theme-color" content="#f7f8fb" />
+    <meta name="theme-color" content="#111318" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="author" content="David Barbosa" />
@@ -155,8 +155,7 @@ const structuredData = {
     <script is:inline>
       (() => {
         const saved = localStorage.getItem('theme');
-        const dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        document.documentElement.dataset.theme = saved === 'light' ? 'light' : 'dark';
       })();
     </script>
     <ClientRouter fallback="swap" />
@@ -216,7 +215,7 @@ const structuredData = {
       });
 
       document.addEventListener('astro:before-swap', (event) => {
-        const theme = document.documentElement.dataset.theme ?? 'light';
+        const theme = document.documentElement.dataset.theme ?? 'dark';
         event.newDocument.documentElement.dataset.theme = theme;
         if (languageScrollPosition) {
           event.newDocument.documentElement.dataset.languageTransition = 'true';
