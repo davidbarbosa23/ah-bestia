@@ -6,8 +6,9 @@ interface Props {
   lang: Lang;
   experience?: 'developer' | 'photographer';
   languageHref?: string;
+  quiet?: boolean;
 }
-const { lang, experience, languageHref } = Astro.props;
+const { lang, experience, languageHref, quiet = false } = Astro.props;
 const t = copy[lang];
 const labels = ui[lang];
 const altLang = lang === 'en' ? 'es' : 'en';
@@ -15,7 +16,7 @@ const altPath = languageHref ?? alternatePath(Astro.url.pathname, lang);
 const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
 ---
 
-<header class:list={['site-header', experience && `site-header--${experience}`]} data-site-header>
+<header class:list={['site-header', experience && `site-header--${experience}`, quiet && 'site-header--quiet']} data-site-header>
   <div class="site-header__inner">
     <a class="wordmark" href={homePath} aria-label={labels.common.homeLabel}>
       <span aria-hidden="true">db/</span><span>David Barbosa</span>

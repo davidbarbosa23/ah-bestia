@@ -1,20 +1,26 @@
 ---
 import { copy, ui, type Lang } from '../i18n/content';
 import Icon from './Icon.astro';
-interface Props { lang: Lang; }
-const { lang } = Astro.props;
+interface Props { lang: Lang; experience?: 'developer' | 'photographer'; }
+const { lang, experience = 'developer' } = Astro.props;
 const t = copy[lang];
 const labels = ui[lang];
 ---
 
-<footer class="site-footer">
+<footer class:list={['site-footer', experience === 'photographer' && 'site-footer--photographer']}>
+  {experience === 'photographer' && (
+    <div class="site-footer__contact">
+      <p>{t.photo.collaborationBody}</p>
+      <a class="text-link" href={`mailto:davidbarbosa.design@gmail.com?subject=${encodeURIComponent(t.photo.collaborationSubject)}`}>{t.photo.collaborationLink}<Icon name="arrow-up-right" /></a>
+    </div>
+  )}
   <div class="site-footer__meta">
     <span>{t.footer.copyright} · {new Date().getFullYear()}</span>
-    <div>
+    {experience === 'developer' && <div>
       <a href="mailto:davidbarbosa.dev@gmail.com">Email</a>
       <a href="/david-barbosa-resume.pdf" target="_blank" rel="noreferrer">{t.footer.resume} <Icon name="arrow-up-right" /><span class="sr-only"> ({labels.common.opensInNewTab})</span></a>
       <a href="https://github.com/davidbarbosa23" rel="me noreferrer" target="_blank">GitHub <Icon name="arrow-up-right" /><span class="sr-only"> ({labels.common.opensInNewTab})</span></a>
       <a href="https://www.linkedin.com/in/davidbarbosar/" rel="me noreferrer" target="_blank">LinkedIn <Icon name="arrow-up-right" /><span class="sr-only"> ({labels.common.opensInNewTab})</span></a>
-    </div>
+    </div>}
   </div>
 </footer>

@@ -1,5 +1,6 @@
 import type { ImageMetadata } from 'astro';
 import type { Lang } from '../i18n/content';
+import { getPhotoStory, type PhotoStorySpread } from './photoStories';
 
 interface GalleryCopy {
   title: string;
@@ -68,6 +69,7 @@ export interface PhotoGallery extends GalleryDefinition {
   indexDetail: ImageMetadata;
   images: GalleryImage[];
   magazine?: PhotoMagazine;
+  story: PhotoStorySpread[];
 }
 
 const imageModules = import.meta.glob<ImageModule>(
@@ -333,7 +335,11 @@ export const photoGalleries: PhotoGallery[] = definitions.map((definition) => {
     };
   }
 
-  return { ...definition, cover, indexDetail, images, magazine };
+  const story = magazine ? [] : getPhotoStory(definition.slug, images);
+  if (story.length && story[0].photos[0].filename !== definition.coverFilename) {
+    throw new Error(`Photo story for ${definition.slug} must open with its cover`);
+  }
+  return { ...definition, cover, indexDetail, images, magazine, story };
 });
 
 // Published reading order stays stable; the homepage retains its current curated layout.
