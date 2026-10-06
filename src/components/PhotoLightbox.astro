@@ -41,8 +41,10 @@ const labels = ui[lang].photography.lightbox;
 
 <script>
   let photoLightboxResizeHandler: (() => void) | undefined;
+  let photoLightboxController: AbortController | undefined;
 
   const setupPhotoLightbox = () => {
+    photoLightboxController?.abort();
     if (photoLightboxResizeHandler) {
       window.removeEventListener('resize', photoLightboxResizeHandler);
       photoLightboxResizeHandler = undefined;
@@ -72,7 +74,8 @@ const labels = ui[lang].photography.lightbox;
     if (!(previous instanceof HTMLButtonElement) || !(next instanceof HTMLButtonElement) || !(close instanceof HTMLButtonElement)) return;
 
     dialog.dataset.ready = 'true';
-    const openers = [...document.querySelectorAll<HTMLElement>('[data-lightbox-open]')];
+    photoLightboxController = new AbortController();
+    let openers = [...document.querySelectorAll<HTMLElement>('[data-lightbox-open]')];
     const maximumScale = 4;
     const minimumScale = 0.5;
     const initialScale = 1;
@@ -355,18 +358,20 @@ const labels = ui[lang].photography.lightbox;
       animatePhotoTransition(resolvedIndex, direction);
     };
 
-    openers.forEach((opener, index) => {
-      opener.addEventListener('click', () => {
-        returnFocus = opener;
-        preloadAround(index);
-        showPhoto(index);
-        dialog.showModal();
-        requestAnimationFrame(() => close.focus());
-      });
-      opener.addEventListener('pointerenter', () => preloadAround(index), { once: true });
-      opener.addEventListener('focus', () => preloadAround(index), { once: true });
-      opener.addEventListener('touchstart', () => preloadAround(index), { once: true, passive: true });
-    });
+    // Delegation includes cards appended by the grid and refreshes navigation after filtering.
+    document.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element)) return;
+      const opener = event.target.closest<HTMLElement>('[data-lightbox-open]');
+      if (!opener || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      openers = [...document.querySelectorAll<HTMLElement>('[data-lightbox-open]')];
+      const index = openers.indexOf(opener);
+      if (index < 0) return;
+      returnFocus = opener;
+      showPhoto(index);
+      dialog.showModal();
+      requestAnimationFrame(() => close.focus());
+    }, { signal: photoLightboxController.signal, capture: true });
 
     zoomOut.addEventListener('click', () => setScale(scale - 0.25));
     zoomIn.addEventListener('click', () => setScale(scale + 0.25));
@@ -597,4 +602,9 @@ const labels = ui[lang].photography.lightbox;
   };
 
   document.addEventListener('astro:page-load', setupPhotoLightbox);
+  document.addEventListener('astro:before-swap', () => {
+    photoLightboxController?.abort();
+    if (photoLightboxResizeHandler) window.removeEventListener('resize', photoLightboxResizeHandler);
+    photoLightboxResizeHandler = undefined;
+  });
 </script>

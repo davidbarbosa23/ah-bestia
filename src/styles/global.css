@@ -506,7 +506,6 @@ html[data-theme='dark'] .theme-icon--moon {
   font-size: var(--text-xs);
 }
 
-.status-line,
 .mono-label {
   color: var(--color-muted);
   font-family: var(--font-mono);
@@ -514,19 +513,6 @@ html[data-theme='dark'] .theme-icon--moon {
   font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-}
-
-.status-line {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.status-line > span {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: var(--radius-round);
-  background: var(--color-success);
 }
 
 .dev-hero {
@@ -546,7 +532,6 @@ html[data-theme='dark'] .theme-icon--moon {
   gap: var(--space-2xl);
 }
 
-.dev-hero .status-line,
 .dev-hero__intro {
   color: var(--color-on-dark-muted);
 }

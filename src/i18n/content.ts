@@ -323,6 +323,32 @@ interface ErrorPageCopy {
   actionsLabel: string;
 }
 
+export interface PhotoGridCopy {
+  title: string;
+  description: string;
+  metaTitle: string;
+  open: string;
+  back: string;
+  search: string;
+  searchPlaceholder: string;
+  filters: string;
+  filterHint: string;
+  all: string;
+  clear: string;
+  count: string;
+  loadMore: string;
+  loading: string;
+  end: string;
+  empty: string;
+  error: string;
+  retry: string;
+  previousPage: string;
+  nextPage: string;
+  noScript: string;
+  archive: string;
+  tags: Record<import('../data/photoTags').PhotoTag, string>;
+}
+
 export interface UiCopy {
   common: {
     skipToContent: string;
@@ -351,6 +377,7 @@ export interface UiCopy {
     photography: {
       photographs: string;
       metaTitleSuffix: string;
+      grid: PhotoGridCopy;
       series: {
       back: string;
       kicker: string;
@@ -383,7 +410,7 @@ export interface UiCopy {
       page: string;
       pages: string;
       of: string;
-      progress: string;
+      goToPage: string;
       zoomControls: string;
       hint: string;
       compactHint: string;
@@ -452,6 +479,35 @@ export const ui = {
     photography: {
       photographs: 'photographs',
       metaTitleSuffix: 'Photography by David Barbosa',
+      grid: {
+        title: 'All photographs.',
+        description: 'Explore the archive by subject. Portraits, streets, machines, and the moments in between.',
+        metaTitle: 'Photo grid — David Barbosa',
+        open: 'Explore all photographs',
+        back: 'Back to the series',
+        search: 'Search photographs',
+        searchPlaceholder: 'Try portrait, car, street…',
+        filters: 'Filter by photography type',
+        filterHint: 'Select tags to match all selected subjects.',
+        all: 'All photos',
+        clear: 'Clear filters',
+        count: '{shown} of {total} photographs',
+        loadMore: 'Load more photographs',
+        loading: 'Loading photographs…',
+        end: 'You’ve seen all matching photographs.',
+        empty: 'No photographs match. Try another subject or clear the filters.',
+        error: 'More photographs couldn’t load. Please try again.',
+        retry: 'Try again',
+        previousPage: 'Previous photographs',
+        nextPage: 'Next photographs',
+        noScript: 'Use the page links to explore the archive. Enable JavaScript to search and filter.',
+        archive: 'Photo archive',
+        tags: {
+          portrait: 'Portrait', people: 'People', action: 'Action', car: 'Car', street: 'Street', nature: 'Nature',
+          architecture: 'Architecture', animals: 'Animals', bicycle: 'Bicycle', motorcycle: 'Motorcycle',
+          travel: 'Travel', detail: 'Detail', editorial: 'Editorial', 'black-and-white': 'Black & white',
+        },
+      },
       series: {
         back: 'Back to all series',
         kicker: 'Photographic series',
@@ -484,7 +540,7 @@ export const ui = {
         page: 'Page',
         pages: 'Pages',
         of: 'of',
-        progress: 'Magazine reading progress',
+        goToPage: 'Go to page',
         zoomControls: 'Zoom controls',
         hint: 'Use the arrow keys or swipe to turn pages. In full screen, scroll or use + / - to zoom.',
         compactHint: 'Swipe or use ← / →.',
@@ -567,6 +623,35 @@ export const ui = {
     photography: {
       photographs: 'fotografías',
       metaTitleSuffix: 'Fotografía de David Barbosa',
+      grid: {
+        title: 'Todas las fotografías.',
+        description: 'Explora el archivo por tema. Retratos, calles, máquinas y los momentos entre ellos.',
+        metaTitle: 'Cuadrícula de fotos — David Barbosa',
+        open: 'Explorar todas las fotografías',
+        back: 'Volver a las series',
+        search: 'Buscar fotografías',
+        searchPlaceholder: 'Prueba retrato, auto, calle…',
+        filters: 'Filtrar por tipo de fotografía',
+        filterHint: 'Selecciona etiquetas para combinar todos los temas elegidos.',
+        all: 'Todas las fotos',
+        clear: 'Limpiar filtros',
+        count: '{shown} de {total} fotografías',
+        loadMore: 'Cargar más fotografías',
+        loading: 'Cargando fotografías…',
+        end: 'Has visto todas las fotografías que coinciden.',
+        empty: 'No hay fotografías que coincidan. Prueba otro tema o limpia los filtros.',
+        error: 'No se pudieron cargar más fotografías. Inténtalo de nuevo.',
+        retry: 'Intentar de nuevo',
+        previousPage: 'Fotografías anteriores',
+        nextPage: 'Fotografías siguientes',
+        noScript: 'Usa los enlaces de página para explorar el archivo. Activa JavaScript para buscar y filtrar.',
+        archive: 'Archivo fotográfico',
+        tags: {
+          portrait: 'Retrato', people: 'Personas', action: 'Acción', car: 'Auto', street: 'Calle', nature: 'Naturaleza',
+          architecture: 'Arquitectura', animals: 'Animales', bicycle: 'Bicicleta', motorcycle: 'Moto',
+          travel: 'Viaje', detail: 'Detalle', editorial: 'Editorial', 'black-and-white': 'Blanco y negro',
+        },
+      },
       series: {
         back: 'Volver a todas las series',
         kicker: 'Serie fotográfica',
@@ -599,7 +684,7 @@ export const ui = {
         page: 'Página',
         pages: 'Páginas',
         of: 'de',
-        progress: 'Progreso de lectura de la revista',
+        goToPage: 'Ir a la página',
         zoomControls: 'Controles de zoom',
         hint: 'Usa las teclas de flecha o desliza para pasar las páginas. En pantalla completa, usa la rueda o + / - para ampliar.',
         compactHint: 'Desliza o usa ← / →.',

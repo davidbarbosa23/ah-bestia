@@ -19,7 +19,6 @@ const backgroundImage = await getImage({ src: background, format: 'webp', qualit
     >
       <div class="dev-hero__inner page-shell">
         <div class="dev-hero__copy">
-          <p class="status-line"><span></span>{t.status}</p>
           <h1 id="developer-title">{t.title.split('\n').map((line) => <span>{line}{' '}</span>)}</h1>
           <p class="dev-hero__intro">{t.intro}</p>
           <div class="dev-hero__actions">

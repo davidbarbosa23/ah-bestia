@@ -112,6 +112,17 @@ const structuredData = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="generator" content={Astro.generator} />
+    {import.meta.env.PROD && (
+      <>
+        <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-Q89L54B7BE"></script>
+        <script is:inline>
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { window.dataLayer.push(arguments); }
+          gtag('js', new Date());
+          gtag('config', 'G-Q89L54B7BE');
+        </script>
+      </>
+    )}
     <meta name="theme-color" content="#f7f8fb" />
     <title>{title}</title>
     <meta name="description" content={description} />

@@ -1,0 +1,307 @@
+---
+import { ui, type Lang } from '../i18n/content';
+import { photoTags } from '../data/photoTags';
+import { archivePhotos, PHOTO_BATCH_SIZE, prepareArchivePhotos } from '../data/photoArchive';
+import PhotoGridCard from './PhotoGridCard.astro';
+import Icon from './Icon.astro';
+
+interface Props { lang: Lang; page?: number; }
+const { lang, page = 1 } = Astro.props;
+const labels = ui[lang].photography.grid;
+const offset = (page - 1) * PHOTO_BATCH_SIZE;
+const photos = await prepareArchivePhotos(lang, archivePhotos.slice(offset, offset + PHOTO_BATCH_SIZE));
+const pageCount = Math.ceil(archivePhotos.length / PHOTO_BATCH_SIZE);
+const basePath = `/${lang}/ph/grid/`;
+const previousPath = page === 2 ? basePath : `${basePath}${page - 1}/`;
+const nextPath = page < pageCount ? `${basePath}${page + 1}/` : undefined;
+const count = labels.count.replace('{shown}', String(offset + photos.length)).replace('{total}', String(archivePhotos.length));
+---
+
+<main class="photo-grid page-shell" id="main" data-photo-grid data-manifest={`${basePath}photos.json`} data-offset={offset} data-batch-size={PHOTO_BATCH_SIZE} data-total={archivePhotos.length} data-open-label={ui[lang].photography.series.openFullscreen} data-tag-labels={JSON.stringify([ui.en.photography.grid.tags, ui.es.photography.grid.tags])}>
+  <header class="photo-grid__intro">
+    <a class="inner-page__back" href={`/${lang}/ph/`}><Icon name="arrow-left" />{labels.back}</a>
+    <h1>{labels.title}</h1>
+    <p>{labels.description}</p>
+  </header>
+
+  <form class="photo-grid__filters" role="search" aria-label={labels.search} data-grid-filters hidden>
+    <div class="photo-grid__search">
+      <label for="photo-search">{labels.search}</label>
+      <input id="photo-search" type="search" placeholder={labels.searchPlaceholder} autocomplete="off" aria-controls="photo-grid-items" data-grid-search />
+    </div>
+    <fieldset class="photo-grid__tags" aria-describedby="photo-filter-hint">
+      <legend>{labels.filters}</legend>
+      <div class="photo-grid__tag-list">
+        <button type="button" class="photo-grid__tag" aria-pressed="true" aria-controls="photo-grid-items" data-grid-all>{labels.all}<span>{archivePhotos.length}</span></button>
+        {photoTags.map((tag) => (
+          <button type="button" class="photo-grid__tag" aria-pressed="false" aria-controls="photo-grid-items" data-grid-tag={tag}>
+            {labels.tags[tag]}<span>{archivePhotos.filter((photo) => photo.annotation.tags.includes(tag)).length}</span>
+          </button>
+        ))}
+      </div>
+    </fieldset>
+    <div class="photo-grid__filter-summary">
+      <p id="photo-filter-hint">{labels.filterHint}</p>
+      <button type="button" class="photo-grid__clear" data-grid-clear hidden>{labels.clear}</button>
+    </div>
+  </form>
+
+  <p class="photo-grid__count" role="status" aria-atomic="true" data-grid-count>{count}</p>
+  <div class="photo-grid__items" id="photo-grid-items" data-grid-items>
+    {photos.map((photo, index) => <PhotoGridCard photo={photo} lang={lang} priority={index === 0} />)}
+  </div>
+  <p class="photo-grid__empty" data-grid-empty hidden>{labels.empty}</p>
+  <div class="photo-grid__error" role="alert" data-grid-error hidden>
+    <p>{labels.error}</p>
+    <button type="button" class="photo-grid__load" data-grid-retry>{labels.retry}</button>
+  </div>
+  <nav class="photo-grid__pagination" aria-label={labels.archive} data-grid-sentinel>
+    {page > 1 && <a class="inner-page__back" href={previousPath} rel="prev">{labels.previousPage}</a>}
+    <a class="photo-grid__load" href={nextPath ?? basePath} rel="next" data-grid-more hidden={!nextPath}>{labels.loadMore}<Icon name="arrow-down" /></a>
+    <p data-grid-end hidden={Boolean(nextPath)}>{labels.end}</p>
+  </nav>
+  <noscript><p class="photo-grid__noscript">{labels.noScript}</p></noscript>
+  <script is:inline type="application/json" data-grid-copy set:html={JSON.stringify(labels).replace(/</g, '\\u003c')} />
+</main>
+
+<script>
+  import { setupPhotoGrid } from '../scripts/photoGrid';
+  document.addEventListener('astro:page-load', setupPhotoGrid);
+</script>
+
+<style is:global>
+  .photo-grid {
+    padding-block: var(--space-lg) var(--space-3xl);
+  }
+  .photo-grid__intro {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-sm);
+    padding-block-end: var(--space-lg);
+  }
+  .photo-grid__intro h1 {
+    font-size: var(--text-display-s);
+    max-width: 22ch;
+  }
+  .photo-grid__intro > p {
+    max-width: 58ch;
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+  .photo-grid__filters {
+    display: grid;
+    gap: var(--space-md);
+    padding-block: var(--space-md);
+    border-block: var(--rule-hair) solid var(--color-rule);
+  }
+  .photo-grid__search {
+    display: grid;
+    gap: var(--space-xs);
+    max-width: calc(var(--space-3xl) * 6);
+  }
+  .photo-grid__search label,
+  .photo-grid__tags legend {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-ink);
+  }
+  .photo-grid__search input {
+    width: 100%;
+    min-height: var(--size-field);
+    padding-inline: var(--space-md);
+    border: var(--rule-hair) solid var(--color-rule-2);
+    border-radius: var(--radius-sm);
+    background: var(--color-paper-2);
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+  }
+  .photo-grid__search input::placeholder {
+    color: var(--color-muted);
+  }
+  .photo-grid__tags {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    min-width: 0;
+  }
+  .photo-grid__tags legend {
+    margin-block-end: var(--space-sm);
+  }
+  .photo-grid__tag-list {
+    display: flex;
+    gap: var(--space-xs);
+    overflow-x: auto;
+    padding: var(--space-xs);
+  }
+  .photo-grid__tag {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: var(--size-control);
+    padding: var(--space-xs) var(--space-sm);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: var(--radius-round);
+    background: transparent;
+    color: var(--color-ink-2);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .photo-grid__tag span {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+  .photo-grid__tag:hover {
+    border-color: var(--color-ink);
+  }
+  .photo-grid__tag[aria-pressed='true'] {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .photo-grid__tag[aria-pressed='true'] span {
+    color: inherit;
+  }
+  .photo-grid__filter-summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+  }
+  .photo-grid__clear {
+    min-height: var(--size-control);
+    padding: 0 var(--space-xs);
+    border: 0;
+    background: transparent;
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+    text-decoration: underline;
+    text-underline-offset: var(--space-2xs);
+    cursor: pointer;
+  }
+  .photo-grid__count {
+    padding-block: var(--space-lg);
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+  .photo-grid__items {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--space-md);
+  }
+  .photo-grid__items.is-masonry {
+    grid-auto-rows: 1px;
+    row-gap: 0;
+  }
+  .photo-grid__card {
+    min-width: 0;
+  }
+  .photo-grid__open {
+    display: block;
+    background: var(--color-paper-2);
+    border-radius: var(--radius-sm);
+  }
+  .photo-grid__open img {
+    width: 100%;
+    height: auto;
+    border-radius: inherit;
+  }
+  .photo-grid__open:hover img {
+    opacity: 0.9;
+  }
+  .photo-grid__card figcaption {
+    display: grid;
+    gap: var(--space-3xs);
+    padding-block-start: var(--space-xs);
+    font-size: var(--text-xs);
+    line-height: var(--leading-caption);
+    overflow-wrap: anywhere;
+  }
+  .photo-grid__card figcaption span:last-child {
+    color: var(--color-muted);
+  }
+  .photo-grid__pagination,
+  .photo-grid__error {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    padding-block: var(--space-xl);
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+  .photo-grid__load {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    min-height: var(--size-control);
+    padding: var(--space-sm) var(--space-lg);
+    border: var(--rule-hair) solid var(--color-rule-2);
+    border-radius: var(--radius-round);
+    background: transparent;
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .photo-grid__load:hover {
+    background: var(--color-paper-2);
+  }
+  .photo-grid__load[aria-disabled='true'] {
+    cursor: progress;
+  }
+  .photo-grid__empty,
+  .photo-grid__noscript {
+    padding-block: var(--space-xl);
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+  @media (min-width: 40rem) {
+    .photo-grid__tag-list {
+      flex-wrap: wrap;
+      overflow: visible;
+      padding-inline: 0;
+    }
+    .photo-grid__items {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 60rem) {
+    .photo-grid {
+      padding-block-start: var(--space-xl);
+    }
+    .photo-grid__intro {
+      gap: var(--space-md);
+      padding-block-end: var(--space-lg);
+    }
+    .photo-grid__filters {
+      grid-template-columns: minmax(0, 0.6fr) minmax(0, 1.4fr);
+      align-items: start;
+    }
+    .photo-grid__filter-summary {
+      grid-column: 1 / -1;
+    }
+    .photo-grid__items {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 80rem) {
+    .photo-grid__intro {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: end;
+    }
+    .photo-grid__intro > a {
+      grid-column: 1 / -1;
+    }
+    .photo-grid__items {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+</style>
