@@ -42,6 +42,18 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
   </div>
 </header>
 
+<style>
+  @media (max-width: 767px) {
+    :global(.site-header--developer .theme-button), :global(.site-header--developer .language-link) { width: var(--size-control-sm); }
+    :global(.site-header--developer .experience-switch) { height: var(--size-control-sm); grid-template-columns: repeat(2, minmax(var(--size-control-sm), 1fr)); }
+  }
+  @media (max-width: 359px) {
+    :global(.site-header--developer .site-header__inner) { grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-xs); }
+    :global(.site-header--developer .experience-switch) { grid-column: 1 / -1; grid-row: 2; }
+    :global(.site-header--developer .site-tools) { grid-column: 2; grid-row: 1; }
+  }
+</style>
+
 <script>
   const syncThemeLabel = () => {
     const root = document.documentElement;

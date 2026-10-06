@@ -11,6 +11,7 @@ interface GalleryCopy {
 interface GalleryDefinition {
   slug: string;
   assetFolder: string;
+  assetSource?: 'archive';
   sourceFolder: string;
   /** Use standalone photographs from this archive folder instead of the gallery's composed pages. */
   archiveFolder?: string;
@@ -70,7 +71,10 @@ export interface PhotoGallery extends GalleryDefinition {
 }
 
 const imageModules = import.meta.glob<ImageModule>(
-  '../assets/photography/galleries/**/*.jpg',
+  [
+    '../assets/photography/galleries/**/*.jpg',
+    '../assets/photography/archive/**/*.jpg',
+  ],
   { eager: true },
 );
 
@@ -250,7 +254,7 @@ const naturalFilenameOrder = new Intl.Collator('en', {
 });
 
 export const photoGalleries: PhotoGallery[] = definitions.map((definition) => {
-  const folderMarker = `/galleries/${definition.assetFolder}/`;
+  const folderMarker = `/${definition.assetSource ?? 'galleries'}/${definition.assetFolder}/`;
   const images = Object.entries(imageModules)
     .filter(([path]) => path.includes(folderMarker))
     .map(([path, module]) => ({
@@ -332,18 +336,34 @@ export const photoGalleries: PhotoGallery[] = definitions.map((definition) => {
   return { ...definition, cover, indexDetail, images, magazine };
 });
 
+// Published reading order stays stable; the homepage retains its current curated layout.
+export const photoSequence = [
+  'spain-in-transit',
+  'random',
+  'autodromo',
+  'motocross',
+  'dogs',
+  'umbra',
+  'self-portrait',
+].map((slug) => {
+  const gallery = photoGalleries.find((item) => item.slug === slug);
+  if (!gallery)
+    throw new Error(`Missing gallery in published sequence: ${slug}`);
+  return gallery;
+});
+
 export function getNextGallery(slug: string) {
-  const currentIndex = photoGalleries.findIndex(
+  const currentIndex = photoSequence.findIndex(
     (gallery) => gallery.slug === slug,
   );
-  return photoGalleries[(currentIndex + 1) % photoGalleries.length];
+  return photoSequence[(currentIndex + 1) % photoSequence.length];
 }
 
 export function getPreviousGallery(slug: string) {
-  const currentIndex = photoGalleries.findIndex(
+  const currentIndex = photoSequence.findIndex(
     (gallery) => gallery.slug === slug,
   );
-  return photoGalleries[
-    (currentIndex - 1 + photoGalleries.length) % photoGalleries.length
+  return photoSequence[
+    (currentIndex - 1 + photoSequence.length) % photoSequence.length
   ];
 }

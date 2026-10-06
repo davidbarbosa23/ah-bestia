@@ -594,7 +594,12 @@ const labels = ui[lang].photography.lightbox;
       isPhotoTransitioning = false;
       clearPhotoTransition();
       resetZoom();
-      returnFocus?.focus();
+      if (returnFocus?.isConnected) returnFocus.focus();
+      else {
+        const replacement = Array.from(document.querySelectorAll<HTMLElement>('[data-lightbox-src]')).find((item) => item.dataset.lightboxSrc === returnFocus?.dataset.lightboxSrc);
+        (replacement ?? document.querySelector<HTMLElement>('[data-grid-search]'))?.focus();
+      }
+      returnFocus = null;
     });
 
     photoLightboxResizeHandler = renderTransform;

@@ -11,6 +11,7 @@ import {
   getNextGallery,
   getPreviousGallery,
   photoGalleries,
+  photoSequence,
   type PhotoGallery,
 } from '../../../data/photoGalleries';
 
@@ -32,7 +33,7 @@ const lang = Astro.params.lang as Lang;
 const content = gallery.content[lang];
 const previousGallery = getPreviousGallery(gallery.slug);
 const nextGallery = getNextGallery(gallery.slug);
-const galleryIndex = photoGalleries.findIndex(({ slug }) => slug === gallery.slug);
+const galleryIndex = photoSequence.findIndex(({ slug }) => slug === gallery.slug);
 const previousContent = previousGallery.content[lang];
 const nextContent = nextGallery.content[lang];
 const labels = ui[lang].photography.series;

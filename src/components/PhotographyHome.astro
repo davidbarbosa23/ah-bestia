@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { getImage, Image } from 'astro:assets';
 import { copy, ui, type Lang } from '../i18n/content';
 import { photoGalleries } from '../data/photoGalleries';
 import photographerCamera from '../assets/photography/photographer-hero.jpg';
@@ -9,6 +9,11 @@ interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const t = copy[lang].photo;
 const labels = ui[lang];
+// A smaller modern source for the LCP image; keep the original WebP fallback and artwork.
+const firstCoverAvif = await Promise.all([480, 720, 960, 1200].map((width) => getImage({
+  src: photoGalleries[0].cover, width, format: 'avif', quality: 60,
+})));
+const firstCoverSrcset = firstCoverAvif.map(({ src, attributes }) => `${src} ${attributes.width}w`).join(', ');
 ---
 <div class="experience experience--photographer" data-experience-panel="photographer">
   <main id="main" class="photography-home">
@@ -24,7 +29,10 @@ const labels = ui[lang];
           return (
             <article class:list={['photography-entry', `photography-entry--${index + 1}`]} aria-labelledby={`series-${gallery.slug}`} data-reveal>
               <a class="photography-entry__image" href={`/${lang}/ph/${gallery.slug}/`} aria-label={`${t.openNote}: ${content.cardTitle}`} data-series-transition>
-                <Image src={gallery.cover} width={Math.min(1200, gallery.cover.width)} widths={[480, 720, 960, 1200]} sizes={index === 0 || index === 4 ? '(min-width: 1024px) 60vw, 92vw' : '(min-width: 1024px) 42vw, 92vw'} quality={82} loading={index === 0 ? 'eager' : 'lazy'} fetchpriority={index === 0 ? 'high' : 'auto'} alt={`${content.cardTitle}. ${content.description}`} transition:name={`gallery-cover-${gallery.slug}`} />
+                <picture>
+                  {index === 0 && <source type="image/avif" srcset={firstCoverSrcset} sizes="(min-width: 1024px) 60vw, 92vw" />}
+                  <Image src={gallery.cover} width={Math.min(1200, gallery.cover.width)} widths={[480, 720, 960, 1200]} sizes={index === 0 || index === 4 ? '(min-width: 1024px) 60vw, 92vw' : '(min-width: 1024px) 42vw, 92vw'} quality={82} priority={index === 0} loading={index === 0 ? 'eager' : 'lazy'} fetchpriority={index === 0 ? 'high' : 'low'} alt={`${content.cardTitle}. ${content.description}`} transition:name={`gallery-cover-${gallery.slug}`} />
+                </picture>
               </a>
               <div class="photography-entry__caption">
                 <h2 id={`series-${gallery.slug}`}><a href={`/${lang}/ph/${gallery.slug}/`} data-series-transition>{content.cardTitle}<Icon name="arrow-up-right" /></a></h2>

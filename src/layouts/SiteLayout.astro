@@ -7,6 +7,9 @@ import { getImage } from 'astro:assets';
 import { ClientRouter } from 'astro:transitions';
 import portrait from '../assets/portrait.jpg';
 import BackToTop from '../components/BackToTop.astro';
+import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import spaceGroteskLatin from '@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2?url';
+import jetbrainsLatin from '@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url';
 
 type SchemaType = 'WebPage' | 'ProfilePage' | 'CollectionPage' | 'Article' | 'ImageGallery';
 
@@ -112,14 +115,23 @@ const structuredData = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="generator" content={Astro.generator} />
+    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href={spaceGroteskLatin} as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href={jetbrainsLatin} as="font" type="font/woff2" crossorigin="anonymous" />
     {import.meta.env.PROD && (
       <>
-        <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-Q89L54B7BE"></script>
         <script is:inline>
           window.dataLayer = window.dataLayer || [];
           function gtag() { window.dataLayer.push(arguments); }
           gtag('js', new Date());
           gtag('config', 'G-Q89L54B7BE');
+          // Keep the existing events, but let critical content load before the analytics library.
+          window.addEventListener('load', () => {
+            const analytics = document.createElement('script');
+            analytics.async = true;
+            analytics.src = 'https://www.googletagmanager.com/gtag/js?id=G-Q89L54B7BE';
+            document.head.append(analytics);
+          }, { once: true });
         </script>
       </>
     )}
