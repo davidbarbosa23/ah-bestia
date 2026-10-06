@@ -505,7 +505,7 @@ export const ui = {
         tags: {
           portrait: 'Portrait', people: 'People', action: 'Action', car: 'Car', street: 'Street', nature: 'Nature',
           architecture: 'Architecture', animals: 'Animals', bicycle: 'Bicycle', motorcycle: 'Motorcycle',
-          music: 'Music', travel: 'Travel', detail: 'Detail', editorial: 'Editorial', 'black-and-white': 'Black & white',
+          travel: 'Travel', detail: 'Detail', editorial: 'Editorial', 'black-and-white': 'Black & white',
         },
       },
       series: {
@@ -649,7 +649,7 @@ export const ui = {
         tags: {
           portrait: 'Retrato', people: 'Personas', action: 'Acción', car: 'Auto', street: 'Calle', nature: 'Naturaleza',
           architecture: 'Arquitectura', animals: 'Animales', bicycle: 'Bicicleta', motorcycle: 'Moto',
-          music: 'Música', travel: 'Viaje', detail: 'Detalle', editorial: 'Editorial', 'black-and-white': 'Blanco y negro',
+          travel: 'Viaje', detail: 'Detalle', editorial: 'Editorial', 'black-and-white': 'Blanco y negro',
         },
       },
       series: {

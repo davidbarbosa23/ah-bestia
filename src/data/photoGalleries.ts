@@ -243,7 +243,7 @@ const definitions: GalleryDefinition[] = [
     slug: 'umbra',
     assetFolder: 'Umbra',
     sourceFolder: 'Umbra',
-    archiveFolder: '_umbra',
+    archiveFolder: 'friends/Juli',
     coverFilename: '01_portada.jpg',
     indexDetailFilename: '03.jpg',
     content: {

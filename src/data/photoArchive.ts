@@ -18,7 +18,9 @@ const replacedGalleryFolders = new Set(photoGalleries.filter(({ archiveFolder })
 const sourcePhotos = Object.entries(modules).flatMap(([path, module]) => {
   const isGalleryAsset = path.includes('/galleries/');
   const id = path.split(isGalleryAsset ? '/galleries/' : '/archive/')[1];
-  const [folder, filename] = id.split('/');
+  const separator = id.lastIndexOf('/');
+  const folder = id.slice(0, separator);
+  const filename = id.slice(separator + 1);
   if (isGalleryAsset && replacedGalleryFolders.has(folder)) return [];
   const annotation = photoAnnotations[id];
   if (!annotation || !annotation.tags.length || !annotation.alt.en.trim() || !annotation.alt.es.trim() || annotation.tags.some((tag) => !photoTags.includes(tag))) {

@@ -217,16 +217,6 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Distant airplane against golden sunset clouds',
     'Avión distante entre nubes doradas al atardecer',
   ),
-  'random/Teddy.jpg': photo(
-    ['portrait', 'animals'],
-    'Small black and tan dog looking directly at the camera',
-    'Perro pequeño negro y café mirando a la cámara',
-  ),
-  'random/Toby.jpg': photo(
-    ['portrait', 'animals'],
-    'Close profile of an orange tabby cat',
-    'Perfil cercano de un gato naranja atigrado',
-  ),
 
   'autodromo/Corsa.jpg': photo(
     ['car'],
@@ -482,27 +472,6 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Cachorros durmiendo juntos sobre una manta suave',
   ),
 
-  'cat-achira/01.jpg': photo(
-    ['portrait', 'animals'],
-    'Tabby kitten looking toward the camera on a dark seat',
-    'Gatita atigrada mirando a la cámara sobre un asiento oscuro',
-  ),
-  'cat-achira/02.jpg': photo(
-    ['portrait', 'animals'],
-    'Tabby kitten sitting upright on a textured seat',
-    'Gatita atigrada sentada sobre un asiento texturizado',
-  ),
-  'cat-achira/03.jpg': photo(
-    ['portrait', 'animals'],
-    'Tabby kitten gazing upward',
-    'Gatita atigrada mirando hacia arriba',
-  ),
-  'cat-achira/04.jpg': photo(
-    ['portrait', 'animals'],
-    'Tabby kitten watching an outstretched hand',
-    'Gatita atigrada observando una mano extendida',
-  ),
-
   'Aroma-Colombiano/Aroma_Colombiano.jpg': photo(
     ['portrait', 'people'],
     'Aroma Colombiano musicians posing together with their instruments',
@@ -560,47 +529,145 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Autorretrato con gorra oscura sobre fondo claro',
   ),
 
-  '_umbra/01.jpg': photo(
+  'friends/Dani/01.jpg': photo(
+    ['portrait', 'people'],
+    'Close studio portrait in a dark shirt against a gray backdrop',
+    'Retrato cercano de estudio con camiseta oscura sobre fondo gris',
+  ),
+  'friends/Dani/02.jpg': photo(
+    ['portrait', 'people'],
+    'Smiling seated portrait in a white tank top with tattooed arms crossed',
+    'Retrato sentado sonriendo con camiseta blanca sin mangas y brazos tatuados cruzados',
+  ),
+  'friends/Dani/03.jpg': photo(
+    ['portrait', 'people'],
+    'Studio portrait sitting cross-legged on a stool in a white tank top',
+    'Retrato de estudio sentado con las piernas cruzadas sobre un taburete y camiseta blanca sin mangas',
+  ),
+  'friends/Dani/04.jpg': photo(
+    ['portrait', 'people', 'black-and-white'],
+    'Black-and-white close portrait with rim light outlining the head and shoulders',
+    'Retrato cercano en blanco y negro con luz de contorno en la cabeza y los hombros',
+  ),
+
+  'friends/Rola/1001.jpg': photo(
+    ['bicycle', 'action', 'people'],
+    'Helmeted cyclist riding a road bicycle past a blurred wooded hillside',
+    'Ciclista con casco en una bicicleta de ruta frente a una ladera arbolada desenfocada',
+  ),
+  'friends/Rola/1010.jpg': photo(
+    ['portrait', 'people', 'bicycle'],
+    'Seated portrait in cycling clothes and yellow-tinted glasses with a bicycle behind',
+    'Retrato sentada con ropa de ciclismo y gafas amarillas, con una bicicleta detrás',
+  ),
+  'friends/Rola/1011.jpg': photo(
+    ['portrait', 'people', 'bicycle'],
+    'Smiling seated portrait resting the chin on one hand with a bicycle behind',
+    'Retrato sentada sonriendo con el mentón apoyado en una mano y una bicicleta detrás',
+  ),
+  'friends/Rola/1020.jpg': photo(
+    ['portrait', 'people'],
+    'Seated portrait in a purple tank top and yellow-tinted glasses with one hand in the hair',
+    'Retrato sentada con camiseta morada sin mangas y gafas amarillas, con una mano en el cabello',
+  ),
+  'friends/Rola/1021.jpg': photo(
+    ['portrait', 'people'],
+    'Close smiling portrait in yellow-tinted glasses with a hand resting against the forehead',
+    'Retrato cercano sonriendo con gafas amarillas y una mano apoyada en la frente',
+  ),
+  'friends/Rola/1022.jpg': photo(
+    ['portrait', 'people'],
+    'Portrait looking to one side in yellow-tinted glasses under blue side light',
+    'Retrato mirando hacia un lado con gafas amarillas y luz lateral azul',
+  ),
+  'friends/Rola/1023.jpg': photo(
+    ['portrait', 'people'],
+    'Seated portrait tilting the head onto one hand in yellow-tinted glasses',
+    'Retrato sentada inclinando la cabeza sobre una mano con gafas amarillas',
+  ),
+  'friends/Rola/1024.jpg': photo(
+    ['portrait', 'people'],
+    'Seated studio portrait looking to one side with a hand near the chin',
+    'Retrato de estudio sentada mirando hacia un lado con una mano cerca del mentón',
+  ),
+  'friends/Rola/1025.jpg': photo(
+    ['portrait', 'people'],
+    'Seated portrait looking upward with one hand beside yellow-tinted glasses',
+    'Retrato sentada mirando hacia arriba con una mano junto a las gafas amarillas',
+  ),
+  'friends/Rola/1026.jpg': photo(
+    ['portrait', 'people'],
+    'Portrait adjusting yellow-tinted glasses with both hands against a dark backdrop',
+    'Retrato ajustando las gafas amarillas con ambas manos sobre fondo oscuro',
+  ),
+  'friends/Rola/1027.jpg': photo(
+    ['portrait', 'people'],
+    'Close portrait in a black high-neck top and yellow-tinted glasses with blue side light',
+    'Retrato cercano con blusa negra de cuello alto, gafas amarillas y luz lateral azul',
+  ),
+
+  'pets/Achira.jpg': photo(
+    ['portrait', 'animals'],
+    'Tabby kitten looking up toward the camera against a dark background',
+    'Gatita atigrada mirando hacia la cámara sobre fondo oscuro',
+  ),
+  'pets/_A741246.jpg': photo(
+    ['portrait', 'animals'],
+    'White dog with pale blue eyes resting on a dark seat',
+    'Perro blanco de ojos azul claro descansando sobre un asiento oscuro',
+  ),
+  'pets/Teddy.jpg': photo(
+    ['portrait', 'animals'],
+    'Small black and tan dog looking directly at the camera',
+    'Perro pequeño negro y café mirando a la cámara',
+  ),
+  'pets/Toby.jpg': photo(
+    ['portrait', 'animals'],
+    'Close profile of an orange tabby cat',
+    'Perfil cercano de un gato naranja atigrado',
+  ),
+
+  'friends/Juli/01.jpg': photo(
     ['portrait', 'editorial', 'people'],
     'Close portrait in a straw cowboy hat and green dress, looking to one side',
     'Retrato cercano con sombrero vaquero de paja y vestido verde, mirando hacia un lado',
   ),
-  '_umbra/02.jpg': photo(
+  'friends/Juli/02.jpg': photo(
     ['portrait', 'people'],
     'Full-length studio portrait in a green dress, holding the brim of a cowboy hat',
     'Retrato de estudio de cuerpo entero con vestido verde, sujetando el ala de un sombrero vaquero',
   ),
-  '_umbra/04.jpg': photo(
+  'friends/Juli/04.jpg': photo(
     ['portrait', 'editorial', 'black-and-white', 'people'],
     'Black-and-white seated portrait looking to one side against a dark backdrop',
     'Retrato en blanco y negro sentada mirando hacia un lado sobre fondo oscuro',
   ),
-  '_umbra/05.jpg': photo(
+  'friends/Juli/05.jpg': photo(
     ['portrait', 'editorial', 'black-and-white', 'people'],
     'Black-and-white portrait reclining on a dark surface with an outstretched arm',
     'Retrato en blanco y negro recostada sobre una superficie oscura con el brazo extendido',
   ),
-  '_umbra/06.jpg': photo(
+  'friends/Juli/06.jpg': photo(
     ['portrait', 'editorial', 'people'],
     'Seated studio portrait holding a straw cowboy hat against the body',
     'Retrato de estudio sentada sosteniendo un sombrero vaquero de paja contra el cuerpo',
   ),
-  '_umbra/03.jpg': photo(
+  'friends/Juli/03.jpg': photo(
     ['portrait', 'editorial', 'people'],
     'Seated portrait wearing a straw cowboy hat in soft side light',
     'Retrato sentada con sombrero vaquero de paja y luz lateral suave',
   ),
-  '_umbra/07.jpg': photo(
+  'friends/Juli/07.jpg': photo(
     ['portrait', 'editorial', 'people'],
     'Seated portrait facing the camera with hands resting on a straw hat',
     'Retrato sentada frente a la cámara con las manos sobre un sombrero de paja',
   ),
-  '_umbra/08.jpg': photo(
+  'friends/Juli/08.jpg': photo(
     ['portrait', 'editorial', 'people'],
     'Seated portrait touching a cowboy hat with diagonal red and green motion trails',
     'Retrato sentada tocando un sombrero vaquero con estelas diagonales de movimiento rojas y verdes',
   ),
-  '_umbra/09.jpg': photo(
+  'friends/Juli/09.jpg': photo(
     ['portrait', 'editorial', 'people'],
     'Seated portrait holding a cowboy hat with both hands under red and green light',
     'Retrato sentada sujetando un sombrero vaquero con ambas manos bajo luz roja y verde',
