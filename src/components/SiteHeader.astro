@@ -21,12 +21,6 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
       <span aria-hidden="true">db/</span><span>David Barbosa</span>
     </a>
 
-    {experience === 'developer' && <nav class="primary-navigation" aria-label={t.modes.developer}>
-      <a href={`/${lang}/dev/#work`}>{t.nav.work}</a>
-      <a href={`/${lang}/dev/#about`}>{t.nav.about}</a>
-      <a href={`/${lang}/dev/#contact`}>{t.nav.contact}</a>
-    </nav>}
-
     {experience && (
       <nav class="experience-switch" aria-label={t.modes.label}>
         <a class:list={['experience-switch__option', experience === 'developer' && 'is-active']} href={`/${lang}/dev/`} aria-current={experience === 'developer' ? 'page' : undefined} aria-label={t.modes.developer}>
@@ -39,9 +33,6 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
     )}
 
     <nav class="site-tools" aria-label={labels.common.utilityNavigation}>
-      {experience === 'developer' && <button class="jump-button" type="button" data-command-open aria-label={`${t.nav.search} (Ctrl K)`} aria-haspopup="dialog" aria-controls="command-dialog" aria-expanded="false">
-        <Icon name="search" /><span class="jump-button__label">{t.nav.search}</span><kbd>Ctrl K</kbd>
-      </button>}
       <button class="theme-button" type="button" data-theme-toggle data-theme-light-label={t.theme.light} data-theme-dark-label={t.theme.dark} aria-label={t.theme.light} title={t.theme.light}>
         <Icon name="sun" class="theme-icon theme-icon--sun" />
         <Icon name="moon" class="theme-icon theme-icon--moon" />
@@ -51,28 +42,7 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
   </div>
 </header>
 
-{experience === 'developer' && (
-  <dialog class="command" id="command-dialog" data-command aria-label={t.nav.search}>
-    <form method="dialog" class="command__surface">
-      <div class="command__field">
-        <label for="command-search">{t.nav.search}</label>
-        <input id="command-search" type="search" autocomplete="off" placeholder={labels.header.searchPlaceholder} aria-controls="command-results" data-command-input />
-        <button class="command__close" value="close" aria-label={labels.common.close}>ESC</button>
-      </div>
-      <div class="command__results" id="command-results" data-command-results>
-        <a href={`/${lang}/dev/#work`} data-command-item>{t.nav.work}<Icon name="enter" /></a>
-        <a href={`/${lang}/dev/#about`} data-command-item>{t.nav.about}<Icon name="enter" /></a>
-        <a href={`/${lang}/dev/#contact`} data-command-item>{t.nav.contact}<Icon name="enter" /></a>
-        <a href={`/${lang}/dev/labs/`} data-command-item>{t.dev.primaryCta}<Icon name="arrow-up-right" /></a>
-        <p class="command__empty" role="status" aria-atomic="true" hidden data-command-empty>{labels.header.searchNoResults}</p>
-      </div>
-    </form>
-  </dialog>
-)}
-
 <script>
-  let commandReturnFocus: HTMLElement | null = null;
-
   const syncThemeLabel = () => {
     const root = document.documentElement;
     const themeButton = document.querySelector('[data-theme-toggle]');
@@ -88,30 +58,6 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
   syncThemeLabel();
   document.addEventListener('astro:page-load', syncThemeLabel);
 
-  const openCommand = () => {
-    const dialog = document.querySelector('[data-command]');
-    const input = document.querySelector('[data-command-input]');
-    if (!(dialog instanceof HTMLDialogElement)) return;
-    commandReturnFocus = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : document.querySelector<HTMLElement>('[data-command-open]');
-    if (dialog.dataset.focusReturnReady !== 'true') {
-      dialog.dataset.focusReturnReady = 'true';
-      dialog.addEventListener('close', () => {
-        document.querySelector('[data-command-open]')?.setAttribute('aria-expanded', 'false');
-        commandReturnFocus?.focus();
-        commandReturnFocus = null;
-      });
-    }
-    document.querySelectorAll<HTMLElement>('[data-command-item]').forEach((item) => { item.hidden = false; });
-    const empty = document.querySelector<HTMLElement>('[data-command-empty]');
-    if (empty) empty.hidden = true;
-    if (input instanceof HTMLInputElement) input.value = '';
-    dialog.showModal();
-    document.querySelector('[data-command-open]')?.setAttribute('aria-expanded', 'true');
-    requestAnimationFrame(() => (input instanceof HTMLInputElement) && input.focus());
-  };
-
   document.addEventListener('click', (event) => {
     if (!(event.target instanceof Element)) return;
 
@@ -121,53 +67,6 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
       root.dataset.theme = next;
       try { localStorage.setItem('theme', next); } catch { /* The theme also works without storage. */ }
       syncThemeLabel();
-      return;
     }
-
-    if (event.target.closest('[data-command-open]')) {
-      openCommand();
-      return;
-    }
-
-    const dialog = document.querySelector('[data-command]');
-    const item = event.target.closest<HTMLAnchorElement>('[data-command-item]');
-    if (item && dialog instanceof HTMLDialogElement) {
-      commandReturnFocus = null;
-      dialog.close();
-      const destination = new URL(item.href);
-      if (destination.pathname === window.location.pathname && destination.hash) {
-        requestAnimationFrame(() => document.getElementById(destination.hash.slice(1))?.focus({ preventScroll: true }));
-      }
-    }
-    if (event.target === dialog && dialog instanceof HTMLDialogElement) dialog.close();
-  });
-
-  document.addEventListener('keydown', (event) => {
-    const dialog = document.querySelector('[data-command]');
-    if (event.key === 'Escape' && dialog instanceof HTMLDialogElement && dialog.open) {
-      event.preventDefault();
-      dialog.close();
-      return;
-    }
-
-    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-      event.preventDefault();
-      openCommand();
-    }
-  });
-
-  document.addEventListener('input', (event) => {
-    const input = event.target;
-    if (!(input instanceof HTMLInputElement) || !input.matches('[data-command-input]')) return;
-    const query = input.value.toLowerCase();
-    const items = [...document.querySelectorAll('[data-command-item]')];
-    let matches = 0;
-    items.forEach((item) => {
-      if (!(item instanceof HTMLElement)) return;
-      item.hidden = !item.textContent?.toLowerCase().includes(query);
-      if (!item.hidden) matches += 1;
-    });
-    const empty = document.querySelector<HTMLElement>('[data-command-empty]');
-    if (empty) empty.hidden = matches > 0;
   });
 </script>

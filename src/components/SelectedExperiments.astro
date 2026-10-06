@@ -1,0 +1,23 @@
+---
+import { Image } from 'astro:assets';
+import calculatorPreview from '../assets/fixed-gear-preview.jpg';
+import calculatorPreviewEs from '../assets/fixed-gear-preview-es.jpg';
+import { copy, type Lang } from '../i18n/content';
+import Icon from './Icon.astro';
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const t = copy[lang].dev;
+// Preserved for future placement; experiment routes remain active in Labs.
+---
+
+<section class="developer-work page-shell" id="work" aria-labelledby="projects-heading" tabindex="-1">
+  <header class="portfolio-heading" data-reveal><h2 id="projects-heading">{t.projectsTitle}</h2><p>{t.projectsIntro}</p></header>
+  <a class="developer-project" href={`/${lang}/dev/labs/fixed-gear-calculator/`} data-reveal>
+    <figure class="developer-project__preview"><Image src={lang === 'es' ? calculatorPreviewEs : calculatorPreview} widths={[480, 800, 1200]} sizes="92vw" quality={82} loading="lazy" alt={t.projectPreviewAlt} /></figure>
+    <div class="developer-project__copy">
+      <p class="developer-project__category">{t.projectMeta}</p><h3>{t.projectName}</h3><p>{t.projectDesc}</p>
+      <span class="text-link">{t.projectLink}<Icon name="arrow-up-right" /></span>
+    </div>
+  </a>
+</section>
