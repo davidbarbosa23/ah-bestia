@@ -8,21 +8,34 @@ import { normalizePhotoSearch } from '../utils/photoSearch';
 export const PHOTO_BATCH_SIZE = 18;
 export const photoGridSizes = '(min-width: 80rem) 18vw, (min-width: 60rem) 23vw, (min-width: 40rem) 30vw, 46vw';
 
-const modules = import.meta.glob<{ default: ImageMetadata }>('../assets/photography/galleries/**/*.jpg', { eager: true });
+const modules = import.meta.glob<{ default: ImageMetadata }>([
+  '../assets/photography/galleries/**/*.jpg',
+  '../assets/photography/archive/**/*.jpg',
+], { eager: true });
 
-const sourcePhotos = Object.entries(modules).map(([path, module]) => {
-  const id = path.split('/galleries/')[1];
+// Magazine assets stay in galleries; an archive override replaces only that series in the grid.
+const replacedGalleryFolders = new Set(photoGalleries.filter(({ archiveFolder }) => archiveFolder).map(({ assetFolder }) => assetFolder));
+const sourcePhotos = Object.entries(modules).flatMap(([path, module]) => {
+  const isGalleryAsset = path.includes('/galleries/');
+  const id = path.split(isGalleryAsset ? '/galleries/' : '/archive/')[1];
   const [folder, filename] = id.split('/');
+  if (isGalleryAsset && replacedGalleryFolders.has(folder)) return [];
   const annotation = photoAnnotations[id];
-  if (!annotation || !annotation.tags.length || annotation.tags.some((tag) => !photoTags.includes(tag))) {
+  if (!annotation || !annotation.tags.length || !annotation.alt.en.trim() || !annotation.alt.es.trim() || annotation.tags.some((tag) => !photoTags.includes(tag))) {
     throw new Error(`Add reviewed tags and bilingual alt text for ${id} in src/data/photoTags.ts`);
   }
-  const gallery = photoGalleries.find(({ assetFolder }) => assetFolder === folder);
-  return { id, folder, filename, image: module.default, annotation, gallery };
+  const gallery = photoGalleries.find(({ assetFolder, archiveFolder }) => (isGalleryAsset ? assetFolder : archiveFolder) === folder);
+  return [{ id, folder, filename, image: module.default, annotation, gallery }];
 });
 
+for (const gallery of photoGalleries) {
+  if (gallery.archiveFolder && !sourcePhotos.some(({ folder }) => folder === gallery.archiveFolder)) {
+    throw new Error(`Missing archive photographs for ${gallery.slug} in src/assets/photography/archive/${gallery.archiveFolder}`);
+  }
+}
+
 // Round-robin series, cover first: the opening batch represents the whole archive.
-const folders = [...new Set([...photoGalleries.map(({ assetFolder }) => assetFolder), ...sourcePhotos.map(({ folder }) => folder)])];
+const folders = [...new Set([...photoGalleries.map(({ assetFolder, archiveFolder }) => archiveFolder ?? assetFolder), ...sourcePhotos.map(({ folder }) => folder)])];
 const groups = folders.map((folder) => sourcePhotos.filter((photo) => photo.folder === folder).sort((a, b) => {
   if (a.filename === a.gallery?.coverFilename) return -1;
   if (b.filename === b.gallery?.coverFilename) return 1;

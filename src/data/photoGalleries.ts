@@ -12,6 +12,8 @@ interface GalleryDefinition {
   slug: string;
   assetFolder: string;
   sourceFolder: string;
+  /** Use standalone photographs from this archive folder instead of the gallery's composed pages. */
+  archiveFolder?: string;
   coverFilename: string;
   indexDetailFilename: string;
   content: Record<Lang, GalleryCopy>;
@@ -241,6 +243,7 @@ const definitions: GalleryDefinition[] = [
     slug: 'umbra',
     assetFolder: 'Umbra',
     sourceFolder: 'Umbra',
+    archiveFolder: '_umbra',
     coverFilename: '01_portada.jpg',
     indexDetailFilename: '03.jpg',
     content: {

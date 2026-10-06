@@ -55,15 +55,15 @@ pnpm astro dev stop
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `pnpm astro dev --background` | Start the local development server in the background |
-| `pnpm check` | Run Astro and TypeScript checks, then validate CSS token usage |
-| `pnpm check:tokens` | Check styles for undefined tokens and disallowed one-off values |
-| `pnpm build` | Generate the production site in `dist/` |
-| `pnpm preview` | Preview the production build locally |
-| `pnpm deploy:gh-page` | Build and publish `dist/` to the remote `gh-page` branch |
-| `pnpm deploy:gh-page -- --dry-run` | Validate the deployment push without publishing it |
+| Command                            | Purpose                                                         |
+| ---------------------------------- | --------------------------------------------------------------- |
+| `pnpm astro dev --background`      | Start the local development server in the background            |
+| `pnpm check`                       | Run Astro and TypeScript checks, then validate CSS token usage  |
+| `pnpm check:tokens`                | Check styles for undefined tokens and disallowed one-off values |
+| `pnpm build`                       | Generate the production site in `dist/`                         |
+| `pnpm preview`                     | Preview the production build locally                            |
+| `pnpm deploy:gh-page`              | Build and publish `dist/` to the remote `gh-page` branch        |
+| `pnpm deploy:gh-page -- --dry-run` | Validate the deployment push without publishing it              |
 
 Before opening a pull request or deploying, run:
 
@@ -76,15 +76,15 @@ pnpm build
 
 Every public experience is generated in English and Spanish:
 
-| Route | Description |
-| --- | --- |
-| `/en/dev/`, `/es/dev/` | Developer portfolio |
-| `/en/dev/labs/`, `/es/dev/labs/` | Developer experiments |
-| `/en/dev/labs/[slug]/`, `/es/dev/labs/[slug]/` | Individual interactive lab |
-| `/en/ph/`, `/es/ph/` | Photography portfolio |
-| `/en/ph/grid/`, `/es/ph/grid/` | All photographs in a searchable masonry grid with tag filters and infinite scroll |
-| `/en/ph/grid/[page]/`, `/es/ph/grid/[page]/` | Paginated archive for direct links and browsing without JavaScript |
-| `/en/ph/[slug]/`, `/es/ph/[slug]/` | Individual photography series |
+| Route                                          | Description                                                                       |
+| ---------------------------------------------- | --------------------------------------------------------------------------------- |
+| `/en/dev/`, `/es/dev/`                         | Developer portfolio                                                               |
+| `/en/dev/labs/`, `/es/dev/labs/`               | Developer experiments                                                             |
+| `/en/dev/labs/[slug]/`, `/es/dev/labs/[slug]/` | Individual interactive lab                                                        |
+| `/en/ph/`, `/es/ph/`                           | Photography portfolio                                                             |
+| `/en/ph/grid/`, `/es/ph/grid/`                 | All photographs in a searchable masonry grid with tag filters and infinite scroll |
+| `/en/ph/grid/[page]/`, `/es/ph/grid/[page]/`   | Paginated archive for direct links and browsing without JavaScript                |
+| `/en/ph/[slug]/`, `/es/ph/[slug]/`             | Individual photography series                                                     |
 
 The legacy `/:lang/dev/projects/` route redirects to the Labs archive.
 
@@ -110,7 +110,8 @@ The legacy `/:lang/dev/projects/` route redirects to the Labs archive.
 
 - Update shared interface and portfolio copy in `src/i18n/content.ts`. Keep English and Spanish entries in sync.
 - Define photography series in `src/data/photoGalleries.ts` and store their source images under `src/assets/photography/galleries/`.
-- Add visually reviewed tags and English/Spanish image descriptions in `src/data/photoTags.ts` for every new gallery image. The grid includes all gallery folders, including images outside the series index, and checks annotation coverage when building. It renders 18 photographs initially and fetches archive metadata once on the first search, filter, or scroll that needs more photos. Multiple selected tags must all match; text search recognizes both languages.
+- The “All photographs” grid normally includes all gallery folders, including images outside the series index. For a series with composed magazine pages, set `archiveFolder` in `src/data/photoGalleries.ts` and place its standalone photos in `src/assets/photography/archive/<archiveFolder>/`. This replaces that series' gallery files only in the archive; magazine pages, covers, and reading order still use the gallery assets. Builds fail if a configured archive folder is empty.
+- Add visually reviewed tags and English/Spanish image descriptions in `src/data/photoTags.ts` for every photograph included in the archive, using `folder/filename` keys. Magazine-only pages do not need archive annotations. The grid checks annotation coverage when building. It renders 18 photographs initially and fetches archive metadata once on the first search, filter, or scroll that needs more photos. Multiple selected tags must all match; text search recognizes both languages.
 - Define developer experiments in `src/data/labs.ts`; their routes are generated from the project slug.
 - Reuse values from `tokens.css` when styling components. `pnpm check:tokens` rejects color literals, undefined variables, and un-tokenized typography or elevation values in project styles.
 

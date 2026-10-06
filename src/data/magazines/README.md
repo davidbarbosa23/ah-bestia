@@ -29,3 +29,5 @@ Add a JSON file whose filename matches a photo gallery slug to render that galle
 - `alt` is optional localized alternative text. When omitted, the gallery title and page number are used.
 
 Remove the same-slug JSON file to return a gallery to the standard photo grid.
+
+Magazine pages can contain crops, typography, and other composed layouts. To use the original photographs in “All photographs”, set the gallery's `archiveFolder` in `src/data/photoGalleries.ts` and place JPG copies under `src/assets/photography/archive/<archiveFolder>/`. Add tags and bilingual descriptions for those photographs in `src/data/photoTags.ts`. The archive then uses these photos instead of that gallery's magazine assets, while the magazine continues to use its configured pages.
