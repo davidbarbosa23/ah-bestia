@@ -1,6 +1,7 @@
 import type { ArchivePhoto } from '../data/photoArchive';
 import type { PhotoGridCopy } from '../i18n/content';
 import { normalizePhotoSearch } from '../utils/photoSearch';
+import { formatPhotoFolder } from '../utils/photoFolder';
 
 let cleanupGrid: (() => void) | undefined;
 
@@ -79,7 +80,8 @@ export function setupPhotoGrid() {
     clear.hidden = selected.size === 0 && !search.value && !selectedFolder;
     all.setAttribute('aria-pressed', String(selected.size === 0 && !search.value && !selectedFolder));
     folderFilter.hidden = !selectedFolder;
-    folderLabel.textContent = labels.folderFilter.replace('{folder}', selectedFolder);
+    root.toggleAttribute('data-grid-folder-selected', Boolean(selectedFolder));
+    folderLabel.textContent = labels.folderFilter.replace('{folder}', formatPhotoFolder(selectedFolder));
     tagButtons.forEach((button) => button.setAttribute('aria-pressed', String(selected.has(button.dataset.gridTag!))));
   };
 
@@ -116,10 +118,11 @@ export function setupPhotoGrid() {
     image.srcset = photo.srcset;
     image.src = photo.src;
     const folder = card.querySelector<HTMLButtonElement>('[data-grid-folder]')!;
+    const folderName = formatPhotoFolder(photo.folder);
     folder.dataset.gridFolder = photo.folder;
-    folder.setAttribute('aria-label', `${labels.filterFolder}: ${photo.folder}`);
-    folder.title = `${labels.filterFolder}: ${photo.folder}`;
-    folder.querySelector('span')!.textContent = photo.folder;
+    folder.setAttribute('aria-label', `${labels.filterFolder}: ${folderName}`);
+    folder.title = `${labels.filterFolder}: ${folderName}`;
+    folder.querySelector('span')!.textContent = folderName;
     const title = card.querySelector('figcaption span:first-child')!;
     const tags = card.querySelector('figcaption span:last-child')!;
     title.textContent = photo.title;
@@ -302,6 +305,7 @@ export function setupPhotoGrid() {
   readUrl();
   cleanupGrid = () => {
     delete root.dataset.gridReady;
+    root.removeAttribute('data-grid-folder-selected');
     controller.abort();
     resize?.disconnect();
     intersection?.disconnect();

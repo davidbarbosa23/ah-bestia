@@ -3,9 +3,11 @@ import type { ArchivePhoto } from '../data/photoArchive';
 import { photoGridSizes } from '../data/photoArchive';
 import { ui, type Lang } from '../i18n/content';
 import Icon from './Icon.astro';
+import { formatPhotoFolder } from '../utils/photoFolder';
 
 interface Props { photo: ArchivePhoto; lang: Lang; priority?: boolean; }
 const { photo, lang, priority = false } = Astro.props;
+const folderName = formatPhotoFolder(photo.folder);
 ---
 
 <figure class="photo-grid__card" data-grid-card data-photo-id={photo.id}>
@@ -38,10 +40,10 @@ const { photo, lang, priority = false } = Astro.props;
       type="button"
       class="photo-grid__action photo-grid__folder"
       data-grid-folder={photo.folder}
-      aria-label={`${ui[lang].photography.grid.filterFolder}: ${photo.folder}`}
+      aria-label={`${ui[lang].photography.grid.filterFolder}: ${folderName}`}
       aria-controls="photo-grid-items"
-      title={`${ui[lang].photography.grid.filterFolder}: ${photo.folder}`}
-    ><Icon name="folder" /><span>{photo.folder}</span></button>
+      title={`${ui[lang].photography.grid.filterFolder}: ${folderName}`}
+    ><Icon name="folder" /><span>{folderName}</span></button>
   </div>
   <figcaption><span>{photo.title}</span><span>{photo.tagLabel}</span></figcaption>
 </figure>

@@ -267,7 +267,8 @@ const count = labels.count.replace('{shown}', String(offset + photos.length)).re
     outline-color: var(--color-viewer-ink);
     outline-offset: var(--outline-offset-inset);
   }
-  .photo-grid:not([data-grid-ready]) .photo-grid__folder {
+  .photo-grid:not([data-grid-ready]) .photo-grid__folder,
+  .photo-grid[data-grid-folder-selected] .photo-grid__folder {
     display: none;
   }
   [data-grid-folder-active] {
