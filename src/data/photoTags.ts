@@ -2,6 +2,7 @@ import type { Lang } from '../i18n/content';
 
 export const photoTags = [
   'portrait',
+  'people',
   'action',
   'car',
   'street',
@@ -10,7 +11,6 @@ export const photoTags = [
   'animals',
   'bicycle',
   'motorcycle',
-  'music',
   'travel',
   'detail',
   'editorial',
@@ -72,12 +72,12 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Vaca junto a un lago de montaña en Covadonga',
   ),
   'spain/Crossing.jpg': photo(
-    ['architecture', 'travel'],
+    ['architecture', 'travel', 'people'],
     'Underside of a bridge reflected in still water',
     'Parte inferior de un puente reflejada en agua tranquila',
   ),
   'spain/Estacion_Del_Norte.jpg': photo(
-    ['street', 'architecture', 'travel'],
+    ['street', 'architecture', 'travel', 'people'],
     'Silhouetted passerby in front of a railway station facade',
     'Silueta de una persona frente a la fachada de una estación',
   ),
@@ -102,7 +102,7 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Paloma volando frente a la torre de una iglesia en Madrid',
   ),
   'spain/Madrir_Real_Basilica.jpg': photo(
-    ['architecture', 'travel'],
+    ['architecture', 'travel', 'people'],
     'Wedding ceremony along a red aisle inside an ornate basilica',
     'Ceremonia de boda sobre un pasillo rojo en una basílica ornamentada',
   ),
@@ -163,7 +163,7 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'As de picas sobre cartas de juego dispersas',
   ),
   'random/Chopper_Bike.jpg': photo(
-    ['bicycle', 'detail'],
+    ['bicycle'],
     'Green chopper bicycle with extended front forks',
     'Bicicleta chopper verde con horquilla delantera alargada',
   ),
@@ -183,7 +183,7 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Cuadro y ruedas de bicicleta Crew negra sobre fondo blanco',
   ),
   'random/Crossing.jpg': photo(
-    ['street', 'action', 'bicycle'],
+    ['street', 'action', 'people'],
     'Cyclist moving through a pedestrian crossing at night',
     'Ciclista pasando por un cruce peatonal de noche',
   ),
@@ -193,12 +193,12 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Helicóptero bajo una luna brillante en un cielo azul',
   ),
   'random/Les_Paul_100.jpg': photo(
-    ['music', 'detail'],
+    ['detail'],
     'Golden electric guitar body with strings and control knobs',
     'Cuerpo dorado de guitarra eléctrica con cuerdas y controles',
   ),
   'random/Market.jpg': photo(
-    ['street', 'black-and-white'],
+    ['street', 'black-and-white', 'people'],
     'Crowded market street beneath a web of overhead cables',
     'Calle de mercado concurrida bajo una red de cables',
   ),
@@ -260,42 +260,42 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
   ),
 
   'campeonato-distrital-mxac/01.jpg': photo(
-    ['action', 'motorcycle'],
+    ['action', 'motorcycle', 'people'],
     'Motocross riders racing together on a dirt track',
     'Pilotos de motocross compitiendo sobre una pista de tierra',
   ),
   'campeonato-distrital-mxac/02.jpg': photo(
-    ['action', 'motorcycle'],
+    ['action', 'motorcycle', 'people'],
     'Motocross rider approaching through a cloud of dust',
     'Piloto de motocross acercándose entre una nube de polvo',
   ),
   'campeonato-distrital-mxac/03.jpg': photo(
-    ['action', 'motorcycle'],
+    ['action', 'motorcycle', 'people'],
     'Two motocross riders rounding a wooded dirt course',
     'Dos pilotos de motocross recorriendo una pista entre árboles',
   ),
   'campeonato-distrital-mxac/04.jpg': photo(
-    ['action', 'motorcycle'],
+    ['action', 'motorcycle', 'people'],
     'Motocross rider airborne against the blue sky',
     'Piloto de motocross en el aire frente al cielo azul',
   ),
   'campeonato-distrital-mxac/05.jpg': photo(
-    ['motorcycle'],
+    ['motorcycle', 'people'],
     'Helmeted riders waiting beside their dirt bikes',
     'Pilotos con casco esperando junto a sus motos',
   ),
   'campeonato-distrital-mxac/06.jpg': photo(
-    ['action', 'motorcycle'],
+    ['action', 'motorcycle', 'people'],
     'Motocross rider lifting off a dusty jump',
     'Piloto de motocross despegando de un salto polvoriento',
   ),
   'campeonato-distrital-mxac/07.jpg': photo(
-    ['action', 'motorcycle'],
+    ['action', 'motorcycle', 'people'],
     'Motocross rider suspended above the track',
     'Piloto de motocross suspendido sobre la pista',
   ),
   'campeonato-distrital-mxac/08.jpg': photo(
-    ['bicycle', 'nature'],
+    ['bicycle'],
     'Bicycles parked on grass beside an event banner',
     'Bicicletas estacionadas sobre el césped junto a una bandera del evento',
   ),
@@ -504,104 +504,104 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
   ),
 
   'Aroma-Colombiano/Aroma_Colombiano.jpg': photo(
-    ['portrait', 'music'],
+    ['portrait', 'people'],
     'Aroma Colombiano musicians posing together with their instruments',
     'Músicos de Aroma Colombiano posando juntos con sus instrumentos',
   ),
   'Aroma-Colombiano/Bass.jpg': photo(
-    ['music', 'detail'],
+    ['detail'],
     'Warm wooden body and strings of a double bass',
     'Cuerpo de madera cálida y cuerdas de un contrabajo',
   ),
   'Aroma-Colombiano/Cris.jpg': photo(
-    ['portrait', 'music'],
+    ['portrait', 'people'],
     'Musician holding percussion instruments against a gray backdrop',
     'Músico con instrumentos de percusión sobre fondo gris',
   ),
   'Aroma-Colombiano/Fede.jpg': photo(
-    ['portrait', 'music'],
+    ['portrait', 'people'],
     'Musician holding a small stringed instrument over his shoulder',
     'Músico con un instrumento de cuerdas pequeño sobre el hombro',
   ),
   'Aroma-Colombiano/Juli.jpg': photo(
-    ['portrait', 'music'],
+    ['portrait', 'people'],
     'Singer in a colorful floral outfit against a gray backdrop',
     'Cantante con vestido floral de colores sobre fondo gris',
   ),
   'Aroma-Colombiano/Santi.jpg': photo(
-    ['portrait', 'music'],
+    ['portrait', 'people'],
     'Musician holding a clarinet against a gray backdrop',
     'Músico con clarinete sobre fondo gris',
   ),
   'Aroma-Colombiano/Sebass.jpg': photo(
-    ['portrait', 'music'],
+    ['portrait', 'people'],
     'Double bass player behind his instrument',
     'Contrabajista detrás de su instrumento',
   ),
 
   'Self-Portrait/01.jpg': photo(
-    ['portrait'],
+    ['portrait', 'people'],
     'Self portrait wearing glasses in bright side light',
     'Autorretrato con gafas y luz lateral intensa',
   ),
   'Self-Portrait/02.jpg': photo(
-    ['portrait'],
+    ['portrait', 'people'],
     'Self portrait wearing glasses against a dark background',
     'Autorretrato con gafas sobre fondo oscuro',
   ),
   'Self-Portrait/03.jpg': photo(
-    ['portrait'],
+    ['portrait', 'people'],
     'Close self portrait wearing a cap and glasses',
     'Autorretrato cercano con gorra y gafas',
   ),
   'Self-Portrait/04.jpg': photo(
-    ['portrait'],
+    ['portrait', 'people'],
     'Self portrait wearing a dark cap against a pale background',
     'Autorretrato con gorra oscura sobre fondo claro',
   ),
 
   '_umbra/01.jpg': photo(
-    ['portrait', 'editorial'],
+    ['portrait', 'editorial', 'people'],
     'Close portrait in a straw cowboy hat and green dress, looking to one side',
     'Retrato cercano con sombrero vaquero de paja y vestido verde, mirando hacia un lado',
   ),
   '_umbra/02.jpg': photo(
-    ['portrait', 'editorial'],
+    ['portrait', 'people'],
     'Full-length studio portrait in a green dress, holding the brim of a cowboy hat',
     'Retrato de estudio de cuerpo entero con vestido verde, sujetando el ala de un sombrero vaquero',
   ),
   '_umbra/04.jpg': photo(
-    ['portrait', 'editorial', 'black-and-white'],
+    ['portrait', 'editorial', 'black-and-white', 'people'],
     'Black-and-white seated portrait looking to one side against a dark backdrop',
     'Retrato en blanco y negro sentada mirando hacia un lado sobre fondo oscuro',
   ),
   '_umbra/05.jpg': photo(
-    ['portrait', 'editorial', 'black-and-white'],
+    ['portrait', 'editorial', 'black-and-white', 'people'],
     'Black-and-white portrait reclining on a dark surface with an outstretched arm',
     'Retrato en blanco y negro recostada sobre una superficie oscura con el brazo extendido',
   ),
   '_umbra/06.jpg': photo(
-    ['portrait', 'editorial'],
+    ['portrait', 'editorial', 'people'],
     'Seated studio portrait holding a straw cowboy hat against the body',
     'Retrato de estudio sentada sosteniendo un sombrero vaquero de paja contra el cuerpo',
   ),
   '_umbra/03.jpg': photo(
-    ['portrait', 'editorial'],
+    ['portrait', 'editorial', 'people'],
     'Seated portrait wearing a straw cowboy hat in soft side light',
     'Retrato sentada con sombrero vaquero de paja y luz lateral suave',
   ),
   '_umbra/07.jpg': photo(
-    ['portrait', 'editorial'],
+    ['portrait', 'editorial', 'people'],
     'Seated portrait facing the camera with hands resting on a straw hat',
     'Retrato sentada frente a la cámara con las manos sobre un sombrero de paja',
   ),
   '_umbra/08.jpg': photo(
-    ['portrait', 'editorial'],
+    ['portrait', 'editorial', 'people'],
     'Seated portrait touching a cowboy hat with diagonal red and green motion trails',
     'Retrato sentada tocando un sombrero vaquero con estelas diagonales de movimiento rojas y verdes',
   ),
   '_umbra/09.jpg': photo(
-    ['portrait', 'editorial'],
+    ['portrait', 'editorial', 'people'],
     'Seated portrait holding a cowboy hat with both hands under red and green light',
     'Retrato sentada sujetando un sombrero vaquero con ambas manos bajo luz roja y verde',
   ),

@@ -503,7 +503,7 @@ export const ui = {
         noScript: 'Use the page links to explore the archive. Enable JavaScript to search and filter.',
         archive: 'Photo archive',
         tags: {
-          portrait: 'Portrait', action: 'Action', car: 'Car', street: 'Street', nature: 'Nature',
+          portrait: 'Portrait', people: 'People', action: 'Action', car: 'Car', street: 'Street', nature: 'Nature',
           architecture: 'Architecture', animals: 'Animals', bicycle: 'Bicycle', motorcycle: 'Motorcycle',
           music: 'Music', travel: 'Travel', detail: 'Detail', editorial: 'Editorial', 'black-and-white': 'Black & white',
         },
@@ -647,7 +647,7 @@ export const ui = {
         noScript: 'Usa los enlaces de página para explorar el archivo. Activa JavaScript para buscar y filtrar.',
         archive: 'Archivo fotográfico',
         tags: {
-          portrait: 'Retrato', action: 'Acción', car: 'Auto', street: 'Calle', nature: 'Naturaleza',
+          portrait: 'Retrato', people: 'Personas', action: 'Acción', car: 'Auto', street: 'Calle', nature: 'Naturaleza',
           architecture: 'Arquitectura', animals: 'Animales', bicycle: 'Bicicleta', motorcycle: 'Moto',
           music: 'Música', travel: 'Viaje', detail: 'Detalle', editorial: 'Editorial', 'black-and-white': 'Blanco y negro',
         },
