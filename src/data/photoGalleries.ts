@@ -173,29 +173,6 @@ const definitions: GalleryDefinition[] = [
     },
   },
   {
-    slug: 'bikes',
-    assetFolder: 'bikes',
-    sourceFolder: 'Bikes',
-    coverFilename: '3T_Handlebar.jpg',
-    indexDetailFilename: 'Trek_Frame.jpg',
-    content: {
-      en: {
-        title: 'Machine studies',
-        cardTitle: 'Machine study',
-        description:
-          'Bicycles observed through frame lines, components, color, and use.',
-        location: 'Bicycles',
-      },
-      es: {
-        title: 'Estudios de máquina',
-        cardTitle: 'Estudio de máquina',
-        description:
-          'Bicicletas observadas a través de líneas, componentes, color y uso.',
-        location: 'Bicicletas',
-      },
-    },
-  },
-  {
     slug: 'dogs',
     assetFolder: 'dogs',
     sourceFolder: 'Dogs',
@@ -215,27 +192,6 @@ const definitions: GalleryDefinition[] = [
         description:
           'Retratos de atención, movimiento y la pausa compartida después del juego.',
         location: 'Perros',
-      },
-    },
-  },
-  {
-    slug: 'aroma-colombiano',
-    assetFolder: 'Aroma-Colombiano',
-    sourceFolder: 'Aroma_Colombiano',
-    coverFilename: 'Aroma_Colombiano.jpg',
-    indexDetailFilename: 'Bass.jpg',
-    content: {
-      en: {
-        title: 'Aroma Colombiano',
-        cardTitle: 'Aroma Colombiano',
-        description: 'Portraits of Colombian Andean music',
-        location: 'Aroma Colombiano',
-      },
-      es: {
-        title: 'Aroma Colombiano',
-        cardTitle: 'Aroma Colombiano',
-        description: 'Retratos de Música Andina Colombiana',
-        location: 'Aroma Colombiano',
       },
     },
   },

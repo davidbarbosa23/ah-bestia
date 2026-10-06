@@ -152,6 +152,21 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Fortaleza costera sobre el agua turquesa de Tossa de Mar',
   ),
 
+  'random/ASC06794.jpg': photo(
+    ['animals', 'nature'],
+    'Bird silhouetted on a ledge against a golden sunset',
+    'Silueta de un ave sobre una cornisa frente a un atardecer dorado',
+  ),
+  'random/ASC06975.jpg': photo(
+    ['animals', 'nature'],
+    'Two doves resting on a sunlit concrete ledge',
+    'Dos tórtolas descansando sobre una cornisa de concreto iluminada por el sol',
+  ),
+  'random/Chicamocha.jpg': photo(
+    ['nature', 'travel'],
+    'River winding between layered mountain slopes in Chicamocha Canyon',
+    'Río serpenteando entre laderas montañosas del cañón del Chicamocha',
+  ),
   'random/Building.jpg': photo(
     ['architecture'],
     'Tall modern buildings among dense city blocks',
@@ -290,102 +305,102 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Bicicletas estacionadas sobre el césped junto a una bandera del evento',
   ),
 
-  'bikes/3T_Back.jpg': photo(
+  'bikes/3T-Exploro/3T_Back.jpg': photo(
     ['bicycle', 'detail'],
     'Rear frame junction of a red 3T bicycle',
     'Unión trasera del cuadro de una bicicleta 3T roja',
   ),
-  'bikes/3T_Brand.jpg': photo(
+  'bikes/3T-Exploro/3T_Brand.jpg': photo(
     ['bicycle', 'detail'],
     '3T logo on a red bicycle head tube',
     'Logotipo 3T sobre el tubo frontal de una bicicleta roja',
   ),
-  'bikes/3T_Crank.jpg': photo(
+  'bikes/3T-Exploro/3T_Crank.jpg': photo(
     ['bicycle', 'detail'],
     'Crank and chainring of a red 3T bicycle',
     'Bielas y plato de una bicicleta 3T roja',
   ),
-  'bikes/3T_Derailleur.jpg': photo(
+  'bikes/3T-Exploro/3T_Derailleur.jpg': photo(
     ['bicycle', 'detail'],
     'Rear derailleur and cassette of a red 3T bicycle',
     'Desviador trasero y cassette de una bicicleta 3T roja',
   ),
-  'bikes/3T_Front.jpg': photo(
+  'bikes/3T-Exploro/3T_Front.jpg': photo(
     ['bicycle', 'detail'],
     'Front fork and wheel of a red 3T bicycle',
     'Horquilla y rueda delantera de una bicicleta 3T roja',
   ),
-  'bikes/3T_Full.jpg': photo(
+  'bikes/3T-Exploro/3T_Full.jpg': photo(
     ['bicycle'],
     'Full red 3T bicycle photographed against a dark background',
     'Bicicleta 3T roja completa sobre fondo oscuro',
   ),
-  'bikes/3T_Handlebar.jpg': photo(
+  'bikes/3T-Exploro/3T_Handlebar.jpg': photo(
     ['bicycle', 'detail'],
     'Drop handlebar and head tube of a red 3T bicycle',
     'Manillar curvo y tubo frontal de una bicicleta 3T roja',
   ),
-  'bikes/3T_Pedal.jpg': photo(
+  'bikes/3T-Exploro/3T_Pedal.jpg': photo(
     ['bicycle', 'detail'],
     'Pedal beside the frame of a red 3T bicycle',
     'Pedal junto al cuadro de una bicicleta 3T roja',
   ),
-  'bikes/3T_Rear-Wheel.jpg': photo(
+  'bikes/3T-Exploro/3T_Rear-Wheel.jpg': photo(
     ['bicycle', 'detail'],
     'Rear wheel and drivetrain of a red 3T bicycle',
     'Rueda trasera y transmisión de una bicicleta 3T roja',
   ),
-  'bikes/3T_Saddle.jpg': photo(
+  'bikes/3T-Exploro/3T_Saddle.jpg': photo(
     ['bicycle', 'detail'],
     'Saddle and top tube of a red 3T bicycle',
     'Sillín y tubo superior de una bicicleta 3T roja',
   ),
-  'bikes/Teek_Derailleur.jpg': photo(
+  'bikes/Trek-Emonda/Teek_Derailleur.jpg': photo(
     ['bicycle', 'detail'],
     'Rear derailleur of a silver Trek bicycle',
     'Desviador trasero de una bicicleta Trek plateada',
   ),
-  'bikes/Trek_Crank.jpg': photo(
+  'bikes/Trek-Emonda/Trek_Crank.jpg': photo(
     ['bicycle', 'detail'],
     'Crankset and chainrings of a silver Trek bicycle',
     'Bielas y platos de una bicicleta Trek plateada',
   ),
-  'bikes/Trek_Disc.jpg': photo(
+  'bikes/Trek-Emonda/Trek_Disc.jpg': photo(
     ['bicycle', 'detail'],
     'Disc brake rotor on a Trek bicycle wheel',
     'Disco de freno en la rueda de una bicicleta Trek',
   ),
-  'bikes/Trek_Frame.jpg': photo(
+  'bikes/Trek-Emonda/Trek_Frame.jpg': photo(
     ['bicycle', 'detail'],
     'Silver Trek frame with its model lettering',
     'Cuadro Trek plateado con el nombre del modelo',
   ),
-  'bikes/Trek_Front.jpg': photo(
+  'bikes/Trek-Emonda/Trek_Front.jpg': photo(
     ['bicycle', 'detail'],
     'Front fork of a silver Trek bicycle',
     'Horquilla delantera de una bicicleta Trek plateada',
   ),
-  'bikes/Trek_Full.jpg': photo(
+  'bikes/Trek-Emonda/Trek_Full.jpg': photo(
     ['bicycle'],
     'Full silver Trek bicycle photographed against a dark background',
     'Bicicleta Trek plateada completa sobre fondo oscuro',
   ),
-  'bikes/Trek_Handlebar.jpg': photo(
+  'bikes/Trek-Emonda/Trek_Handlebar.jpg': photo(
     ['bicycle', 'detail'],
     'Drop handlebar and front cables of a Trek bicycle',
     'Manillar curvo y cables delanteros de una bicicleta Trek',
   ),
-  'bikes/Trek_Rear-Wheel.jpg': photo(
+  'bikes/Trek-Emonda/Trek_Rear-Wheel.jpg': photo(
     ['bicycle', 'detail'],
     'Rear wheel and spokes of a silver Trek bicycle',
     'Rueda trasera y radios de una bicicleta Trek plateada',
   ),
-  'bikes/Trek_Saddle.jpg': photo(
+  'bikes/Trek-Emonda/Trek_Saddle.jpg': photo(
     ['bicycle', 'detail'],
     'Saddle above the silver frame of a Trek bicycle',
     'Sillín sobre el cuadro plateado de una bicicleta Trek',
   ),
-  'bikes/Trek_Sensor.jpg': photo(
+  'bikes/Trek-Emonda/Trek_Sensor.jpg': photo(
     ['bicycle', 'detail'],
     'Sensor mounted beside a Trek bicycle crank',
     'Sensor montado junto a las bielas de una bicicleta Trek',

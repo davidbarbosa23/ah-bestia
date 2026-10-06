@@ -85,7 +85,7 @@ export async function prepareArchivePhotos(lang: Lang, photos = archivePhotos): 
       tags: photo.annotation.tags,
       tagLabel: photo.annotation.tags.slice(0, 2).map((tag) => ui[lang].photography.grid.tags[tag]).join(' · '),
       search: normalizePhotoSearch([
-        photo.filename.replace(/[_-]/g, ' '), title,
+        photo.folder.replace(/[/_-]/g, ' '), photo.filename.replace(/[_-]/g, ' '), title,
         ...Object.values(photo.annotation.alt),
         ...photo.annotation.tags.flatMap((tag) => [tag.replace(/-/g, ' '), ui.en.photography.grid.tags[tag], ui.es.photography.grid.tags[tag]]),
       ].join(' ')),
