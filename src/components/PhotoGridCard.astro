@@ -2,34 +2,43 @@
 import type { ArchivePhoto } from '../data/photoArchive';
 import { photoGridSizes } from '../data/photoArchive';
 import { ui, type Lang } from '../i18n/content';
+import Icon from './Icon.astro';
+import PhotoGridFolderAction from './PhotoGridFolderAction.astro';
 
 interface Props { photo: ArchivePhoto; lang: Lang; priority?: boolean; }
 const { photo, lang, priority = false } = Astro.props;
 ---
 
 <figure class="photo-grid__card" data-grid-card data-photo-id={photo.id}>
-  <a
-    class="photo-grid__open"
-    href={photo.viewer}
-    aria-label={`${ui[lang].photography.series.openFullscreen}: ${photo.alt}`}
-    aria-haspopup="dialog"
-    aria-controls="photo-lightbox"
-    data-lightbox-open
-    data-lightbox-src={photo.viewer}
-    data-lightbox-alt={photo.alt}
-    data-lightbox-filename={photo.filename}
-  >
-    <img
-      src={photo.src}
-      srcset={photo.srcset}
-      sizes={photoGridSizes}
-      width={photo.width}
-      height={photo.height}
-      alt={photo.alt}
-      loading={priority ? 'eager' : 'lazy'}
-      fetchpriority={priority ? 'high' : 'auto'}
-      decoding="async"
-    />
-  </a>
-  <figcaption><span>{photo.title}</span><span>{photo.tagLabel}</span></figcaption>
+  <div class="photo-grid__media">
+    <a
+      class="photo-grid__open"
+      href={photo.viewer}
+      aria-label={`${ui[lang].photography.series.openFullscreen}: ${photo.alt}`}
+      aria-haspopup="dialog"
+      aria-controls="photo-lightbox"
+      data-lightbox-open
+      data-lightbox-src={photo.viewer}
+      data-lightbox-alt={photo.alt}
+      data-lightbox-filename={photo.filename}
+    >
+      <img
+        src={photo.src}
+        srcset={photo.srcset}
+        sizes={photoGridSizes}
+        width={photo.width}
+        height={photo.height}
+        alt={photo.alt}
+        loading={priority ? 'eager' : 'lazy'}
+        fetchpriority={priority ? 'high' : 'auto'}
+        decoding="async"
+      />
+      <span class="photo-grid__action photo-grid__view"><Icon name="fullscreen" /><span>{ui[lang].photography.grid.viewPhoto}</span></span>
+    </a>
+    <PhotoGridFolderAction folder={photo.folder} lang={lang} />
+  </div>
+  <figcaption>
+    <div class="photo-grid__caption"><span data-grid-title>{photo.title}</span><span data-grid-tag-label>{photo.tagLabel}</span></div>
+    <PhotoGridFolderAction folder={photo.folder} lang={lang} compact />
+  </figcaption>
 </figure>

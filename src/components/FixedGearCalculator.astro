@@ -35,7 +35,6 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
 >
   <header class="fg-calculator__header">
     <div>
-      <p class="mono-label">001 / live.client</p>
       <h2>{labels.title}</h2>
     </div>
     <p>{labels.subtitle}</p>
@@ -120,7 +119,6 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
 
   <section class="fg-analysis" aria-labelledby="fg-analysis-title">
     <div class="fg-section-heading">
-      <p class="mono-label">output.json</p>
       <h3 id="fg-analysis-title">{labels.analysis}</h3>
     </div>
     <div class="fg-metrics">
@@ -153,14 +151,14 @@ const cadences = [50, 60, 70, 80, 90, 100, 110, 120, 130];
 
   <section class="fg-data-section fg-data-section--cadence">
     <div class="fg-section-heading">
-      <p class="mono-label">50—130 {labels.rpm}</p>
+      <p class="mono-label">50-130 {labels.rpm}</p>
       <h3>{labels.cadence}</h3>
     </div>
     <div class="fg-cadence" data-cadence>
       {cadences.map((rpm) => (
         <article data-rpm={rpm}>
           <span>{rpm} {labels.rpm}</span>
-          <strong data-speed>—</strong>
+          <strong data-speed>-</strong>
         </article>
       ))}
     </div>

@@ -29,7 +29,6 @@ const t = labsCopy[lang];
 
     <header class="labs-index__header">
       <div>
-        <p class="mono-label">{t.label}</p>
         <h1>{t.title}</h1>
       </div>
       <p>{t.intro}</p>
@@ -37,16 +36,14 @@ const t = labsCopy[lang];
 
     <div class="labs-index__meta" aria-label={`${labProjects.length} ${t.count}`}>
       <span>{String(labProjects.length).padStart(2, '0')} {t.count}</span>
-      <span>index / {new Date().getFullYear()}</span>
     </div>
 
     <ol class="labs-list">
-      {labProjects.map((project, index) => {
+      {labProjects.map((project) => {
         const content = project.content[lang];
         return (
           <li>
             <a class="labs-row" href={`/${lang}/dev/labs/${project.slug}/`}>
-              <span class="labs-row__number">{String(index + 1).padStart(3, '0')}</span>
               <span class="labs-row__body">
                 <span class="labs-row__title">{content.title}</span>
                 <span class="labs-row__summary">{content.summary}</span>

@@ -1,5 +1,6 @@
 import type { ImageMetadata } from 'astro';
 import type { Lang } from '../i18n/content';
+import { getPhotoStory, type PhotoStorySpread } from './photoStories';
 
 interface GalleryCopy {
   title: string;
@@ -11,6 +12,7 @@ interface GalleryCopy {
 interface GalleryDefinition {
   slug: string;
   assetFolder: string;
+  assetSource?: 'archive';
   sourceFolder: string;
   /** Use standalone photographs from this archive folder instead of the gallery's composed pages. */
   archiveFolder?: string;
@@ -67,10 +69,14 @@ export interface PhotoGallery extends GalleryDefinition {
   indexDetail: ImageMetadata;
   images: GalleryImage[];
   magazine?: PhotoMagazine;
+  story: PhotoStorySpread[];
 }
 
 const imageModules = import.meta.glob<ImageModule>(
-  '../assets/photography/galleries/**/*.jpg',
+  [
+    '../assets/photography/galleries/**/*.jpg',
+    '../assets/photography/archive/**/*.jpg',
+  ],
   { eager: true },
 );
 
@@ -173,29 +179,6 @@ const definitions: GalleryDefinition[] = [
     },
   },
   {
-    slug: 'bikes',
-    assetFolder: 'bikes',
-    sourceFolder: 'Bikes',
-    coverFilename: '3T_Handlebar.jpg',
-    indexDetailFilename: 'Trek_Frame.jpg',
-    content: {
-      en: {
-        title: 'Machine studies',
-        cardTitle: 'Machine study',
-        description:
-          'Bicycles observed through frame lines, components, color, and use.',
-        location: 'Bicycles',
-      },
-      es: {
-        title: 'Estudios de máquina',
-        cardTitle: 'Estudio de máquina',
-        description:
-          'Bicicletas observadas a través de líneas, componentes, color y uso.',
-        location: 'Bicicletas',
-      },
-    },
-  },
-  {
     slug: 'dogs',
     assetFolder: 'dogs',
     sourceFolder: 'Dogs',
@@ -215,27 +198,6 @@ const definitions: GalleryDefinition[] = [
         description:
           'Retratos de atención, movimiento y la pausa compartida después del juego.',
         location: 'Perros',
-      },
-    },
-  },
-  {
-    slug: 'aroma-colombiano',
-    assetFolder: 'Aroma-Colombiano',
-    sourceFolder: 'Aroma_Colombiano',
-    coverFilename: 'Aroma_Colombiano.jpg',
-    indexDetailFilename: 'Bass.jpg',
-    content: {
-      en: {
-        title: 'Aroma Colombiano',
-        cardTitle: 'Aroma Colombiano',
-        description: 'Portraits of Colombian Andean music',
-        location: 'Aroma Colombiano',
-      },
-      es: {
-        title: 'Aroma Colombiano',
-        cardTitle: 'Aroma Colombiano',
-        description: 'Retratos de Música Andina Colombiana',
-        location: 'Aroma Colombiano',
       },
     },
   },
@@ -294,7 +256,7 @@ const naturalFilenameOrder = new Intl.Collator('en', {
 });
 
 export const photoGalleries: PhotoGallery[] = definitions.map((definition) => {
-  const folderMarker = `/galleries/${definition.assetFolder}/`;
+  const folderMarker = `/${definition.assetSource ?? 'galleries'}/${definition.assetFolder}/`;
   const images = Object.entries(imageModules)
     .filter(([path]) => path.includes(folderMarker))
     .map(([path, module]) => ({
@@ -373,21 +335,41 @@ export const photoGalleries: PhotoGallery[] = definitions.map((definition) => {
     };
   }
 
-  return { ...definition, cover, indexDetail, images, magazine };
+  const story = magazine ? [] : getPhotoStory(definition.slug, images);
+  if (story.length && story[0].photos[0].filename !== definition.coverFilename) {
+    throw new Error(`Photo story for ${definition.slug} must open with its cover`);
+  }
+  return { ...definition, cover, indexDetail, images, magazine, story };
+});
+
+// Published reading order stays stable; the homepage retains its current curated layout.
+export const photoSequence = [
+  'spain-in-transit',
+  'random',
+  'autodromo',
+  'motocross',
+  'dogs',
+  'umbra',
+  'self-portrait',
+].map((slug) => {
+  const gallery = photoGalleries.find((item) => item.slug === slug);
+  if (!gallery)
+    throw new Error(`Missing gallery in published sequence: ${slug}`);
+  return gallery;
 });
 
 export function getNextGallery(slug: string) {
-  const currentIndex = photoGalleries.findIndex(
+  const currentIndex = photoSequence.findIndex(
     (gallery) => gallery.slug === slug,
   );
-  return photoGalleries[(currentIndex + 1) % photoGalleries.length];
+  return photoSequence[(currentIndex + 1) % photoSequence.length];
 }
 
 export function getPreviousGallery(slug: string) {
-  const currentIndex = photoGalleries.findIndex(
+  const currentIndex = photoSequence.findIndex(
     (gallery) => gallery.slug === slug,
   );
-  return photoGalleries[
-    (currentIndex - 1 + photoGalleries.length) % photoGalleries.length
+  return photoSequence[
+    (currentIndex - 1 + photoSequence.length) % photoSequence.length
   ];
 }

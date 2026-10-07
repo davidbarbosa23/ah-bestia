@@ -27,7 +27,7 @@ const content = project.content[lang];
 <SiteLayout
   lang={lang}
   experience="developer"
-  title={`${content.title} — ${t.metaTitle}`}
+  title={`${content.title} - ${t.metaTitle}`}
   description={content.summary}
   pageType="article"
   schemaType="Article"
@@ -42,7 +42,6 @@ const content = project.content[lang];
 
     <article>
       <header class="lab-hero page-shell">
-        <p class="mono-label">{t.projectLabel}</p>
         <h1>{content.title}</h1>
         <p class="lab-hero__lede">{content.lede}</p>
         <dl class="lab-hero__meta">
@@ -63,12 +62,10 @@ const content = project.content[lang];
 
       <div class="lab-notes page-shell">
         <section>
-          <p class="mono-label">{t.inputLabel}</p>
           <h2>{content.approach}</h2>
           <p>{content.approachBody}</p>
         </section>
         <section>
-          <p class="mono-label">{t.outputLabel}</p>
           <h2>{content.result}</h2>
           <p>{content.resultBody}</p>
         </section>

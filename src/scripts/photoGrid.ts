@@ -1,6 +1,7 @@
 import type { ArchivePhoto } from '../data/photoArchive';
 import type { PhotoGridCopy } from '../i18n/content';
 import { normalizePhotoSearch } from '../utils/photoSearch';
+import { formatPhotoFolder } from '../utils/photoFolder';
 
 let cleanupGrid: (() => void) | undefined;
 
@@ -12,13 +13,16 @@ export function setupPhotoGrid() {
   const items = root.querySelector<HTMLElement>('[data-grid-items]')!;
   const form = root.querySelector<HTMLFormElement>('[data-grid-filters]')!;
   const search = root.querySelector<HTMLInputElement>('[data-grid-search]')!;
-  const more = root.querySelector<HTMLAnchorElement>('[data-grid-more]')!;
+  const more = root.querySelector<HTMLButtonElement>('[data-grid-more]')!;
   const count = root.querySelector<HTMLElement>('[data-grid-count]')!;
   const empty = root.querySelector<HTMLElement>('[data-grid-empty]')!;
   const end = root.querySelector<HTMLElement>('[data-grid-end]')!;
   const error = root.querySelector<HTMLElement>('[data-grid-error]')!;
   const clear = root.querySelector<HTMLButtonElement>('[data-grid-clear]')!;
   const all = root.querySelector<HTMLButtonElement>('[data-grid-all]')!;
+  const folderFilter = root.querySelector<HTMLButtonElement>('[data-grid-folder-active]')!;
+  const folderLabel = root.querySelector<HTMLElement>('[data-grid-folder-label]')!;
+  const cardTemplate = root.querySelector<HTMLTemplateElement>('[data-grid-card-template]')!;
   const sentinel = root.querySelector<HTMLElement>('[data-grid-sentinel]')!;
   const labels: PhotoGridCopy = JSON.parse(root.querySelector('[data-grid-copy]')!.textContent!);
   const tagButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-grid-tag]')];
@@ -31,13 +35,13 @@ export function setupPhotoGrid() {
   }));
   const selected = new Set<string>();
   const batchSize = Number(root.dataset.batchSize);
-  const sizes = items.querySelector('img')?.sizes ?? '46vw';
   const controller = new AbortController();
   const { signal } = controller;
-  let cursor = Number(root.dataset.offset) + items.children.length;
+  let cursor = items.children.length;
   let total = Number(root.dataset.total);
   let manifest: Promise<ArchivePhoto[]> | undefined;
   let matches: ArchivePhoto[] | undefined;
+  let selectedFolder = '';
   let busy = false;
   let revision = 0;
   let inputTimer = 0;
@@ -73,8 +77,11 @@ export function setupPhotoGrid() {
     items.setAttribute('aria-busy', String(busy));
     empty.hidden = total !== 0;
     end.hidden = total === 0 || cursor < total;
-    clear.hidden = selected.size === 0 && !search.value;
-    all.setAttribute('aria-pressed', String(selected.size === 0 && !search.value));
+    clear.hidden = selected.size === 0 && !search.value && !selectedFolder;
+    all.setAttribute('aria-pressed', String(selected.size === 0 && !search.value && !selectedFolder));
+    folderFilter.hidden = !selectedFolder;
+    root.toggleAttribute('data-grid-folder-selected', Boolean(selectedFolder));
+    folderLabel.textContent = labels.folderFilter.replace('{folder}', formatPhotoFolder(selectedFolder));
     tagButtons.forEach((button) => button.setAttribute('aria-pressed', String(selected.has(button.dataset.gridTag!))));
   };
 
@@ -89,12 +96,10 @@ export function setupPhotoGrid() {
   };
 
   const createCard = (photo: ArchivePhoto) => {
-    const card = document.createElement('figure');
-    card.className = 'photo-grid__card';
-    card.dataset.gridCard = '';
+    // Share the server-rendered markup, icons, and localized actions with appended cards.
+    const card = cardTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
     card.dataset.photoId = photo.id;
-    const link = document.createElement('a');
-    link.className = 'photo-grid__open';
+    const link = card.querySelector<HTMLAnchorElement>('[data-lightbox-open]')!;
     link.href = photo.viewer;
     link.setAttribute('aria-label', `${root.dataset.openLabel}: ${photo.alt}`);
     link.setAttribute('aria-haspopup', 'dialog');
@@ -103,23 +108,27 @@ export function setupPhotoGrid() {
     link.dataset.lightboxSrc = photo.viewer;
     link.dataset.lightboxAlt = photo.alt;
     link.dataset.lightboxFilename = photo.filename;
-    const image = document.createElement('img');
+    const image = card.querySelector('img')!;
     image.width = photo.width;
     image.height = photo.height;
     image.alt = photo.alt;
     image.loading = 'lazy';
+    image.fetchPriority = 'auto';
     image.decoding = 'async';
-    image.sizes = sizes;
     image.srcset = photo.srcset;
     image.src = photo.src;
-    link.append(image);
-    const caption = document.createElement('figcaption');
-    const title = document.createElement('span');
-    const tags = document.createElement('span');
+    const folderName = formatPhotoFolder(photo.folder);
+    card.querySelectorAll<HTMLButtonElement>('[data-grid-folder]').forEach((folder) => {
+      folder.dataset.gridFolder = photo.folder;
+      folder.setAttribute('aria-label', `${labels.filterFolder}: ${folderName}`);
+      folder.title = `${labels.filterFolder}: ${folderName}`;
+      const name = folder.querySelector('[data-grid-folder-name]');
+      if (name) name.textContent = folderName;
+    });
+    const title = card.querySelector('[data-grid-title]')!;
+    const tags = card.querySelector('[data-grid-tag-label]')!;
     title.textContent = photo.title;
     tags.textContent = photo.tagLabel;
-    caption.append(title, tags);
-    card.append(link, caption);
     return card;
   };
 
@@ -154,15 +163,14 @@ export function setupPhotoGrid() {
       renderBatch(batch);
       firstAddedLink = items.querySelector<HTMLAnchorElement>(`[data-grid-card]:nth-child(${items.children.length - batch.length + 1}) a`);
       cursor += batch.length;
-      const nextPage = Math.floor(cursor / batchSize) + 1;
-      more.href = `${root.dataset.manifest!.replace('photos.json', '')}${nextPage}/`;
     } catch {
       if (!signal.aborted && requestRevision === revision) showError('more');
     } finally {
       if (!signal.aborted && requestRevision === revision) {
+        const focusMore = document.activeElement === more;
         busy = false;
         updateControls();
-        if (more.hidden && document.activeElement === more) firstAddedLink?.focus();
+        if (more.hidden && focusMore) firstAddedLink?.focus();
       }
     }
   };
@@ -171,8 +179,10 @@ export function setupPhotoGrid() {
     const url = new URL(window.location.href);
     url.searchParams.delete('tag');
     url.searchParams.delete('q');
+    url.searchParams.delete('folder');
     selected.forEach((tag) => url.searchParams.append('tag', tag));
     if (search.value.trim()) url.searchParams.set('q', search.value.trim());
+    if (selectedFolder) url.searchParams.set('folder', selectedFolder);
     history.replaceState(null, '', url);
     document.querySelectorAll<HTMLAnchorElement>('[data-language-link]').forEach((link) => {
       const alternate = new URL(link.href);
@@ -191,11 +201,13 @@ export function setupPhotoGrid() {
     const queryTag = tagAliases.get(query);
     const words = queryTag ? [] : query.split(/\s+/).filter(Boolean);
     const tags = [...selected];
+    const folder = selectedFolder;
     if (queryTag) tags.push(queryTag);
     try {
       const photos = await getPhotos();
       if (signal.aborted || requestRevision !== revision) return;
-      matches = photos.filter((photo) => tags.every((tag) => (photo.tags as readonly string[]).includes(tag))
+      matches = photos.filter((photo) => (!folder || photo.folder === folder)
+        && tags.every((tag) => (photo.tags as readonly string[]).includes(tag))
         && words.every((word) => {
           const tag = tagAliases.get(word);
           return tag ? (photo.tags as readonly string[]).includes(tag) : photo.search.includes(word);
@@ -216,12 +228,31 @@ export function setupPhotoGrid() {
   const reset = () => {
     window.clearTimeout(inputTimer);
     selected.clear();
+    selectedFolder = '';
     search.value = '';
     if (document.activeElement === clear) search.focus();
     void applyFilters();
   };
 
   form.hidden = false;
+  root.dataset.gridReady = '';
+  items.addEventListener('click', (event) => {
+    const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('[data-grid-folder]') : null;
+    if (!button) return;
+    window.clearTimeout(inputTimer);
+    selectedFolder = button.dataset.gridFolder!;
+    selected.clear();
+    search.value = '';
+    void applyFilters();
+    // Filtering replaces the clicked card; keep focus on a persistent control.
+    folderFilter.focus();
+  }, { signal });
+  folderFilter.addEventListener('click', () => {
+    window.clearTimeout(inputTimer);
+    selectedFolder = '';
+    search.focus();
+    void applyFilters();
+  }, { signal });
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     window.clearTimeout(inputTimer);
@@ -242,9 +273,7 @@ export function setupPhotoGrid() {
   }, { signal }));
   all.addEventListener('click', reset, { signal });
   clear.addEventListener('click', reset, { signal });
-  more.addEventListener('click', (event) => {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
+  more.addEventListener('click', () => {
     error.hidden = true;
     void loadMore();
   }, { signal });
@@ -257,22 +286,30 @@ export function setupPhotoGrid() {
     if (hasScrolled && entries.some((entry) => entry.isIntersecting)) void loadMore();
   }, { rootMargin: '240px 0px' });
   intersection?.observe(sentinel);
-  window.addEventListener('scroll', () => {
+  const beginBrowsing = () => {
     hasScrolled = true;
     if (sentinel.getBoundingClientRect().top < window.innerHeight + 240) void loadMore();
-  }, { signal, passive: true, once: true });
+  };
+  window.addEventListener('wheel', beginBrowsing, { signal, passive: true, once: true });
+  window.addEventListener('touchmove', beginBrowsing, { signal, passive: true, once: true });
+  window.addEventListener('keydown', (event) => {
+    if (['ArrowDown', 'PageDown', 'End', ' '].includes(event.key)) beginBrowsing();
+  }, { signal });
 
   const readUrl = () => {
     const params = new URLSearchParams(window.location.search);
     selected.clear();
     params.getAll('tag').filter((tag) => validTags.has(tag)).forEach((tag) => selected.add(tag));
     search.value = params.get('q') ?? '';
-    if (selected.size || search.value || matches) void applyFilters();
+    selectedFolder = params.get('folder') ?? '';
+    if (selected.size || search.value || selectedFolder || matches) void applyFilters();
   };
   window.addEventListener('popstate', readUrl, { signal });
   updateControls();
   readUrl();
   cleanupGrid = () => {
+    delete root.dataset.gridReady;
+    root.removeAttribute('data-grid-folder-selected');
     controller.abort();
     resize?.disconnect();
     intersection?.disconnect();

@@ -49,6 +49,7 @@ export const archivePhotos = Array.from({ length: Math.max(...groups.map((group)
 
 export interface ArchivePhoto {
   id: string;
+  folder: string;
   filename: string;
   src: string;
   srcset: string;
@@ -79,13 +80,13 @@ export async function prepareArchivePhotos(lang: Lang, photos = archivePhotos): 
     }
     const title = photo.gallery?.content[lang].cardTitle ?? (photo.folder === 'cat-achira' ? 'Achira' : ui[lang].photography.grid.archive);
     return {
-      id: photo.id, filename: photo.filename, ...await optimized,
+      id: photo.id, folder: photo.folder, filename: photo.filename, ...await optimized,
       width: photo.image.width, height: photo.image.height,
       alt: photo.annotation.alt[lang], title,
       tags: photo.annotation.tags,
       tagLabel: photo.annotation.tags.slice(0, 2).map((tag) => ui[lang].photography.grid.tags[tag]).join(' · '),
       search: normalizePhotoSearch([
-        photo.filename.replace(/[_-]/g, ' '), title,
+        photo.folder.replace(/[/_-]/g, ' '), photo.filename.replace(/[_-]/g, ' '), title,
         ...Object.values(photo.annotation.alt),
         ...photo.annotation.tags.flatMap((tag) => [tag.replace(/-/g, ' '), ui.en.photography.grid.tags[tag], ui.es.photography.grid.tags[tag]]),
       ].join(' ')),

@@ -7,6 +7,9 @@ import { getImage } from 'astro:assets';
 import { ClientRouter } from 'astro:transitions';
 import portrait from '../assets/portrait.jpg';
 import BackToTop from '../components/BackToTop.astro';
+import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import spaceGroteskLatin from '@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2?url';
+import jetbrainsLatin from '@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url';
 
 type SchemaType = 'WebPage' | 'ProfilePage' | 'CollectionPage' | 'Article' | 'ImageGallery';
 
@@ -107,23 +110,32 @@ const structuredData = {
 ---
 
 <!doctype html>
-<html lang={lang} data-theme="light" transition:name="root" transition:animate="none">
+<html lang={lang} data-theme="dark" transition:name="root" transition:animate="none">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="generator" content={Astro.generator} />
+    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href={spaceGroteskLatin} as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href={jetbrainsLatin} as="font" type="font/woff2" crossorigin="anonymous" />
     {import.meta.env.PROD && (
       <>
-        <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-Q89L54B7BE"></script>
         <script is:inline>
           window.dataLayer = window.dataLayer || [];
           function gtag() { window.dataLayer.push(arguments); }
           gtag('js', new Date());
           gtag('config', 'G-Q89L54B7BE');
+          // Keep the existing events, but let critical content load before the analytics library.
+          window.addEventListener('load', () => {
+            const analytics = document.createElement('script');
+            analytics.async = true;
+            analytics.src = 'https://www.googletagmanager.com/gtag/js?id=G-Q89L54B7BE';
+            document.head.append(analytics);
+          }, { once: true });
         </script>
       </>
     )}
-    <meta name="theme-color" content="#f7f8fb" />
+    <meta name="theme-color" content="#111318" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="author" content="David Barbosa" />
@@ -154,9 +166,10 @@ const structuredData = {
     {includeStructuredData && <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
     <script is:inline>
       (() => {
-        const saved = localStorage.getItem('theme');
-        const dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        let saved;
+        try { saved = localStorage.getItem('theme'); } catch {}
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = saved === 'light' || saved === 'dark' ? saved : systemDark ? 'dark' : 'light';
       })();
     </script>
     <ClientRouter fallback="swap" />
@@ -216,7 +229,7 @@ const structuredData = {
       });
 
       document.addEventListener('astro:before-swap', (event) => {
-        const theme = document.documentElement.dataset.theme ?? 'light';
+        const theme = document.documentElement.dataset.theme ?? 'dark';
         event.newDocument.documentElement.dataset.theme = theme;
         if (languageScrollPosition) {
           event.newDocument.documentElement.dataset.languageTransition = 'true';

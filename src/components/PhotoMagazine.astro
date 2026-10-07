@@ -915,10 +915,10 @@ const pages = await Promise.all(
         progress.style.backgroundSize = `${percentage}% var(--space-3xs), 100% var(--space-3xs)`;
         count.value = visible.length === 1
           ? `${pageLabel} ${currentIndex + 1} ${ofLabel} ${pages.length}`
-          : `${pagesLabel} ${currentIndex + 1}–${endIndex + 1} ${ofLabel} ${pages.length}`;
+          : `${pagesLabel} ${currentIndex + 1}-${endIndex + 1} ${ofLabel} ${pages.length}`;
         compactCount.textContent = visible.length === 1
           ? `${currentIndex + 1} / ${pages.length}`
-          : `${currentIndex + 1}–${endIndex + 1} / ${pages.length}`;
+          : `${currentIndex + 1}-${endIndex + 1} / ${pages.length}`;
       };
 
       const advanceTurn = (turn: ActiveTurn, now: number) => {

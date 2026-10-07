@@ -4,13 +4,13 @@ export type Lang = (typeof languages)[number];
 export const copy = {
   en: {
     meta: {
-      homeTitle: 'David Barbosa — Senior Software Engineer',
+      homeTitle: 'David Barbosa - Senior Software Engineer',
       homeDescription:
         'Senior software engineer in Bogotá focused on product-minded web platforms, clear interfaces, and maintainable systems.',
-      projectsTitle: 'Labs — David Barbosa',
+      projectsTitle: 'Labs - David Barbosa',
       projectsDescription:
         'I build small web tools and interface experiments, documenting each one from problem to working result.',
-      photoTitle: 'Photography — David Barbosa',
+      photoTitle: 'Photography - David Barbosa',
       photoDescription:
         'My independent photography explores machines, animals, streets, movement, and light.',
     },
@@ -31,7 +31,7 @@ export const copy = {
       status: 'Available for selected collaborations',
       title: 'I make software\nfeel considered.',
       intro:
-        'I’m David Barbosa, a senior software engineer in Bogotá. I turn complex product problems into clear web interfaces and dependable systems.',
+        'I’m David Barbosa, senior software engineer in Bogotá. I turn complex product problems into clear web interfaces and dependable systems.',
       primaryCta: 'Explore Labs',
       secondaryCta: 'Contact me',
       codeLabel: 'david.ts',
@@ -39,22 +39,24 @@ export const copy = {
       aboutBody:
         'I work from ambiguous requirements to shipped software: clarifying the problem, shaping the interface, and building systems teams can maintain. My background in graphic design helps me connect product intent, technical decisions, and the details users notice.',
       current: 'Currently',
-      currentValue: 'Senior Software Engineer, Mercado Libre',
+      currentValue: 'Senior Software Engineer',
       location: 'Based in',
       locationValue: 'Bogotá, Colombia',
       focus: 'Working with',
       focusValue: 'TypeScript · React · Web platforms',
       experienceTitle: 'From web design to senior software engineering.',
       experience: [
-        ['2021—NOW', 'Mercado Libre', 'Senior Software Engineer'],
+        ['2021-NOW', 'Mercado Libre', 'Senior Software Engineer'],
         ['2020', 'Quantum Connexion', 'Software Engineer'],
-        ['2016—2019', 'Tradeview / iLikeWebSites', 'Web Developer & Designer'],
-        ['2015—2016', 'Rampa / Data Solutions Group', 'Web Designer'],
+        ['2016-2019', 'Tradeview / iLikeWebSites', 'Web Developer & Designer'],
+        ['2015-2016', 'Rampa', 'Web Designer'],
       ],
       projectsTitle: 'Selected experiments.',
       projectsIntro:
         'Small web tools and interface experiments, documented from the problem and decisions through to a working result.',
       projectName: 'Fixed Gear Calculator',
+      projectPreviewAlt:
+        'The working calculator: gearing controls beside a wheel showing skid patches.',
       projectDesc:
         'A bilingual gearing calculator for track and fixed-gear riders, translating chainring and sprocket choices into ratios, skid patches, development, and speed.',
       projectMeta: 'Product experiment · Calculation UI',
@@ -62,7 +64,7 @@ export const copy = {
       contactTitle: 'Building something worth getting right?',
       contactBody:
         'Send me the problem, the constraints, and the outcome you need. I’ll tell you where I can help.',
-      contactLink: 'Email me',
+      contactLink: 'Email',
     },
     photo: {
       status: 'Independent photographic practice',
@@ -81,8 +83,8 @@ export const copy = {
       processImageCaption: 'Working camera · Fujifilm X100VI',
       collaborationLabel: 'Assignments and collaborations',
       collaborationBody:
-        'For editorial assignments, commissions, or image-led collaborations, share the place, subject, and intended use.',
-      collaborationLink: 'Discuss a photography project',
+        'Photography is a personal practice. If a series catches your attention, I’d be happy to hear what you see.',
+      collaborationLink: 'Talk photography',
       collaborationSubject: 'Photography assignment or collaboration',
       images: [
         [
@@ -139,10 +141,10 @@ export const copy = {
       title: 'Spain, in transit',
       lede: 'A travel note about the distance between arrival and understanding a place.',
       p1: 'Travel is often remembered through destinations, but the camera keeps returning to what happens between them: a train approaching through the trees, a line of coast seen from above, or a structure briefly framing the route ahead.',
-      p2: 'These photographs follow movement without trying to resolve it. Landscapes, animals, stations, and streets become markers in a sequence—less a catalogue of landmarks than a record of where attention stopped.',
+      p2: 'These photographs follow movement without trying to resolve it. Landscapes, animals, stations, and streets become markers in a sequence, less a catalogue of landmarks than a record of where attention stopped.',
       p3: 'The series remains open: a collection shaped by crossings, pauses, and the geometry of getting somewhere.',
       next: 'Next note',
-      nextTitle: 'Track studies — coming soon',
+      nextTitle: 'Track studies - coming soon',
     },
     footer: {
       copyright: 'David Barbosa',
@@ -151,13 +153,13 @@ export const copy = {
   },
   es: {
     meta: {
-      homeTitle: 'David Barbosa — Ingeniero de Software Senior',
+      homeTitle: 'David Barbosa - Ingeniero de Software Senior',
       homeDescription:
         'Ingeniero de software senior en Bogotá enfocado en plataformas web, interfaces claras y sistemas mantenibles.',
-      projectsTitle: 'Labs — David Barbosa',
+      projectsTitle: 'Labs - David Barbosa',
       projectsDescription:
         'Construyo pequeñas herramientas web y experimentos de interfaz, documentando cada uno desde el problema hasta un resultado funcional.',
-      photoTitle: 'Fotografía — David Barbosa',
+      photoTitle: 'Fotografía - David Barbosa',
       photoDescription:
         'Mi fotografía independiente explora máquinas, animales, calles, movimiento y luz.',
     },
@@ -178,7 +180,7 @@ export const copy = {
       status: 'Disponible para colaboraciones seleccionadas',
       title: 'Construyo software que\nse siente bien pensado.',
       intro:
-        'Soy David Barbosa, ingeniero de software senior en Bogotá. Convierto problemas complejos de producto en interfaces web claras y sistemas confiables.',
+        'Soy David Barbosa, ingeniero senior en Bogotá. Convierto problemas complejos de producto en interfaces web claras y sistemas confiables.',
       primaryCta: 'Explorar Labs',
       secondaryCta: 'Contáctame',
       codeLabel: 'david.ts',
@@ -186,26 +188,28 @@ export const copy = {
       aboutBody:
         'Trabajo desde requisitos ambiguos hasta software en producción: aclaro el problema, doy forma a la interfaz y construyo sistemas que el equipo puede mantener. Mi formación en diseño gráfico me ayuda a conectar la intención del producto, las decisiones técnicas y los detalles que las personas perciben.',
       current: 'Actualmente',
-      currentValue: 'Ingeniero de Software Senior, Mercado Libre',
+      currentValue: 'Ingeniero de Software Senior',
       location: 'Desde',
       locationValue: 'Bogotá, Colombia',
       focus: 'Trabajo con',
       focusValue: 'TypeScript · React · Plataformas web',
       experienceTitle: 'Del diseño web a la ingeniería de software senior.',
       experience: [
-        ['2021—HOY', 'Mercado Libre', 'Ingeniero de Software Senior'],
+        ['2021-HOY', 'Mercado Libre', 'Ingeniero de Software Senior'],
         ['2020', 'Quantum Connexion', 'Ingeniero de Software'],
         [
-          '2016—2019',
+          '2016-2019',
           'Tradeview / iLikeWebSites',
           'Desarrollador y Diseñador Web',
         ],
-        ['2015—2016', 'Rampa / Data Solutions Group', 'Diseñador Web'],
+        ['2015-2016', 'Rampa', 'Diseñador Web'],
       ],
       projectsTitle: 'Experimentos seleccionados.',
       projectsIntro:
         'Pequeñas herramientas web y experimentos de interfaz, documentados desde el problema y las decisiones hasta un resultado funcional.',
       projectName: 'Calculadora de piñón fijo',
+      projectPreviewAlt:
+        'La calculadora en funcionamiento: controles de transmisión y una rueda con puntos de derrape.',
       projectDesc:
         'Una calculadora bilingüe para ciclistas de pista y piñón fijo que convierte elecciones de plato, piñón, cubierta y cadencia en relación, puntos de derrape, desarrollo y velocidad.',
       projectMeta: 'Experimento de producto · Interfaz de cálculo',
@@ -213,7 +217,7 @@ export const copy = {
       contactTitle: '¿Estás construyendo algo que vale la pena hacer bien?',
       contactBody:
         'Cuéntame el problema, las restricciones y el resultado que necesitas. Te diré dónde puedo ayudar.',
-      contactLink: 'Escríbeme',
+      contactLink: 'Email',
     },
     photo: {
       status: 'Práctica fotográfica independiente',
@@ -232,7 +236,7 @@ export const copy = {
       processImageCaption: 'Cámara de trabajo · Fujifilm X100VI',
       collaborationLabel: 'Encargos y colaboraciones',
       collaborationBody:
-        'Para encargos editoriales o colaboraciones centradas en la imagen, cuéntame el lugar, el tema y el uso previsto.',
+        'La fotografía es una práctica personal. Si alguna serie llama tu atención, me gustaría saber qué ves en ella.',
       collaborationLink: 'Hablemos de fotografía',
       collaborationSubject: 'Encargo o colaboración fotográfica',
       images: [
@@ -303,7 +307,7 @@ export const copy = {
       p2: 'Estas fotografías siguen el movimiento sin intentar resolverlo. Paisajes, animales, estaciones y calles se convierten en marcas dentro de una secuencia: menos un catálogo de lugares que un registro de dónde se detuvo la atención.',
       p3: 'La serie permanece abierta: una colección construida con cruces, pausas y la geometría de llegar a algún lugar.',
       next: 'Siguiente nota',
-      nextTitle: 'Estudios de pista — próximamente',
+      nextTitle: 'Estudios de pista - próximamente',
     },
     footer: {
       copyright: 'David Barbosa',
@@ -315,11 +319,14 @@ export const copy = {
 export type ErrorCode = '404' | '500';
 
 interface ErrorPageCopy {
-  errors: Record<ErrorCode, {
-    title: string;
-    description: string;
-    primary: string;
-  }>;
+  errors: Record<
+    ErrorCode,
+    {
+      title: string;
+      description: string;
+      primary: string;
+    }
+  >;
   actionsLabel: string;
 }
 
@@ -333,6 +340,10 @@ export interface PhotoGridCopy {
   searchPlaceholder: string;
   filters: string;
   filterHint: string;
+  viewPhoto: string;
+  filterFolder: string;
+  folderFilter: string;
+  clearFolder: string;
   all: string;
   clear: string;
   count: string;
@@ -342,8 +353,6 @@ export interface PhotoGridCopy {
   empty: string;
   error: string;
   retry: string;
-  previousPage: string;
-  nextPage: string;
   noScript: string;
   archive: string;
   tags: Record<import('../data/photoTags').PhotoTag, string>;
@@ -374,11 +383,11 @@ export interface UiCopy {
     sourceCardLabel: string;
     sourceCardResult: string;
   };
-    photography: {
-      photographs: string;
-      metaTitleSuffix: string;
-      grid: PhotoGridCopy;
-      series: {
+  photography: {
+    photographs: string;
+    metaTitleSuffix: string;
+    grid: PhotoGridCopy;
+    series: {
       back: string;
       kicker: string;
       source: string;
@@ -455,7 +464,7 @@ export const ui = {
     common: {
       skipToContent: 'Skip to content',
       utilityNavigation: 'Utility navigation',
-      homeLabel: 'David Barbosa — home',
+      homeLabel: 'David Barbosa - home',
       switchLanguage: 'Cambiar a español',
       opensInNewTab: 'opens in a new tab',
       close: 'Close',
@@ -466,7 +475,8 @@ export const ui = {
       locale: 'en_US',
       jobTitle: 'Senior Software Engineer',
       photographerHeroAlt: 'A Fujifilm X100VI camera emerging from deep shadow',
-      photographerHeroSocialAlt: 'A Fujifilm X100VI camera emerging from shadow',
+      photographerHeroSocialAlt:
+        'A Fujifilm X100VI camera emerging from shadow',
     },
     header: {
       searchPlaceholder: 'Labs, about, contact…',
@@ -481,31 +491,47 @@ export const ui = {
       metaTitleSuffix: 'Photography by David Barbosa',
       grid: {
         title: 'All photographs.',
-        description: 'Explore the archive by subject. Portraits, streets, machines, and the moments in between.',
-        metaTitle: 'Photo grid — David Barbosa',
+        description:
+          'Explore the archive by subject. Portraits, streets, machines, and the moments in between.',
+        metaTitle: 'Photo grid - David Barbosa',
         open: 'Explore all photographs',
         back: 'Back to the series',
         search: 'Search photographs',
         searchPlaceholder: 'Try portrait, car, street…',
         filters: 'Filter by photography type',
         filterHint: 'Select tags to match all selected subjects.',
+        viewPhoto: 'Open photo',
+        filterFolder: 'Filter by folder',
+        folderFilter: 'Folder: {folder}',
+        clearFolder: 'Clear folder filter',
         all: 'All photos',
         clear: 'Clear filters',
         count: '{shown} of {total} photographs',
         loadMore: 'Load more photographs',
         loading: 'Loading photographs…',
         end: 'You’ve seen all matching photographs.',
-        empty: 'No photographs match. Try another subject or clear the filters.',
+        empty:
+          'No photographs match. Try another subject or clear the filters.',
         error: 'More photographs couldn’t load. Please try again.',
         retry: 'Try again',
-        previousPage: 'Previous photographs',
-        nextPage: 'Next photographs',
-        noScript: 'Use the page links to explore the archive. Enable JavaScript to search and filter.',
+        noScript:
+          'Enable JavaScript to load more photographs, search, and filter.',
         archive: 'Photo archive',
         tags: {
-          portrait: 'Portrait', people: 'People', action: 'Action', car: 'Car', street: 'Street', nature: 'Nature',
-          architecture: 'Architecture', animals: 'Animals', bicycle: 'Bicycle', motorcycle: 'Motorcycle',
-          travel: 'Travel', detail: 'Detail', editorial: 'Editorial', 'black-and-white': 'Black & white',
+          portrait: 'Portrait',
+          people: 'People',
+          action: 'Action',
+          car: 'Car',
+          street: 'Street',
+          nature: 'Nature',
+          architecture: 'Architecture',
+          animals: 'Animals',
+          bicycle: 'Bicycle',
+          motorcycle: 'Motorcycle',
+          travel: 'Travel',
+          detail: 'Detail',
+          editorial: 'Editorial',
+          'black-and-white': 'Black & white',
         },
       },
       series: {
@@ -557,7 +583,8 @@ export const ui = {
       sprocket: 'Rear sprocket',
       tire: 'Tire',
       skid: 'Count both leading feet',
-      skidHelp: 'Use both left-foot-forward and right-foot-forward skid positions.',
+      skidHelp:
+        'Use both left-foot-forward and right-foot-forward skid positions.',
       units: 'Units',
       metric: 'Metric',
       imperial: 'Imperial',
@@ -566,7 +593,8 @@ export const ui = {
       ratio: 'Ratio',
       ratioHelp: 'Rear-wheel turns for every complete turn of the cranks.',
       patches: 'Skid patches',
-      patchesHelp: 'Distinct tire positions that touch the road while skidding.',
+      patchesHelp:
+        'Distinct tire positions that touch the road while skidding.',
       rollout: 'Rollout',
       rolloutHelp: 'Distance travelled by one complete turn of the cranks.',
       equivalent: 'Equivalent gears within 2%',
@@ -599,7 +627,7 @@ export const ui = {
     common: {
       skipToContent: 'Saltar al contenido',
       utilityNavigation: 'Navegación de utilidades',
-      homeLabel: 'David Barbosa — inicio',
+      homeLabel: 'David Barbosa - inicio',
       switchLanguage: 'Switch to English',
       opensInNewTab: 'se abre en una pestaña nueva',
       close: 'Cerrar',
@@ -609,8 +637,10 @@ export const ui = {
     metadata: {
       locale: 'es_CO',
       jobTitle: 'Ingeniero de Software Senior',
-      photographerHeroAlt: 'Una cámara Fujifilm X100VI emergiendo de una sombra profunda',
-      photographerHeroSocialAlt: 'Una cámara Fujifilm X100VI emergiendo de la sombra',
+      photographerHeroAlt:
+        'Una cámara Fujifilm X100VI emergiendo de una sombra profunda',
+      photographerHeroSocialAlt:
+        'Una cámara Fujifilm X100VI emergiendo de la sombra',
     },
     header: {
       searchPlaceholder: 'Labs, acerca, contacto…',
@@ -625,31 +655,48 @@ export const ui = {
       metaTitleSuffix: 'Fotografía de David Barbosa',
       grid: {
         title: 'Todas las fotografías.',
-        description: 'Explora el archivo por tema. Retratos, calles, máquinas y los momentos entre ellos.',
-        metaTitle: 'Cuadrícula de fotos — David Barbosa',
+        description:
+          'Explora el archivo por tema. Retratos, calles, máquinas y los momentos entre ellos.',
+        metaTitle: 'Cuadrícula de fotos - David Barbosa',
         open: 'Explorar todas las fotografías',
         back: 'Volver a las series',
         search: 'Buscar fotografías',
         searchPlaceholder: 'Prueba retrato, auto, calle…',
         filters: 'Filtrar por tipo de fotografía',
-        filterHint: 'Selecciona etiquetas para combinar todos los temas elegidos.',
+        filterHint:
+          'Selecciona etiquetas para combinar todos los temas elegidos.',
+        viewPhoto: 'Abrir foto',
+        filterFolder: 'Filtrar por carpeta',
+        folderFilter: 'Carpeta: {folder}',
+        clearFolder: 'Quitar filtro de carpeta',
         all: 'Todas las fotos',
         clear: 'Limpiar filtros',
         count: '{shown} de {total} fotografías',
         loadMore: 'Cargar más fotografías',
         loading: 'Cargando fotografías…',
         end: 'Has visto todas las fotografías que coinciden.',
-        empty: 'No hay fotografías que coincidan. Prueba otro tema o limpia los filtros.',
+        empty:
+          'No hay fotografías que coincidan. Prueba otro tema o limpia los filtros.',
         error: 'No se pudieron cargar más fotografías. Inténtalo de nuevo.',
         retry: 'Intentar de nuevo',
-        previousPage: 'Fotografías anteriores',
-        nextPage: 'Fotografías siguientes',
-        noScript: 'Usa los enlaces de página para explorar el archivo. Activa JavaScript para buscar y filtrar.',
+        noScript:
+          'Activa JavaScript para cargar más fotografías, buscar y filtrar.',
         archive: 'Archivo fotográfico',
         tags: {
-          portrait: 'Retrato', people: 'Personas', action: 'Acción', car: 'Auto', street: 'Calle', nature: 'Naturaleza',
-          architecture: 'Arquitectura', animals: 'Animales', bicycle: 'Bicicleta', motorcycle: 'Moto',
-          travel: 'Viaje', detail: 'Detalle', editorial: 'Editorial', 'black-and-white': 'Blanco y negro',
+          portrait: 'Retrato',
+          people: 'Personas',
+          action: 'Acción',
+          car: 'Auto',
+          street: 'Calle',
+          nature: 'Naturaleza',
+          architecture: 'Arquitectura',
+          animals: 'Animales',
+          bicycle: 'Bicicleta',
+          motorcycle: 'Moto',
+          travel: 'Viaje',
+          detail: 'Detalle',
+          editorial: 'Editorial',
+          'black-and-white': 'Blanco y negro',
         },
       },
       series: {
@@ -695,7 +742,8 @@ export const ui = {
     },
     calculator: {
       title: 'Calculadora de piñón fijo',
-      subtitle: 'Cambia la configuración. El análisis se actualiza de inmediato.',
+      subtitle:
+        'Cambia la configuración. El análisis se actualiza de inmediato.',
       setup: 'Configuración',
       chainring: 'Plato',
       sprocket: 'Piñón trasero',
@@ -708,11 +756,14 @@ export const ui = {
       analysis: 'Análisis',
       diagram: 'Diagrama de rueda trasera, plato y puntos de derrape',
       ratio: 'Relación',
-      ratioHelp: 'Vueltas de la rueda trasera por cada vuelta completa de las bielas.',
+      ratioHelp:
+        'Vueltas de la rueda trasera por cada vuelta completa de las bielas.',
       patches: 'Skid patches',
-      patchesHelp: 'Posiciones distintas de la cubierta que tocan el suelo al derrapar.',
+      patchesHelp:
+        'Posiciones distintas de la cubierta que tocan el suelo al derrapar.',
       rollout: 'Desarrollo',
-      rolloutHelp: 'Distancia recorrida por cada vuelta completa de las bielas.',
+      rolloutHelp:
+        'Distancia recorrida por cada vuelta completa de las bielas.',
       equivalent: 'Relaciones equivalentes dentro del 2%',
       equivalentHelp: 'Elige una combinación para cargarla en la calculadora.',
       cadence: 'Cadencia / velocidad',

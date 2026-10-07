@@ -1,0 +1,40 @@
+<!-- Native animation leaf. Layout and content render without JavaScript. -->
+<script>
+  const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let observer: IntersectionObserver | undefined;
+  let animations: Animation[] = [];
+  const cleanup = () => {
+    observer?.disconnect();
+    observer = undefined;
+    animations.forEach((animation) => animation.cancel());
+    animations = [];
+  };
+  const setup = () => {
+    cleanup();
+    if (preference.matches || document.documentElement.dataset.languageTransition === 'true') return;
+    const easing = getComputedStyle(document.documentElement).getPropertyValue('--ease-out').trim();
+    const developer = document.body.dataset.experience === 'developer';
+    const reveal = (element: HTMLElement, delay = 0, image = false, hero = false) => {
+      const containsPriorityImage = element.querySelector('img[fetchpriority="high"]') !== null;
+      const animation = element.animate([
+        { opacity: (developer && hero) || containsPriorityImage ? 1 : 0, transform: image ? `translateX(${developer ? 40 : 24}px) scale(.97)` : `translateY(${developer ? 32 : 24}px)` },
+        { opacity: 1, transform: 'none' },
+      ], { duration: image ? (developer ? 1000 : 900) : (developer ? 800 : 720), delay, easing, fill: 'backwards' });
+      animations.push(animation);
+      animation.finished.then(() => { animations = animations.filter((item) => item !== animation); }).catch(() => {});
+    };
+    document.querySelectorAll<HTMLElement>('[data-hero-reveal]').forEach((element, index) => reveal(element, index * (developer ? 100 : 90), false, true));
+    document.querySelectorAll<HTMLElement>('[data-hero-image]').forEach((element) => reveal(element, developer ? 100 : 120, true, true));
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting || !(entry.target instanceof HTMLElement)) return;
+        observer?.unobserve(entry.target);
+        reveal(entry.target, Number(entry.target.dataset.revealOrder ?? 0) * 100);
+      });
+    }, { threshold: .08 });
+    document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((element) => observer?.observe(element));
+  };
+  document.addEventListener('astro:page-load', setup);
+  document.addEventListener('astro:before-swap', cleanup);
+  preference.addEventListener('change', () => preference.matches ? cleanup() : setup());
+</script>

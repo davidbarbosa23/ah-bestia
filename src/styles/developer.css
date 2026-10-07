@@ -1,0 +1,60 @@
+/* Developer-only composition; shared brand tokens and photography stay intact. */
+.developer-home .developer-hero {
+  gap: var(--space-xl);
+  padding-block: var(--space-xl) var(--space-2xl);
+}
+.developer-home .developer-hero__copy { gap: var(--space-lg); padding: 0; align-self: center; }
+.developer-home .developer-hero h1 {
+  font-size: var(--text-developer-hero);
+  line-height: var(--leading-developer-hero);
+  letter-spacing: var(--tracking-snug);
+}
+html[lang='es'] .developer-home .developer-hero h1 { font-size: var(--text-developer-hero-es); }
+.developer-home .developer-hero h1 span:last-child { color: var(--color-accent); }
+.developer-home .developer-hero__intro { max-width: 48ch; font-size: var(--text-base); }
+.developer-home .developer-hero__portrait { max-width: var(--size-developer-portrait); }
+.developer-home .developer-about { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); padding-block: var(--space-2xl); }
+.developer-home .developer-about__copy { gap: var(--space-xl); }
+.developer-home .developer-about h2 { max-width: 20ch; font-size: var(--text-section-title); }
+.developer-about__body { display: grid; gap: var(--space-lg); }
+.developer-home .developer-about__body p { max-width: 58ch; color: var(--color-ink-2); }
+.developer-home .developer-profile { padding: 0; }
+.developer-profile__focus { display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-md); }
+.developer-home .developer-career { padding-block: var(--space-2xl); }
+.developer-home .developer-career h2 { max-width: 26ch; font-size: var(--text-project-title); }
+.developer-home .developer-career__history { gap: var(--space-xl); }
+.developer-home .developer-career__history article { border: 0; border-inline-start: var(--rule-hair) solid var(--color-rule-2); padding: 0 0 0 var(--space-lg); }
+.developer-home .developer-career__history article:first-child { border-color: var(--color-accent); }
+.developer-home .developer-career__history article:first-child .developer-career__date { color: var(--color-focus); }
+.developer-home .developer-work { padding-block: var(--space-2xl); }
+.developer-home .portfolio-heading h2 { font-size: var(--text-section-title); }
+.developer-home .developer-project { gap: var(--space-xl); }
+.developer-home .developer-project__preview { border: var(--rule-hair) solid var(--color-rule-2); }
+.developer-home .developer-project__copy { max-width: none; gap: var(--space-md); }
+.developer-home .developer-project__copy > p:last-of-type { max-width: 56ch; color: var(--color-ink-2); }
+.developer-home .developer-project__copy .text-link .icon { transition: transform var(--dur-short) var(--ease-out); }
+.developer-project:focus-visible .text-link .icon, .developer-project:active .text-link .icon { transform: translate(var(--space-2xs), calc(-1 * var(--space-2xs))); }
+.developer-home .developer-contact { border-block-start: var(--rule-hair) solid var(--color-rule-2); padding-block: var(--space-2xl) var(--space-3xl); }
+.developer-home .developer-contact h2 { font-size: var(--text-section-title); max-width: 22ch; }
+@media (min-width: 768px) {
+  .developer-home .developer-profile { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-xl); }
+  .developer-about__body { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-xl); }
+}
+@media (min-width: 1024px) {
+  .developer-home .developer-hero { grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr); gap: var(--space-xl); padding-block: var(--space-2xl) var(--space-3xl); }
+  .developer-home .developer-hero__copy { gap: var(--space-xl); }
+  .developer-home .developer-hero__intro { font-size: var(--text-md); }
+  .developer-home .developer-about { padding-block: var(--space-3xl); gap: var(--space-2xl); }
+  .developer-home .developer-profile { max-width: 80%; }
+  .developer-home .developer-career { padding-block: var(--space-2xl) var(--space-3xl); }
+  .developer-home .developer-career__history { grid-template-columns: 1.25fr 1fr 1.2fr 1fr; gap: var(--space-xl); margin-block-start: var(--space-2xl); }
+  .developer-home .developer-work { padding-block: var(--space-3xl); }
+  .developer-home .developer-project { margin-block-start: var(--space-2xl); }
+  .developer-home .developer-contact { padding-block: var(--space-3xl) var(--space-4xl); }
+}
+@media (hover: hover) and (pointer: fine) {
+  .developer-project:hover .text-link .icon { transform: translate(var(--space-2xs), calc(-1 * var(--space-2xs))); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .developer-project .text-link .icon { transition: none; transform: none; }
+}

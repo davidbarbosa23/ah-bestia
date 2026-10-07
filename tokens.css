@@ -1,4 +1,7 @@
-/* Hallmark · design tokens · theme: Cobalt / photographic inversion */
+/* Existing brand tokens. Standard controls 6px; media/panels 10px;
+ * reader controls and filter chips round. Printed artwork and the calculation
+ * grid retain their established sharp geometry.
+ */
 :root {
   --color-paper: oklch(94.5% 0.006 250);
   --color-paper-2: oklch(91.5% 0.009 250);
@@ -33,7 +36,7 @@
   --color-magazine-canvas: oklch(90.5% 0.014 82);
   --color-magazine-surface: oklch(97% 0.008 82 / 0.88);
   --color-magazine-page: oklch(94% 0.012 82);
-  --color-magazine-ink: oklch(65% 0 0);
+  --color-magazine-ink: oklch(18% 0.014 250);
   --color-magazine-ink-muted: oklch(36% 0.016 250);
   --color-magazine-ink-subtle: oklch(45% 0.018 250);
   --color-magazine-rule: oklch(18% 0.014 250 / 0.22);
@@ -100,6 +103,18 @@
   --text-metric-wide: clamp(2.5rem, 6vw, 4.5rem);
   --text-display-s: clamp(2.5rem, 6vw, 4.5rem);
   --text-display: clamp(3.25rem, 8vw, 6.5rem);
+  --text-portfolio-hero: clamp(2rem, 4.4vw, 4rem);
+  --text-portfolio-hero-es: clamp(1.4375rem, 6vw, 2rem);
+  --text-developer-hero: clamp(2rem, 6.5vw, 6rem);
+  --text-developer-hero-es: clamp(1.5rem, 7vw, 4.5rem);
+  --leading-developer-hero: 1.06;
+  --size-developer-portrait: 27rem;
+  --size-command: 36rem;
+  --layer-dialog: 600;
+  --text-photo-hero: clamp(1.625rem, 4.4vw, 4rem);
+  --leading-portfolio-hero: 1.08;
+  --icon-stroke: 1.75;
+  --size-anchor-offset: 7rem;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
@@ -215,7 +230,7 @@ body[data-experience='photographer'] {
   --color-rule: oklch(78% 0.016 82);
   --color-rule-2: oklch(61% 0.018 82);
   --color-accent: oklch(56% 0.14 72);
-  --color-accent-ink: oklch(98% 0.01 82);
+  --color-accent-ink: oklch(99% 0.01 82);
   --color-focus: oklch(48% 0.15 72);
 }
 
