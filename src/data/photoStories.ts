@@ -36,6 +36,7 @@ const stories: Record<string, StorySpread[]> = {
       photograph('Zaragoza_Delicias.jpg', 'A station clock sits beneath angular skylights in warm light at Zaragoza Delicias.', 'Un reloj de estación aparece bajo tragaluces angulares iluminados por una luz cálida en Zaragoza Delicias.'),
       photograph('Bilbao_Rail.jpg', 'A red railcar approaches branching tracks surrounded by trees.', 'Un vagón rojo se acerca por vías que se bifurcan entre árboles.'),
     ),
+    feature(photograph('Montserrat.jpg', 'A yellow cable car hangs above a wooded gorge and rocky cliffs in Montserrat.', 'Un teleférico amarillo queda suspendido sobre un barranco arbolado y acantilados rocosos en Montserrat.')),
     pair(
       photograph('Canyon.jpg', 'A close view of a bicycle frame, cables, and saddle in deep shadow.', 'Detalle del cuadro, los cables y el sillín de una bicicleta entre sombras.'),
       photograph('Market.jpg', 'Warm overhead lights and a circular number sign inside a market.', 'Luces cálidas y un letrero circular con un número en el interior de un mercado.'),
@@ -72,6 +73,7 @@ const stories: Record<string, StorySpread[]> = {
       photograph('Boats.jpg', 'Sailboats float on pale blue water beside a wooded headland.', 'Veleros flotan sobre agua azul clara junto a un promontorio arbolado.'),
       photograph('Tossa_De_Mar.jpg', 'Stone coastal towers overlook turquoise water and rocky cliffs.', 'Torres de piedra dominan el agua turquesa y los acantilados rocosos.'),
     ),
+    feature(photograph('Lloret_De_Mar.jpg', 'A person in a yellow kayak paddles past anchored boats and a rocky islet off Lloret de Mar.', 'Una persona en un kayak amarillo rema junto a barcos anclados y un islote rocoso frente a Lloret de Mar.')),
     feature(photograph('Cadavedo_Playa.jpg', 'A seabird glides over a quiet blue sea beside a rocky cliff.', 'Un ave marina planea sobre un mar azul y tranquilo junto a un acantilado rocoso.')),
   ],
   random: [

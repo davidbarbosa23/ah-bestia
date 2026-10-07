@@ -91,6 +91,11 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     'Ornate street lamp against warm stone facades',
     'Farola decorada frente a fachadas de piedra cálida',
   ),
+  'spain/Lloret_De_Mar.jpg': photo(
+    ['nature', 'travel', 'people'],
+    'A person in a yellow kayak paddles past anchored boats and a rocky islet off Lloret de Mar',
+    'Una persona en un kayak amarillo rema junto a barcos anclados y un islote rocoso frente a Lloret de Mar',
+  ),
   'spain/Madrid_Basilica.jpg': photo(
     ['street', 'architecture', 'car', 'travel', 'black-and-white'],
     'Small car passing the stone arches of a basilica in Madrid',
@@ -110,6 +115,11 @@ export const photoAnnotations: Record<string, PhotoAnnotation> = {
     ['street', 'travel'],
     'Dim market passage framed by illuminated shop signs',
     'Pasillo de mercado en penumbra con letreros iluminados',
+  ),
+  'spain/Montserrat.jpg': photo(
+    ['nature', 'travel'],
+    'Yellow cable car suspended above a wooded gorge and rocky cliffs in Montserrat',
+    'Teleférico amarillo suspendido sobre un barranco arbolado y acantilados rocosos en Montserrat',
   ),
   'spain/Musk_Deer.jpg': photo(
     ['animals', 'nature', 'travel'],
