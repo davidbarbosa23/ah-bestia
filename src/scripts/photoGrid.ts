@@ -13,7 +13,7 @@ export function setupPhotoGrid() {
   const items = root.querySelector<HTMLElement>('[data-grid-items]')!;
   const form = root.querySelector<HTMLFormElement>('[data-grid-filters]')!;
   const search = root.querySelector<HTMLInputElement>('[data-grid-search]')!;
-  const more = root.querySelector<HTMLAnchorElement>('[data-grid-more]')!;
+  const more = root.querySelector<HTMLButtonElement>('[data-grid-more]')!;
   const count = root.querySelector<HTMLElement>('[data-grid-count]')!;
   const empty = root.querySelector<HTMLElement>('[data-grid-empty]')!;
   const end = root.querySelector<HTMLElement>('[data-grid-end]')!;
@@ -37,7 +37,7 @@ export function setupPhotoGrid() {
   const batchSize = Number(root.dataset.batchSize);
   const controller = new AbortController();
   const { signal } = controller;
-  let cursor = Number(root.dataset.offset) + items.children.length;
+  let cursor = items.children.length;
   let total = Number(root.dataset.total);
   let manifest: Promise<ArchivePhoto[]> | undefined;
   let matches: ArchivePhoto[] | undefined;
@@ -163,15 +163,14 @@ export function setupPhotoGrid() {
       renderBatch(batch);
       firstAddedLink = items.querySelector<HTMLAnchorElement>(`[data-grid-card]:nth-child(${items.children.length - batch.length + 1}) a`);
       cursor += batch.length;
-      const nextPage = Math.floor(cursor / batchSize) + 1;
-      more.href = `${root.dataset.manifest!.replace('photos.json', '')}${nextPage}/`;
     } catch {
       if (!signal.aborted && requestRevision === revision) showError('more');
     } finally {
       if (!signal.aborted && requestRevision === revision) {
+        const focusMore = document.activeElement === more;
         busy = false;
         updateControls();
-        if (more.hidden && document.activeElement === more) firstAddedLink?.focus();
+        if (more.hidden && focusMore) firstAddedLink?.focus();
       }
     }
   };
@@ -274,9 +273,7 @@ export function setupPhotoGrid() {
   }, { signal }));
   all.addEventListener('click', reset, { signal });
   clear.addEventListener('click', reset, { signal });
-  more.addEventListener('click', (event) => {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
+  more.addEventListener('click', () => {
     error.hidden = true;
     void loadMore();
   }, { signal });

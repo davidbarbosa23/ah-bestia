@@ -353,8 +353,6 @@ export interface PhotoGridCopy {
   empty: string;
   error: string;
   retry: string;
-  previousPage: string;
-  nextPage: string;
   noScript: string;
   archive: string;
   tags: Record<import('../data/photoTags').PhotoTag, string>;
@@ -516,10 +514,8 @@ export const ui = {
           'No photographs match. Try another subject or clear the filters.',
         error: 'More photographs couldn’t load. Please try again.',
         retry: 'Try again',
-        previousPage: 'Previous photographs',
-        nextPage: 'Next photographs',
         noScript:
-          'Use the page links to explore the archive. Enable JavaScript to search and filter.',
+          'Enable JavaScript to load more photographs, search, and filter.',
         archive: 'Photo archive',
         tags: {
           portrait: 'Portrait',
@@ -683,10 +679,8 @@ export const ui = {
           'No hay fotografías que coincidan. Prueba otro tema o limpia los filtros.',
         error: 'No se pudieron cargar más fotografías. Inténtalo de nuevo.',
         retry: 'Intentar de nuevo',
-        previousPage: 'Fotografías anteriores',
-        nextPage: 'Fotografías siguientes',
         noScript:
-          'Usa los enlaces de página para explorar el archivo. Activa JavaScript para buscar y filtrar.',
+          'Activa JavaScript para cargar más fotografías, buscar y filtrar.',
         archive: 'Archivo fotográfico',
         tags: {
           portrait: 'Retrato',

@@ -5,19 +5,16 @@ import { archivePhotos, PHOTO_BATCH_SIZE, prepareArchivePhotos } from '../data/p
 import PhotoGridCard from './PhotoGridCard.astro';
 import Icon from './Icon.astro';
 
-interface Props { lang: Lang; page?: number; }
-const { lang, page = 1 } = Astro.props;
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
 const labels = ui[lang].photography.grid;
-const offset = (page - 1) * PHOTO_BATCH_SIZE;
-const photos = await prepareArchivePhotos(lang, archivePhotos.slice(offset, offset + PHOTO_BATCH_SIZE));
-const pageCount = Math.ceil(archivePhotos.length / PHOTO_BATCH_SIZE);
+const photos = await prepareArchivePhotos(lang, archivePhotos.slice(0, PHOTO_BATCH_SIZE));
 const basePath = `/${lang}/ph/grid/`;
-const previousPath = page === 2 ? basePath : `${basePath}${page - 1}/`;
-const nextPath = page < pageCount ? `${basePath}${page + 1}/` : undefined;
-const count = labels.count.replace('{shown}', String(offset + photos.length)).replace('{total}', String(archivePhotos.length));
+const hasMore = photos.length < archivePhotos.length;
+const count = labels.count.replace('{shown}', String(photos.length)).replace('{total}', String(archivePhotos.length));
 ---
 
-<main class="photo-grid page-shell" id="main" data-photo-grid data-manifest={`${basePath}photos.json`} data-offset={offset} data-batch-size={PHOTO_BATCH_SIZE} data-total={archivePhotos.length} data-open-label={ui[lang].photography.series.openFullscreen} data-tag-labels={JSON.stringify([ui.en.photography.grid.tags, ui.es.photography.grid.tags])}>
+<main class="photo-grid page-shell" id="main" data-photo-grid data-manifest={`${basePath}photos.json`} data-batch-size={PHOTO_BATCH_SIZE} data-total={archivePhotos.length} data-open-label={ui[lang].photography.series.openFullscreen} data-tag-labels={JSON.stringify([ui.en.photography.grid.tags, ui.es.photography.grid.tags])}>
   <header class="photo-grid__intro">
     <a class="inner-page__back" href={`/${lang}/ph/`}><Icon name="arrow-left" />{labels.back}</a>
     <h1>{labels.title}</h1>
@@ -57,11 +54,10 @@ const count = labels.count.replace('{shown}', String(offset + photos.length)).re
     <p>{labels.error}</p>
     <button type="button" class="photo-grid__load" data-grid-retry>{labels.retry}</button>
   </div>
-  <nav class="photo-grid__pagination" aria-label={labels.archive} data-grid-sentinel>
-    {page > 1 && <a class="inner-page__back" href={previousPath} rel="prev">{labels.previousPage}</a>}
-    <a class="photo-grid__load" href={nextPath ?? basePath} rel="next" data-grid-more hidden={!nextPath}>{labels.loadMore}<Icon name="arrow-down" /></a>
-    <p data-grid-end hidden={Boolean(nextPath)}>{labels.end}</p>
-  </nav>
+  <div class="photo-grid__more" data-grid-sentinel>
+    <button type="button" class="photo-grid__load" aria-controls="photo-grid-items" data-grid-more hidden>{labels.loadMore}<Icon name="arrow-down" /></button>
+    <p data-grid-end hidden={hasMore}>{labels.end}</p>
+  </div>
   <noscript><p class="photo-grid__noscript">{labels.noScript}</p></noscript>
   <script is:inline type="application/json" data-grid-copy set:html={JSON.stringify(labels).replace(/</g, '\\u003c')} />
 </main>
@@ -335,7 +331,7 @@ const count = labels.count.replace('{shown}', String(offset + photos.length)).re
   .photo-grid__folder-icon:hover {
     background: var(--color-paper-2);
   }
-  .photo-grid__pagination,
+  .photo-grid__more,
   .photo-grid__error {
     display: flex;
     flex-wrap: wrap;
