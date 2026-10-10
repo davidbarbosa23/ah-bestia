@@ -100,11 +100,14 @@ export function setupPhotoGrid() {
     const card = cardTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
     card.dataset.photoId = photo.id;
     const link = card.querySelector<HTMLAnchorElement>('[data-lightbox-open]')!;
-    link.href = photo.viewer;
+    const photoUrl = new URL(window.location.href);
+    photoUrl.searchParams.set('photo', photo.id);
+    link.href = photoUrl.href;
     link.setAttribute('aria-label', `${root.dataset.openLabel}: ${photo.alt}`);
     link.setAttribute('aria-haspopup', 'dialog');
     link.setAttribute('aria-controls', 'photo-lightbox');
     link.dataset.lightboxOpen = '';
+    link.dataset.lightboxId = photo.id;
     link.dataset.lightboxSrc = photo.viewer;
     link.dataset.lightboxAlt = photo.alt;
     link.dataset.lightboxFilename = photo.filename;
@@ -175,7 +178,7 @@ export function setupPhotoGrid() {
     }
   };
 
-  const syncUrl = () => {
+  const syncUrl = (historyMode: 'push' | 'replace') => {
     const url = new URL(window.location.href);
     url.searchParams.delete('tag');
     url.searchParams.delete('q');
@@ -183,7 +186,10 @@ export function setupPhotoGrid() {
     selected.forEach((tag) => url.searchParams.append('tag', tag));
     if (search.value.trim()) url.searchParams.set('q', search.value.trim());
     if (selectedFolder) url.searchParams.set('folder', selectedFolder);
-    history.replaceState(null, '', url);
+    if (url.href !== window.location.href) {
+      if (historyMode === 'push') history.pushState(history.state, '', url);
+      else history.replaceState(history.state, '', url);
+    }
     document.querySelectorAll<HTMLAnchorElement>('[data-language-link]').forEach((link) => {
       const alternate = new URL(link.href);
       alternate.search = url.search;
@@ -191,11 +197,11 @@ export function setupPhotoGrid() {
     });
   };
 
-  const applyFilters = async () => {
+  const applyFilters = async (historyMode: 'push' | 'replace' = 'push') => {
     const requestRevision = ++revision;
     busy = true;
     error.hidden = true;
-    syncUrl();
+    syncUrl(historyMode);
     updateControls();
     const query = normalizePhotoSearch(search.value.trim());
     const queryTag = tagAliases.get(query);
@@ -296,13 +302,37 @@ export function setupPhotoGrid() {
     if (['ArrowDown', 'PageDown', 'End', ' '].includes(event.key)) beginBrowsing();
   }, { signal });
 
-  const readUrl = () => {
+  const readUrl = async () => {
+    // Back/Forward takes precedence over a pending search debounce or fetch.
+    window.clearTimeout(inputTimer);
+    revision += 1;
     const params = new URLSearchParams(window.location.search);
     selected.clear();
     params.getAll('tag').filter((tag) => validTags.has(tag)).forEach((tag) => selected.add(tag));
     search.value = params.get('q') ?? '';
     selectedFolder = params.get('folder') ?? '';
-    if (selected.size || search.value || selectedFolder || matches) void applyFilters();
+    if (selected.size || search.value || selectedFolder || matches || busy) await applyFilters('replace');
+    const photoId = params.get('photo');
+    if (!photoId || signal.aborted) return;
+    if ([...items.querySelectorAll<HTMLElement>('[data-lightbox-id]')].some((link) => link.dataset.lightboxId === photoId)) {
+      document.dispatchEvent(new Event('photo-grid:ready'));
+      return;
+    }
+    try {
+      // A shared link may point past the initial batch of cards.
+      const photos = matches ?? await getPhotos();
+      if (signal.aborted || new URLSearchParams(location.search).get('photo') !== photoId) return;
+      const index = photos.findIndex((photo) => photo.id === photoId);
+      if (index >= cursor) {
+        const end = Math.min(photos.length, Math.ceil((index + 1) / batchSize) * batchSize);
+        renderBatch(photos.slice(cursor, end));
+        cursor = end;
+        updateControls();
+      }
+      document.dispatchEvent(new Event('photo-grid:ready'));
+    } catch {
+      if (!signal.aborted) showError('more');
+    }
   };
   window.addEventListener('popstate', readUrl, { signal });
   updateControls();

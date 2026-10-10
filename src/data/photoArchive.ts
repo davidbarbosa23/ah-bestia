@@ -69,12 +69,13 @@ export async function prepareArchivePhotos(lang: Lang, photos = archivePhotos): 
   return Promise.all(photos.map(async (photo) => {
     let optimized = assets.get(photo.id);
     if (!optimized) {
-      optimized = Promise.all([240, 480, 720, 1600].map((width) => getImage({
+      optimized = Promise.all([240, 480, 720].map((width) => getImage({
         src: photo.image, width: Math.min(width, photo.image.width), format: 'webp', quality: 80,
       }))).then((variants) => ({
         src: variants[1].src,
-        srcset: variants.slice(0, 3).map((variant) => `${variant.src} ${variant.attributes.width}w`).join(', '),
-        viewer: variants[3].src,
+        srcset: variants.map((variant) => `${variant.src} ${variant.attributes.width}w`).join(', '),
+        // Load the original only when viewing a photograph at full size.
+        viewer: photo.image.src,
       }));
       assets.set(photo.id, optimized);
     }

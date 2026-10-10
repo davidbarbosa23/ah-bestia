@@ -233,6 +233,7 @@ const structuredData = {
         event.newDocument.documentElement.dataset.theme = theme;
         if (languageScrollPosition) {
           event.newDocument.documentElement.dataset.languageTransition = 'true';
+          event.newDocument.body.dataset.skipEntrance = 'true';
         }
       });
 

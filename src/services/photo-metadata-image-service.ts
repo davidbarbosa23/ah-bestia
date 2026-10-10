@@ -1,11 +1,9 @@
 import sharp from 'sharp';
 import sharpImageService, { resolveSharpEncoderOptions } from 'astro/assets/services/sharp';
+import { creator, email, rights, website } from '../data/photoMetadata.mjs';
 
 type ImageOutputFormat = Awaited<ReturnType<typeof sharpImageService.transform>>['format'];
 
-const creator = 'David Barbosa';
-const email = 'davidbarbosa.design@gmail.com';
-const rights = `Copyright © ${creator}. All rights reserved.`;
 const creatorDescription = `<rdf:Description rdf:about=""
   xmlns:dc="http://purl.org/dc/elements/1.1/"
   xmlns:xmpRights="http://ns.adobe.com/xap/1.0/rights/"
@@ -13,7 +11,7 @@ const creatorDescription = `<rdf:Description rdf:about=""
   xmlns:Iptc4xmpCore="http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/">
   <dc:creator><rdf:Seq><rdf:li>${creator}</rdf:li></rdf:Seq></dc:creator>
   <dc:rights><rdf:Alt><rdf:li xml:lang="x-default">${rights}</rdf:li></rdf:Alt></dc:rights>
-  <xmpRights:WebStatement>https://ahbestia.com</xmpRights:WebStatement>
+  <xmpRights:WebStatement>${website}</xmpRights:WebStatement>
   <photoshop:Credit>${creator}</photoshop:Credit>
   <Iptc4xmpCore:CreatorContactInfo rdf:parseType="Resource">
     <Iptc4xmpCore:CiEmailWork>${email}</Iptc4xmpCore:CiEmailWork>
