@@ -73,7 +73,7 @@ export const labProjects: LabProject[] = [
     slug: 'fixed-gear-calculator',
     year: '2026',
     kind: 'live',
-    tags: ['Astro', 'TypeScript', 'SVG'],
+    tags: ['Astro', 'TypeScript', 'Three.js'],
     content: {
       en: {
         title: 'Fixed gear, made legible.',
@@ -86,7 +86,7 @@ export const labProjects: LabProject[] = [
           'What changes when one tooth moves from the chainring to the sprocket, and how can a rider understand the result without decoding a spreadsheet?',
         approach: 'The approach',
         approachBody:
-          'Keep every input visible, update the analysis immediately, and place a plain-language definition beside each number. The wheel diagram shows skid wear as part of the calculation, not decoration.',
+          'Keep the bike, setup, and analysis together. A low-poly rider pedals at the selected cadence, while highlights on the rear tire show the calculated skid patches. Rotate the model to explore it from any angle.',
         result: 'The working answer',
         resultBody:
           'A small client-side calculator with no account, no saved state, and no hidden server work. Change a value and the ratio, rollout, equivalent gears, and cadence table recalculate in place.',
@@ -103,7 +103,7 @@ export const labProjects: LabProject[] = [
           '¿Qué cambia cuando un diente pasa del plato al piñón y cómo puede una persona entender el resultado sin descifrar una hoja de cálculo?',
         approach: 'El enfoque',
         approachBody:
-          'Mantener todos los controles visibles, actualizar el análisis de inmediato y acompañar cada cifra con una definición clara. El diagrama de la rueda muestra los puntos de derrape como parte del cálculo, no como decoración.',
+          'Mantener la bicicleta, la configuración y el análisis juntos. Un ciclista low-poly pedalea a la cadencia seleccionada y las marcas en la cubierta trasera muestran los puntos de derrape calculados. Gira el modelo para explorarlo desde cualquier ángulo.',
         result: 'La respuesta funcional',
         resultBody:
           'Una calculadora pequeña del lado del cliente, sin cuenta, estado guardado ni trabajo oculto en el servidor. Al cambiar un valor se recalculan la relación, el desarrollo, las combinaciones equivalentes y la tabla de cadencia.',

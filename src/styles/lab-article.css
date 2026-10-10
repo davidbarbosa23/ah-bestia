@@ -109,7 +109,8 @@
   gap: var(--space-xl);
 }
 
-.lab-hero h1 {
+.lab-hero h1,
+.lab-hero h2 {
   max-width: 13ch;
   font-size: var(--text-display-s);
 }

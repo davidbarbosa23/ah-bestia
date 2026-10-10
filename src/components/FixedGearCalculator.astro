@@ -2,156 +2,104 @@
 import '../styles/fixed-gear-calculator.css';
 import { ui, type Lang } from '../i18n/content';
 import Icon from './Icon.astro';
+import Button from './Button.astro';
 import { chainrings, sprockets, tires, cadences } from '../data/fixedGearOptions';
+import { calculateGear, findEquivalentGears, speedAtCadence } from '../utils/fixedGear';
 
-interface Props { lang: Lang; }
-const { lang } = Astro.props;
-
+interface Props { lang: Lang; backLabel: string; }
+const { lang, backLabel } = Astro.props;
 const labels = ui[lang].calculator;
-
+const initial = calculateGear({ chainring: 48, sprocket: 17, circumferenceMm: 2105, ambidextrous: false });
+const number = (value: number, digits: number) => value.toLocaleString(lang, { minimumFractionDigits: digits, maximumFractionDigits: digits });
 ---
 
 <fixed-gear-calculator
-  class="fg-calculator"
-  data-combination-label={labels.combination}
-  data-live-message={labels.live}
-  data-ratio-label={labels.ratio}
-  data-patches-label={labels.patches}
-  data-rollout-label={labels.rollout}
+  class="fg-calculator" data-lang={lang}
+  data-combination-label={labels.combination} data-live-message={labels.live}
+  data-ratio-label={labels.ratio} data-patches-label={labels.patches} data-rollout-label={labels.rollout}
+  data-play-label={labels.play} data-pause-label={labels.pause} data-unavailable={labels.unavailable} data-loading={labels.loading}
 >
-  <header class="fg-calculator__header">
-    <div>
-      <h2>{labels.title}</h2>
-    </div>
-    <p>{labels.subtitle}</p>
-  </header>
-
-  <div class="fg-calculator__workspace">
-    <form class="fg-controls" data-fg-form>
-      <fieldset>
-        <legend>{labels.setup}</legend>
-        <label class="fg-field">
-          <span>{labels.chainring}</span>
-          <span class="fg-select-wrap">
-            <select name="chainring" data-chainring>
-              {chainrings.map((value) => <option value={value} selected={value === 48}>{value}T</option>)}
-            </select>
-            <Icon name="arrow-down" />
-          </span>
-        </label>
-        <label class="fg-field">
-          <span>{labels.sprocket}</span>
-          <span class="fg-select-wrap">
-            <select name="sprocket" data-sprocket>
-              {sprockets.map((value) => <option value={value} selected={value === 17}>{value}T</option>)}
-            </select>
-            <Icon name="arrow-down" />
-          </span>
-        </label>
-        <label class="fg-field">
-          <span>{labels.tire}</span>
-          <span class="fg-select-wrap">
-            <select name="tire" data-tire>
-              {tires.map(([name, circumference]) => (
-                <option value={circumference} selected={circumference === 2105}>{name}</option>
-              ))}
-            </select>
-            <Icon name="arrow-down" />
-          </span>
-        </label>
-        <label class="fg-check">
-          <input type="checkbox" name="ambidextrous" data-ambidextrous />
-          <span>
-            <strong>{labels.skid}</strong>
-            <small>{labels.skidHelp}</small>
-          </span>
-        </label>
-      </fieldset>
-
-      <fieldset class="fg-unit-fieldset">
-        <legend>{labels.units}</legend>
-        <div class="fg-unit-switch">
-          <label><input type="radio" name="units" value="metric" checked data-units /> <span>{labels.metric}</span></label>
-          <label><input type="radio" name="units" value="imperial" data-units /> <span>{labels.imperial}</span></label>
+  <div class="fg-studio">
+    <header class="fg-calculator__header">
+      <a class="inner-page__back" href={`/${lang}/dev/labs/`}><Icon name="arrow-left" />{backLabel}</a>
+      <h1>{labels.title}</h1>
+      <p>{labels.subtitle}</p>
+    </header>
+    <div class="fg-calculator__workspace">
+      <section class="fg-visual" aria-label={labels.diagram}>
+        <div class="fg-scene" data-scene data-label={labels.diagram}>
+          <p class="fg-scene__status" role="status" data-scene-status>{labels.noScript}</p>
         </div>
-      </fieldset>
-    </form>
-
-    <section class="fg-visual" aria-label={labels.analysis}>
-      <svg class="fg-wheel" viewBox="0 0 520 390" role="img" aria-label={labels.diagram}>
-        <g class="fg-wheel__rear" data-wheel-rotation>
-          <circle class="fg-wheel__tire" cx="230" cy="195" r="151" />
-          <circle class="fg-wheel__rim" cx="230" cy="195" r="137" />
-          <circle class="fg-wheel__skids" cx="230" cy="195" r="151" pathLength="100" data-skid-ring />
-          {Array.from({ length: 24 }, (_, index) => {
-            const angle = (index * 15 * Math.PI) / 180;
-            const x = 230 + Math.cos(angle) * 137;
-            const y = 195 + Math.sin(angle) * 137;
-            return <line class="fg-wheel__spoke" x1="230" y1="195" x2={x} y2={y} />;
-          })}
-          <circle class="fg-wheel__hub" cx="230" cy="195" r="15" />
-          <circle class="fg-wheel__cog" cx="230" cy="195" r="31" />
-        </g>
-        <path class="fg-wheel__chain" d="M230 164 C310 126 399 123 445 153 M230 226 C310 264 399 267 445 237" />
-        <g class="fg-wheel__crank" data-crank-rotation>
-          <circle cx="445" cy="195" r="49" />
-          <circle cx="445" cy="195" r="8" />
-          <path d="M445 195 477 220M477 220h24" />
-        </g>
-      </svg>
-      <p class="fg-visual__ratio"><span data-visual-gear>48 × 17</span><strong data-visual-ratio>2.82</strong></p>
+        <p id="fg-keyboard-help" class="sr-only">{labels.keyboardHelp}</p>
+        <div class="fg-visual__topline">
+          <span class="fg-visual__gear" data-visual-gear>48 × 17</span><span>{labels.rotateHelp}</span>
+        </div>
+        <div class="fg-visual__bottom">
+          <p class="fg-legend"><span aria-hidden="true"></span><span><b data-patches>17</b> {labels.patches.toLocaleLowerCase(lang)}</span></p>
+          <div class="fg-view-actions" data-view-actions hidden>
+            <Button variant="secondary" data-pause>{labels.pause}</Button>
+            <Button variant="ghost" data-side-view>{labels.sideView}</Button>
+            <Button variant="ghost" data-reset-view>{labels.resetView}</Button>
+          </div>
+        </div>
+      </section>
+      <form class="fg-controls" data-fg-form>
+        <fieldset>
+          <legend>{labels.setup}</legend>
+          <div class="fg-gearing-fields">
+            <label class="fg-field"><span>{labels.chainring}</span><span class="fg-select-wrap">
+              <select name="chainring" data-chainring disabled>{chainrings.map((value) => <option value={value} selected={value === 48}>{value}T</option>)}</select><Icon name="arrow-down" />
+            </span></label>
+            <label class="fg-field"><span>{labels.sprocket}</span><span class="fg-select-wrap">
+              <select name="sprocket" data-sprocket disabled>{sprockets.map((value) => <option value={value} selected={value === 17}>{value}T</option>)}</select><Icon name="arrow-down" />
+            </span></label>
+          </div>
+          <label class="fg-field"><span>{labels.tire}</span><span class="fg-select-wrap">
+            <select name="tire" data-tire disabled>{tires.map(([name, circumference]) => <option value={circumference} selected={circumference === 2105}>{name}</option>)}</select><Icon name="arrow-down" />
+          </span></label>
+          <label class="fg-check"><input type="checkbox" name="ambidextrous" data-ambidextrous disabled /><span><strong>{labels.skid}</strong><small>{labels.skidHelp}</small></span></label>
+        </fieldset>
+        <fieldset class="fg-cadence-control">
+          <legend><span>{labels.rideCadence}</span><span class="fg-rpm-value"><output for="fg-rpm" data-current-rpm>90</output><span>{labels.rpm}</span></span></legend>
+          <label for="fg-rpm" class="sr-only">{labels.rideCadence}</label>
+          <input id="fg-rpm" name="cadence" type="range" min="30" max="150" step="1" value="90" data-cadence-input disabled />
+          <div class="fg-range-labels" aria-hidden="true"><span>30</span><span>150</span></div>
+        </fieldset>
+        <fieldset class="fg-unit-fieldset">
+          <legend class="sr-only">{labels.units}</legend>
+          <div class="fg-unit-switch">
+            <label><input type="radio" name="units" value="metric" checked data-units disabled /><span>{labels.metric}</span></label>
+            <label><input type="radio" name="units" value="imperial" data-units disabled /><span>{labels.imperial}</span></label>
+          </div>
+        </fieldset>
+      </form>
+      <section class="fg-analysis" aria-labelledby="fg-analysis-title">
+        <h2 id="fg-analysis-title">{labels.analysis}</h2>
+        <dl class="fg-metrics">
+          <div><dt>{labels.ratio}</dt><dd><strong data-ratio>{number(initial.ratio, 2)}</strong><small>{labels.ratioHelp}</small></dd></div>
+          <div class="fg-metric--patches"><dt>{labels.patches}</dt><dd><strong data-patches>17</strong><small>{labels.patchLegend}</small></dd></div>
+          <div><dt>{labels.rollout}</dt><dd><strong><span data-rollout>{number(initial.rolloutM, 2)}</span> <span class="fg-metric-unit" data-rollout-unit>m</span></strong><small>{labels.rolloutHelp}</small></dd></div>
+          <div><dt>{labels.speed}</dt><dd><strong><span data-current-speed>{number(speedAtCadence(initial.rolloutM, 90), 1)}</span> <span class="fg-metric-unit" data-speed-unit>km/h</span></strong><small>{labels.speedHelp}</small><small><span data-wheel-rpm>{number(initial.ratio * 90, 1)}</span> {labels.wheelRpm}</small></dd></div>
+        </dl>
+      </section>
+    </div>
+  </div>
+  <div class="fg-details page-shell">
+    <p class="fg-model-note">{labels.modelNote}</p>
+    <section class="fg-data-section">
+      <div class="fg-section-heading"><h2>{labels.equivalent}</h2><p>{labels.equivalentHelp}</p></div>
+      <div class="fg-equivalents" data-equivalents>
+        {findEquivalentGears(initial.ratio).map(([ring, cog]) => <Button variant="secondary" data-equivalent-ring={ring} data-equivalent-cog={cog} aria-label={`${labels.combination} ${ring} × ${cog}`} aria-pressed={ring === 48 && cog === 17} disabled>{ring} × {cog}</Button>)}
+      </div>
+    </section>
+    <section class="fg-data-section">
+      <div class="fg-section-heading"><h2>{labels.cadence}</h2><p>{labels.cadenceHelp}</p></div>
+      <div class="fg-cadence" data-cadence>{cadences.map((rpm) => <article data-rpm={rpm}><span>{rpm} {labels.rpm}</span><strong data-speed>{number(speedAtCadence(initial.rolloutM, rpm), 1)} km/h</strong></article>)}</div>
+    </section>
+    <section class="fg-explainer">
+      {[['ratio', 'ratioHelp'], ['patches', 'patchesHelp'], ['rollout', 'rolloutHelp']].map(([title, help]) => <div><h2>{labels[title as keyof typeof labels]}</h2><p>{labels[help as keyof typeof labels]}</p></div>)}
     </section>
   </div>
-
-  <section class="fg-analysis" aria-labelledby="fg-analysis-title">
-    <div class="fg-section-heading">
-      <h3 id="fg-analysis-title">{labels.analysis}</h3>
-    </div>
-    <div class="fg-metrics">
-      <article>
-        <p>{labels.ratio}</p>
-        <strong data-ratio>2.82</strong>
-        <small>{labels.ratioHelp}</small>
-      </article>
-      <article>
-        <p>{labels.patches}</p>
-        <strong data-patches>17</strong>
-        <small>{labels.patchesHelp}</small>
-      </article>
-      <article>
-        <p>{labels.rollout}</p>
-        <strong><span data-rollout>5.94</span> <span data-rollout-unit>m</span></strong>
-        <small>{labels.rolloutHelp}</small>
-      </article>
-    </div>
-  </section>
-
-  <section class="fg-data-section">
-    <div class="fg-section-heading">
-      <p class="mono-label">± 2%</p>
-      <h3>{labels.equivalent}</h3>
-      <p>{labels.equivalentHelp}</p>
-    </div>
-    <div class="fg-equivalents" data-equivalents></div>
-  </section>
-
-  <section class="fg-data-section fg-data-section--cadence">
-    <div class="fg-section-heading">
-      <p class="mono-label">50-130 {labels.rpm}</p>
-      <h3>{labels.cadence}</h3>
-    </div>
-    <div class="fg-cadence" data-cadence>
-      {cadences.map((rpm) => (
-        <article data-rpm={rpm}>
-          <span>{rpm} {labels.rpm}</span>
-          <strong data-speed>-</strong>
-        </article>
-      ))}
-    </div>
-  </section>
   <p class="sr-only" role="status" aria-atomic="true" data-live-status></p>
 </fixed-gear-calculator>
-
-<script>
-  import '../scripts/fixedGearCalculator';
-</script>
+<script>import '../scripts/fixedGearCalculator';</script>

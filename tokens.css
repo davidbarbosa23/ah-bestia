@@ -44,6 +44,15 @@
   --color-magazine-hover: oklch(18% 0.014 250 / 0.08);
 
   --dev-hero-background: none;
+  /* Physical materials for the procedural cycling illustration. */
+  --color-bike-frame: #527fc2;
+  --color-bike-jersey: #3687d4;
+  --color-bike-skin: #ca8b64;
+  --color-bike-tire: #252b34;
+  --color-bike-metal: #a8b7c7;
+  --color-bike-shorts: #303b50;
+  --color-bike-patch: #ffb84d;
+  --color-skid-label: #965600;
 
   --font-display: 'Space Grotesk Variable', 'Arial Narrow', sans-serif;
   --font-body: 'Inter Variable', 'Segoe UI', sans-serif;
@@ -212,6 +221,7 @@
 }
 
 html[data-theme='dark'] {
+  --color-skid-label: #ffbd61;
   --color-paper: oklch(15% 0.014 258);
   --color-paper-2: oklch(19% 0.016 258);
   --color-paper-3: oklch(24% 0.018 258);

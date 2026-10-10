@@ -35,15 +35,10 @@ const content = project.content[lang];
 >
   <SiteHeader lang={lang} experience="developer" />
   <main class="lab-article" id="main">
-    <div class="page-shell">
-      <a class="inner-page__back" href={`/${lang}/dev/labs/`}>
-        <Icon name="arrow-left" />{t.projectBack}
-      </a>
-    </div>
-
+    <FixedGearCalculator lang={lang} backLabel={t.projectBack} />
     <article>
       <header class="lab-hero page-shell">
-        <h1>{content.title}</h1>
+        <h2>{content.title}</h2>
         <p class="lab-hero__lede">{content.lede}</p>
         <dl class="lab-hero__meta">
           <div><dt>{ui[lang].labs.status}</dt><dd>{content.status}</dd></div>
@@ -56,10 +51,6 @@ const content = project.content[lang];
         <h2 id="lab-question">{content.question}</h2>
         <p>{content.questionBody}</p>
       </section>
-
-      <div class="lab-live page-shell">
-        <FixedGearCalculator lang={lang} />
-      </div>
 
       <div class="lab-notes page-shell">
         <section>

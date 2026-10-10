@@ -473,6 +473,22 @@ export interface UiCopy {
     teeth: string;
     combination: string;
     live: string;
+    rideCadence: string;
+    wheelRpm: string;
+    cadenceHelp: string;
+    speed: string;
+    speedHelp: string;
+    rotateHelp: string;
+    keyboardHelp: string;
+    pause: string;
+    play: string;
+    resetView: string;
+    sideView: string;
+    loading: string;
+    unavailable: string;
+    noScript: string;
+    patchLegend: string;
+    modelNote: string;
   };
   error: ErrorPageCopy;
 }
@@ -605,7 +621,7 @@ export const ui = {
       metric: 'Metric',
       imperial: 'Imperial',
       analysis: 'Analysis',
-      diagram: 'Rear wheel, chainring, and skid patch diagram',
+      diagram: 'Interactive 3D fixed-gear bicycle and rider',
       ratio: 'Ratio',
       ratioHelp: 'Rear-wheel turns for every complete turn of the cranks.',
       patches: 'Skid patches',
@@ -620,6 +636,22 @@ export const ui = {
       teeth: 'teeth',
       combination: 'Use gear combination',
       live: 'Calculator results updated',
+      rideCadence: 'Pedaling cadence',
+      wheelRpm: 'wheel rpm',
+      cadenceHelp: 'Compare speeds at different pedaling cadences with this setup.',
+      speed: 'Speed',
+      speedHelp: 'Calculated at your selected cadence.',
+      rotateHelp: 'Drag to rotate',
+      keyboardHelp: 'Use arrow keys to rotate the model. Press Home to reset the view.',
+      pause: 'Pause rider',
+      play: 'Play rider',
+      resetView: 'Reset view',
+      sideView: 'Side view',
+      loading: 'Loading the 3D bike…',
+      unavailable: '3D is unavailable in this browser. The calculator and all results still work.',
+      noScript: 'Enable JavaScript to change the setup and explore the 3D bike. The values shown are for 48 × 17.',
+      patchLegend: 'Highlighted on the rear tire',
+      modelNote: 'The markers show possible wear positions, not a skid in progress. Bike geometry is illustrative.',
     },
     error: {
       errors: {
@@ -768,7 +800,7 @@ export const ui = {
       metric: 'Métrico',
       imperial: 'Imperial',
       analysis: 'Análisis',
-      diagram: 'Diagrama de rueda trasera, plato y puntos de derrape',
+      diagram: 'Bicicleta de piñón fijo y ciclista en 3D interactivo',
       ratio: 'Relación',
       ratioHelp:
         'Vueltas de la rueda trasera por cada vuelta completa de las bielas.',
@@ -785,6 +817,22 @@ export const ui = {
       teeth: 'dientes',
       combination: 'Usar combinación',
       live: 'Resultados de la calculadora actualizados',
+      rideCadence: 'Cadencia de pedaleo',
+      wheelRpm: 'rpm de la rueda',
+      cadenceHelp: 'Compara velocidades a distintas cadencias con esta configuración.',
+      speed: 'Velocidad',
+      speedHelp: 'Calculada con la cadencia seleccionada.',
+      rotateHelp: 'Arrastra para girar',
+      keyboardHelp: 'Usa las flechas para girar el modelo. Pulsa Inicio para restablecer la vista.',
+      pause: 'Pausar ciclista',
+      play: 'Animar ciclista',
+      resetView: 'Restablecer vista',
+      sideView: 'Vista lateral',
+      loading: 'Cargando la bicicleta 3D…',
+      unavailable: 'El 3D no está disponible en este navegador. La calculadora y los resultados siguen funcionando.',
+      noScript: 'Activa JavaScript para cambiar la configuración y explorar la bicicleta 3D. Los valores corresponden a 48 × 17.',
+      patchLegend: 'Resaltados en la cubierta trasera',
+      modelNote: 'Las marcas indican posibles puntos de desgaste, no un derrape en curso. La geometría es ilustrativa.',
     },
     error: {
       errors: {
