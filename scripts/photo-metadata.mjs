@@ -1,9 +1,12 @@
 import { readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { exiftool } from 'exiftool-vendored';
 import { creator, email, rights, website } from '../src/data/photoMetadata.mjs';
 
-const assets = new URL('../src/assets/', import.meta.url);
+const assets = process.argv[2]
+  ? resolve(process.argv[2])
+  : fileURLToPath(new URL('../src/assets/', import.meta.url));
 const defaults = {
   'IFD0:Artist': creator,
   'IFD0:Copyright': rights,
@@ -39,7 +42,7 @@ try {
       writeArgs: ['-overwrite_original', '-P'],
     });
     if (result.warnings?.length) {
-      console.warn(`${fileURLToPath(assets)}: ${entry.name}: ${result.warnings.join('; ')}`);
+      console.warn(`${assets}: ${entry.name}: ${result.warnings.join('; ')}`);
     }
     updated++;
   }
