@@ -76,15 +76,15 @@
 }
 
 .error-page__actions {
+  /* This media surface stays dark in both page themes. */
+  --color-ink: var(--color-on-dark);
+  --color-ink-2: var(--color-on-dark-muted);
+  --color-paper: var(--color-graphite);
   padding-block-start: var(--space-sm);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-sm) var(--space-lg);
-}
-
-.error-page__actions .button {
-  font-family: var(--font-body);
 }
 
 .error-page__actions .text-link {

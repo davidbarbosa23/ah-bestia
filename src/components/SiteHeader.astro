@@ -1,6 +1,7 @@
 ---
 import { alternatePath, copy, ui, type Lang } from '../i18n/content';
 import Icon from './Icon.astro';
+import Button from './Button.astro';
 import MobileNavigation from './MobileNavigation.astro';
 
 interface Props {
@@ -43,13 +44,13 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
         </nav>
       )}
       <nav class="header-tools" aria-label={labels.common.utilityNavigation}>
-        <button class="theme-button" type="button" data-theme-toggle data-theme-light-label={t.theme.light} data-theme-dark-label={t.theme.dark} aria-label={t.theme.light} title={t.theme.light}>
+        <Button class="theme-button" variant="ghost" iconOnly data-theme-toggle data-theme-light-label={t.theme.light} data-theme-dark-label={t.theme.dark} aria-label={t.theme.light} title={t.theme.light}>
           <Icon name="sun" class="theme-icon theme-icon--sun" />
           <Icon name="moon" class="theme-icon theme-icon--moon" />
-        </button>
-        <a class="language-link" href={altPath} hreflang={altLang} lang={altLang} aria-label={labels.common.switchLanguage} title={labels.common.switchLanguage} data-language-link>{altLang.toUpperCase()}</a>
+        </Button>
+        <Button class="language-link" variant="ghost" iconOnly href={altPath} hreflang={altLang} lang={altLang} aria-label={labels.common.switchLanguage} title={labels.common.switchLanguage} data-language-link>{altLang.toUpperCase()}</Button>
       </nav>
-      <a class="header-contact" href={`mailto:${contactEmail}`}><span>{t.nav.contact}</span><Icon name="arrow-up-right" /></a>
+      <Button class="header-contact" href={`mailto:${contactEmail}`}><span>{t.nav.contact}</span><Icon name="arrow-up-right" /></Button>
     </div>
   </div>
 </header>
@@ -178,25 +179,6 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
   .header-experiences a:hover { color: var(--color-ink); }
   .header-experiences a:focus-visible { border-radius: var(--radius-sm); }
   .header-tools { display: flex; gap: var(--space-2xs); }
-  .header-tools .theme-button, .header-tools .language-link { border-radius: var(--radius-round); }
-  .header-tools .theme-button:hover, .header-tools .language-link:hover { background: var(--color-paper-3); }
-  .header-contact {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-xs);
-    min-height: var(--size-control);
-    padding-inline: var(--space-lg);
-    border-radius: var(--radius-round);
-    background: var(--color-ink);
-    color: var(--color-paper);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-medium);
-    white-space: nowrap;
-  }
-  .header-contact:hover { background: var(--color-ink-2); }
-  .header-contact .icon { transition: transform var(--dur-short) var(--ease-out); }
-  .header-contact:hover .icon { transform: translate(var(--space-3xs), calc(-1 * var(--space-3xs))); }
   @media (max-width: 63.99rem) {
     .site-header.site-header--floating { position: static; }
     .site-header .site-header__inner { padding-inline: 0; border-radius: 0; }
@@ -226,13 +208,11 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
       transform: translate(-50%, -50%);
     }
     .header-tools { grid-column: 2; grid-row: 1; }
-    .header-contact { grid-column: 3; grid-row: 1; }
+    .header-navigation :global(.header-contact) { grid-column: 3; grid-row: 1; }
     .header-experiences a { font-size: var(--text-sm); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .header-surface,
-    .header-contact .icon { transition: none; }
-    .header-contact:hover .icon { transform: none; }
+    .header-surface { transition: none; }
   }
 </style>
 

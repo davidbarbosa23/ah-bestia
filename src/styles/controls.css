@@ -1,0 +1,88 @@
+/* Action styles follow the header contact button. See docs/ux-system.md. */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-control-gap);
+  min-width: var(--size-control);
+  min-height: var(--size-control);
+  max-width: 100%;
+  padding: var(--space-xs) var(--space-control-inline);
+  border: var(--rule-hair) solid var(--color-ink);
+  border-radius: var(--radius-control);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-body);
+  font-size: var(--text-control);
+  font-weight: var(--weight-control);
+  line-height: var(--leading-caption);
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    border-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out),
+    transform var(--dur-micro) var(--ease-out);
+}
+
+.button--secondary {
+  border-color: var(--color-rule-2);
+  background: transparent;
+  color: var(--color-ink);
+}
+
+.button--ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-ink);
+}
+
+.button--icon {
+  flex: 0 0 auto;
+  width: var(--size-control);
+  height: var(--size-control);
+  padding: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover:not(:disabled, [aria-disabled='true']) {
+    border-color: var(--color-ink-2);
+    background: var(--color-ink-2);
+  }
+  .button--secondary:hover:not(:disabled, [aria-disabled='true']) {
+    border-color: var(--color-ink);
+    background: var(--color-paper-2);
+  }
+  .button--ghost:hover:not(:disabled, [aria-disabled='true']) {
+    border-color: transparent;
+    background: var(--color-paper-3);
+  }
+}
+
+.button:active:not(:disabled, [aria-disabled='true']) {
+  transform: translateY(var(--space-3xs));
+}
+
+.button:disabled,
+.button[aria-disabled='true'] {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.button[aria-busy='true'] {
+  cursor: progress;
+}
+
+@media (pointer: coarse) {
+  .button:not(.button--icon) {
+    min-height: var(--size-field);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button { transition: none !important; }
+  .button:active:not(:disabled, [aria-disabled='true']) { transform: none; }
+}

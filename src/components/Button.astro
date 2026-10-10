@@ -1,0 +1,21 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+type Appearance = {
+  variant?: 'primary' | 'secondary' | 'ghost';
+} & ({ iconOnly?: false } | { iconOnly: boolean; 'aria-label': string });
+
+type Props = Appearance & (
+  | (HTMLAttributes<'a'> & { href: string; disabled?: never })
+  | (HTMLAttributes<'button'> & { href?: never })
+);
+
+const { href, variant = 'primary', iconOnly = false, class: className, type, ...attributes } = Astro.props;
+const classes = ['button', `button--${variant}`, { 'button--icon': iconOnly }, className];
+---
+
+{href !== undefined ? (
+  <a href={href} class:list={classes} {...attributes}><slot /></a>
+) : (
+  <button type={type ?? 'button'} class:list={classes} {...attributes}><slot /></button>
+)}

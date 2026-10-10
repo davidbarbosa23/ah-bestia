@@ -1,5 +1,6 @@
 /* Shared foundations, accessibility utilities, controls, header, and footer. Feature styles are imported by their owners. */
 @import '../../tokens.css';
+@import './controls.css';
 
 *,
 *::before,
@@ -329,41 +330,6 @@ h3 {
   gap: var(--space-2xs);
 }
 
-.theme-button,
-.language-link {
-  min-width: var(--size-control);
-  min-height: var(--size-control);
-  border: var(--rule-hair) solid var(--color-rule);
-  border-radius: var(--radius-sm);
-  background: var(--color-paper-2);
-  color: var(--color-ink-2);
-  cursor: pointer;
-  display: inline-grid;
-  place-items: center;
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  white-space: nowrap;
-  transition:
-    transform var(--dur-micro) var(--ease-out),
-    border-color var(--dur-micro) var(--ease-out),
-    background-color var(--dur-micro) var(--ease-out);
-}
-
-.theme-button,
-.language-link {
-  position: relative;
-  min-width: var(--size-control-sm);
-  min-height: var(--size-control-sm);
-}
-
-.theme-button::before,
-.language-link::before {
-  content: '';
-  position: absolute;
-  inset: calc(var(--space-3xs) * -1);
-}
-
 .theme-icon {
   width: 1.1rem;
   height: 1.1rem;
@@ -392,7 +358,6 @@ html[data-theme='dark'] .theme-icon--moon {
   text-transform: uppercase;
 }
 
-.button,
 .text-link {
   min-height: var(--size-control);
   display: inline-flex;
@@ -401,17 +366,6 @@ html[data-theme='dark'] .theme-icon--moon {
   gap: var(--space-sm);
   font-weight: var(--weight-semibold);
   white-space: nowrap;
-}
-
-.button {
-  padding-inline: var(--space-lg);
-  border: var(--rule-hair) solid var(--color-accent);
-  border-radius: var(--radius-sm);
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
-  transition:
-    transform var(--dur-micro) var(--ease-out),
-    background-color var(--dur-micro) var(--ease-out);
 }
 
 .text-link {
@@ -482,19 +436,9 @@ html[data-theme='dark'] .theme-icon--moon {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .theme-button:hover,
-  .language-link:hover {
-    border-color: var(--color-accent);
-    transform: translateY(-1px);
-  }
-
   .experience-switch__option:hover:not(.is-active) {
     background: var(--color-paper-3);
     color: var(--color-ink);
-  }
-
-  .button:hover {
-    transform: translateY(-1px);
   }
 
   .text-link:hover::after {
@@ -503,9 +447,7 @@ html[data-theme='dark'] .theme-icon--moon {
   }
 }
 
-button:active,
-.button:active,
-.language-link:active,
+button:where(:not(.button)):active,
 .text-link:active {
   transform: translateY(1px);
 }
@@ -514,7 +456,7 @@ button:disabled,
 input:disabled,
 .button[aria-disabled='true'],
 a[aria-disabled='true'] {
-  opacity: 0.55;
+  opacity: var(--opacity-disabled);
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -570,12 +512,6 @@ input[aria-invalid='true'] {
     grid-column: 3;
   }
 
-  .theme-button,
-  .language-link {
-    min-width: var(--size-control);
-    min-height: var(--size-control);
-  }
-
   .site-footer__meta {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: baseline;
@@ -612,7 +548,6 @@ input[aria-invalid='true'] {
 }
 
 @media (pointer: coarse) {
-  .button,
   .text-link,
   .site-footer__meta a {
     min-height: var(--size-field);
@@ -700,17 +635,6 @@ input[aria-invalid='true'] {
 }
 .site-tools {
   gap: 0;
-}
-.theme-button,
-.language-link {
-  display: inline-grid;
-  width: var(--size-control);
-  height: var(--size-control);
-  padding: 0;
-  border-color: transparent;
-  background: transparent;
-  color: var(--color-ink);
-  grid-template-columns: 1fr;
 }
 .theme-button .theme-icon--moon,
 html[data-theme='dark'] .theme-button .theme-icon--sun {

@@ -4,6 +4,7 @@ import { Image } from 'astro:assets';
 import background from '../assets/bg_dark.jpg';
 import SiteFooter from './SiteFooter.astro';
 import SiteHeader from './SiteHeader.astro';
+import Button from './Button.astro';
 import { copy, ui, type ErrorCode, type Lang, type UiCopy } from '../i18n/content';
 import SiteLayout from '../layouts/SiteLayout.astro';
 
@@ -68,9 +69,9 @@ const pageTitle = `${code} - ${initial.title} - David Barbosa`;
 
       <nav class="error-page__actions" aria-label={translations.en.ui.error.actionsLabel} data-error-actions>
         {isNotFound ? (
-          <a class="button" href="/en/dev/" data-error-primary>{initial.primary}</a>
+          <Button href="/en/dev/" data-error-primary>{initial.primary}</Button>
         ) : (
-          <button class="button" type="button" data-error-primary data-error-retry>{initial.primary}</button>
+          <Button data-error-primary data-error-retry>{initial.primary}</Button>
         )}
         {!isNotFound && <a class="text-link" href="/en/dev/" data-error-developer>{translations.en.modes.developer}</a>}
         <a class="text-link" href="/en/ph/" data-error-photography>{translations.en.modes.photographer}</a>

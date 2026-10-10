@@ -4,6 +4,7 @@ import { photoTags } from '../data/photoTags';
 import { archivePhotos, PHOTO_BATCH_SIZE, prepareArchivePhotos } from '../data/photoArchive';
 import PhotoGridCard from './PhotoGridCard.astro';
 import Icon from './Icon.astro';
+import Button from './Button.astro';
 
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
@@ -29,18 +30,18 @@ const count = labels.count.replace('{shown}', String(photos.length)).replace('{t
     <fieldset class="photo-grid__tags" aria-describedby="photo-filter-hint">
       <legend>{labels.filters}</legend>
       <div class="photo-grid__tag-list">
-        <button type="button" class="photo-grid__tag" aria-pressed="true" aria-controls="photo-grid-items" data-grid-all>{labels.all}<span>{archivePhotos.length}</span></button>
+        <Button variant="secondary" class="photo-grid__tag" aria-pressed="true" aria-controls="photo-grid-items" data-grid-all>{labels.all}<span>{archivePhotos.length}</span></Button>
         {photoTags.map((tag) => (
-          <button type="button" class="photo-grid__tag" aria-pressed="false" aria-controls="photo-grid-items" data-grid-tag={tag}>
+          <Button variant="secondary" class="photo-grid__tag" aria-pressed="false" aria-controls="photo-grid-items" data-grid-tag={tag}>
             {labels.tags[tag]}<span>{archivePhotos.filter((photo) => photo.annotation.tags.includes(tag)).length}</span>
-          </button>
+          </Button>
         ))}
       </div>
     </fieldset>
     <div class="photo-grid__filter-summary">
       <p id="photo-filter-hint">{labels.filterHint}</p>
-      <button type="button" class="photo-grid__tag" data-grid-folder-active aria-label={labels.clearFolder} aria-controls="photo-grid-items" hidden><span data-grid-folder-label></span><Icon name="x" /></button>
-      <button type="button" class="photo-grid__clear" data-grid-clear hidden>{labels.clear}</button>
+      <Button variant="secondary" class="photo-grid__tag" data-grid-folder-active aria-label={labels.clearFolder} aria-controls="photo-grid-items" hidden><span data-grid-folder-label></span><Icon name="x" /></Button>
+      <Button variant="ghost" data-grid-clear hidden>{labels.clear}</Button>
     </div>
   </form>
 
@@ -52,10 +53,10 @@ const count = labels.count.replace('{shown}', String(photos.length)).replace('{t
   <p class="photo-grid__empty" data-grid-empty hidden>{labels.empty}</p>
   <div class="photo-grid__error" role="alert" data-grid-error hidden>
     <p>{labels.error}</p>
-    <button type="button" class="photo-grid__load" data-grid-retry>{labels.retry}</button>
+    <Button variant="secondary" class="photo-grid__load" data-grid-retry>{labels.retry}</Button>
   </div>
   <div class="photo-grid__more" data-grid-sentinel>
-    <button type="button" class="photo-grid__load" aria-controls="photo-grid-items" data-grid-more hidden>{labels.loadMore}<Icon name="arrow-down" /></button>
+    <Button variant="secondary" class="photo-grid__load" aria-controls="photo-grid-items" data-grid-more hidden>{labels.loadMore}<Icon name="arrow-down" /></Button>
     <p data-grid-end hidden={hasMore}>{labels.end}</p>
   </div>
   <noscript><p class="photo-grid__noscript">{labels.noScript}</p></noscript>
@@ -138,28 +139,16 @@ const count = labels.count.replace('{shown}', String(photos.length)).replace('{t
     padding: var(--space-xs);
   }
   .photo-grid__tag {
-    display: inline-flex;
     flex-shrink: 0;
-    align-items: center;
-    gap: var(--space-xs);
-    min-height: var(--size-control);
     padding: var(--space-xs) var(--space-sm);
-    border: var(--rule-hair) solid var(--color-rule);
-    border-radius: var(--radius-round);
-    background: transparent;
-    color: var(--color-ink-2);
-    font-size: var(--text-sm);
-    cursor: pointer;
   }
   .photo-grid__tag span {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     color: var(--color-muted);
   }
-  .photo-grid__tag:hover {
-    border-color: var(--color-ink);
-  }
-  .photo-grid__tag[aria-pressed='true'] {
+  .photo-grid__tag[aria-pressed='true'],
+  .photo-grid__tag[aria-pressed='true']:hover {
     border-color: var(--color-ink);
     background: var(--color-ink);
     color: var(--color-paper);
@@ -175,17 +164,6 @@ const count = labels.count.replace('{shown}', String(photos.length)).replace('{t
     gap: var(--space-sm);
     color: var(--color-muted);
     font-size: var(--text-xs);
-  }
-  .photo-grid__clear {
-    min-height: var(--size-control);
-    padding: 0 var(--space-xs);
-    border: 0;
-    background: transparent;
-    color: var(--color-ink);
-    font-size: var(--text-sm);
-    text-decoration: underline;
-    text-underline-offset: var(--space-2xs);
-    cursor: pointer;
   }
   .photo-grid__count {
     padding-block: var(--space-lg);
@@ -231,6 +209,9 @@ const count = labels.count.replace('{shown}', String(photos.length)).replace('{t
     border-radius: inherit;
   }
   .photo-grid__action {
+    /* Keep shared button hover colors readable over photographs. */
+    --color-ink: var(--color-viewer-ink);
+    --color-paper-2: var(--color-viewer-canvas);
     position: absolute;
     z-index: var(--layer-overlay);
     display: none;
@@ -241,12 +222,13 @@ const count = labels.count.replace('{shown}', String(photos.length)).replace('{t
     max-width: calc(100% - var(--space-md));
     padding: var(--space-xs) var(--space-sm);
     border: var(--rule-hair) solid var(--color-viewer-rule-strong);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-control);
     background: var(--color-viewer-surface);
     color: var(--color-viewer-ink);
-    font-size: var(--text-xs);
+    font-size: var(--text-control);
     line-height: var(--leading-caption);
     text-align: start;
+    white-space: normal;
     overflow-wrap: anywhere;
   }
   .photo-grid__action .icon {
@@ -321,21 +303,7 @@ const count = labels.count.replace('{shown}', String(photos.length)).replace('{t
     color: var(--color-muted);
   }
   .photo-grid__folder-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: var(--size-control);
-    min-height: var(--size-control);
-    padding: var(--space-xs);
-    border: var(--rule-hair) solid var(--color-rule);
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--color-ink);
-    font-size: var(--text-base);
-    cursor: pointer;
-  }
-  .photo-grid__folder-icon:hover {
-    background: var(--color-paper-2);
+    justify-self: end;
   }
   .photo-grid__more,
   .photo-grid__error {
@@ -347,23 +315,6 @@ const count = labels.count.replace('{shown}', String(photos.length)).replace('{t
     padding-block: var(--space-xl);
     color: var(--color-muted);
     font-size: var(--text-sm);
-  }
-  .photo-grid__load {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-sm);
-    min-height: var(--size-control);
-    padding: var(--space-sm) var(--space-lg);
-    border: var(--rule-hair) solid var(--color-rule-2);
-    border-radius: var(--radius-round);
-    background: transparent;
-    color: var(--color-ink);
-    font-size: var(--text-sm);
-    cursor: pointer;
-  }
-  .photo-grid__load:hover {
-    background: var(--color-paper-2);
   }
   .photo-grid__load[aria-disabled='true'] {
     cursor: progress;

@@ -2,6 +2,7 @@
 import { ui, type Lang } from '../i18n/content';
 import { formatPhotoFolder } from '../utils/photoFolder';
 import Icon from './Icon.astro';
+import Button from './Button.astro';
 
 interface Props { folder: string; lang: Lang; compact?: boolean; }
 const { folder, lang, compact = false } = Astro.props;
@@ -9,11 +10,12 @@ const folderName = formatPhotoFolder(folder);
 const label = `${ui[lang].photography.grid.filterFolder}: ${folderName}`;
 ---
 
-<button
-  type="button"
+<Button
+  variant="secondary"
+  iconOnly={compact}
   class={compact ? 'photo-grid__folder-icon' : 'photo-grid__action photo-grid__folder'}
   data-grid-folder={folder}
   aria-label={label}
   aria-controls="photo-grid-items"
   title={label}
-><Icon name="folder" />{!compact && <span data-grid-folder-name>{folderName}</span>}</button>
+><Icon name="folder" />{!compact && <span data-grid-folder-name>{folderName}</span>}</Button>

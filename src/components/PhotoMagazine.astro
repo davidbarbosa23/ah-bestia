@@ -448,7 +448,7 @@ const pages = await Promise.all(
     height: var(--size-control);
     padding: 0;
     border: var(--rule-hair) solid var(--color-magazine-rule);
-    border-radius: var(--radius-round);
+    border-radius: var(--radius-control);
     display: grid;
     place-items: center;
     background: var(--color-magazine-surface);
@@ -469,8 +469,12 @@ const pages = await Promise.all(
   }
 
   .magazine__turn:disabled {
-    opacity: 0.25;
-    cursor: default;
+    opacity: var(--opacity-disabled);
+    cursor: not-allowed;
+  }
+
+  .magazine__turn:active {
+    transform: translateY(-50%);
   }
 
   .magazine__turn:focus-visible,
@@ -559,7 +563,8 @@ const pages = await Promise.all(
   .magazine__zoom-controls {
     border: var(--rule-hair) solid var(--color-magazine-rule);
     display: inline-grid;
-    grid-template-columns: var(--size-control-sm) 3.75rem var(--size-control-sm);
+    grid-template-columns: var(--size-control) 3.75rem var(--size-control);
+    gap: var(--space-2xs);
     justify-self: end;
   }
 
@@ -568,11 +573,11 @@ const pages = await Promise.all(
   }
 
   .magazine__zoom-controls button {
-    min-width: var(--size-control-sm);
-    min-height: var(--size-control-sm);
+    min-width: var(--size-control);
+    min-height: var(--size-control);
     padding: 0;
     border: 0;
-    border-inline-start: var(--rule-hair) solid var(--color-magazine-rule);
+    border-radius: var(--radius-control);
     display: grid;
     place-items: center;
     background: transparent;
@@ -582,13 +587,9 @@ const pages = await Promise.all(
     font-size: var(--text-xs);
   }
 
-  .magazine__zoom-controls button:first-child {
-    border-inline-start: 0;
-  }
-
   .magazine__zoom-controls button:disabled {
-    opacity: 0.35;
-    cursor: default;
+    opacity: var(--opacity-disabled);
+    cursor: not-allowed;
   }
 
   .magazine__fullscreen {
@@ -596,6 +597,7 @@ const pages = await Promise.all(
     min-height: var(--size-control);
     padding: 0;
     border: var(--rule-hair) solid var(--color-magazine-rule);
+    border-radius: var(--radius-control);
     display: inline-flex;
     align-items: center;
     justify-content: center;

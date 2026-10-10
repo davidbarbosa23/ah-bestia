@@ -24,6 +24,8 @@ The source for [ahbestia.com](https://ahbestia.com), David Barbosa's bilingual p
 
 The site is statically generated. JavaScript is reserved for interactions such as navigation, theme switching, the photo lightbox, animation, and the fixed-gear calculator.
 
+The [UX definitions](docs/ux-system.md) document shared typography, spacing, shapes, action hierarchy, interaction states, and accessibility rules. Standalone actions use `src/components/Button.astro`, with the rounded header contact button as their reference.
+
 ## Getting started
 
 ### Requirements

@@ -1,6 +1,6 @@
-/* Existing brand tokens. Standard controls 6px; media/panels 10px;
- * reader controls and filter chips round. Printed artwork and the calculation
- * grid retain their established sharp geometry.
+/* Brand and UX tokens. Actions/chips are pills; icon actions are circles;
+ * fields use 6px and media/panels 10px. Printed artwork and the calculation
+ * grid retain their sharp geometry. See docs/ux-system.md.
  */
 :root {
   --color-paper: oklch(94.5% 0.006 250);
@@ -142,6 +142,12 @@
   --radius-sm: 0.375rem;
   --radius-md: 0.625rem;
   --radius-round: 999px;
+  --radius-control: var(--radius-round);
+  --space-control-gap: var(--space-xs);
+  --space-control-inline: var(--space-lg);
+  --text-control: var(--text-sm);
+  --weight-control: var(--weight-medium);
+  --opacity-disabled: 0.55;
   --radius-header: 1.75rem;
   --size-header-capsule: 45rem;
   --size-header-expanded: 54rem;
