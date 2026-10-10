@@ -12,12 +12,12 @@ The source for [ahbestia.com](https://ahbestia.com), David Barbosa's bilingual p
 - Complete English and Spanish routes and interface copy.
 - Light and dark themes that respect the visitor's system preference and persist their selection.
 - SEO foundations including canonical URLs, language alternates, Open Graph metadata, JSON-LD, `robots.txt`, and an XML sitemap.
-- Progressive animation with reduced-motion support; the photography gallery loads GSAP only when the enhanced desktop experience is eligible to run.
+- Progressive animation using browser APIs with reduced-motion support.
 
 ## Built with
 
 - [Astro 7](https://astro.build) and strict TypeScript
-- [GSAP](https://gsap.com) and ScrollTrigger for the enhanced photography experience
+- CSS, the Web Animations API, and `requestAnimationFrame` for interface motion
 - Astro Assets and Sharp for responsive image optimization
 - Plain CSS backed by a shared design-token system
 - pnpm
@@ -60,6 +60,7 @@ pnpm astro dev stop
 | `pnpm astro dev --background`      | Start the local development server in the background            |
 | `pnpm check`                       | Run Astro and TypeScript checks, then validate CSS token usage  |
 | `pnpm check:tokens`                | Check styles for undefined tokens and disallowed one-off values |
+| `pnpm test`                        | Run calculation, filtering, and magazine regression tests      |
 | `pnpm build`                       | Generate the production site in `dist/`                         |
 | `pnpm preview`                     | Preview the production build locally                            |
 | `pnpm deploy:gh-page`              | Build and publish `dist/` to the remote `gh-page` branch        |
@@ -69,6 +70,7 @@ Before opening a pull request or deploying, run:
 
 ```sh
 pnpm check
+pnpm test
 pnpm build
 ```
 
@@ -83,7 +85,6 @@ Every public experience is generated in English and Spanish:
 | `/en/dev/labs/[slug]/`, `/es/dev/labs/[slug]/` | Individual interactive lab                                                        |
 | `/en/ph/`, `/es/ph/`                           | Photography portfolio                                                             |
 | `/en/ph/grid/`, `/es/ph/grid/`                 | All photographs in a searchable masonry grid with tag filters and infinite scroll |
-| `/en/ph/grid/[page]/`, `/es/ph/grid/[page]/`   | Paginated archive for direct links and browsing without JavaScript                |
 | `/en/ph/[slug]/`, `/es/ph/[slug]/`             | Individual photography series                                                     |
 
 The legacy `/:lang/dev/projects/` route redirects to the Labs archive.
@@ -101,7 +102,12 @@ The legacy `/:lang/dev/projects/` route redirects to the Labs archive.
 |   |-- i18n/               # English and Spanish content and UI labels
 |   |-- layouts/            # Shared document shell, metadata, and structured data
 |   |-- pages/              # Astro file-based routes
+|   |-- scripts/            # Browser interaction controllers and lifecycle cleanup
+|   |-- services/           # Image processing and magazine asset resolution
+|   |-- types/              # Shared photo contracts without runtime asset loading
+|   |-- utils/              # Calculations, filtering, geometry, and URL helpers
 |   `-- styles/             # Global styles and local font setup
+|-- tests/                  # Node regression tests; no additional test dependencies
 |-- astro.config.mjs        # Site URL, sitemap, and locale configuration
 `-- tokens.css              # Shared color, type, spacing, shadow, and motion tokens
 ```
@@ -109,10 +115,10 @@ The legacy `/:lang/dev/projects/` route redirects to the Labs archive.
 ## Working with content
 
 - Update shared interface and portfolio copy in `src/i18n/content.ts`. Keep English and Spanish entries in sync.
-- Define photography series in `src/data/photoGalleries.ts` and store their source images under `src/assets/photography/galleries/`.
+- Define photography series in `src/data/galleryDefinitions.ts` and store their source images under `src/assets/photography/galleries/`. `src/data/photoGalleries.ts` resolves these definitions against the shared asset catalogue.
 - Source JPEGs under `src/assets/` embed the creator, copyright, website, credit, and contact email defined in `src/data/photoMetadata.mjs`. `pnpm dev` and `pnpm build` apply these defaults to new photos automatically; use `pnpm photos:metadata` to apply them manually (including before running Astro directly). Matching files are skipped. Metadata edits preserve JPEG image data and existing camera/capture metadata without recompression. The Astro image service keeps these fields in generated variants too.
 - For photographs outside the selected series, use `src/assets/photography/archive/`. To retire a series, remove its gallery definition and move its photos here, updating annotation keys if subfolders change. Aroma Colombiano and the 3T Exploro/Trek Emonda bicycle studies live only in the archive. Folder names are searchable in the grid.
-- The “All photographs” grid normally includes all gallery folders, including images outside the series index. For a series with composed magazine pages, set `archiveFolder` in `src/data/photoGalleries.ts` and place its standalone photos in `src/assets/photography/archive/<archiveFolder>/`. This replaces that series' gallery files only in the archive; magazine pages, covers, and reading order still use the gallery assets. Builds fail if a configured archive folder is empty.
+- The “All photographs” grid normally includes all gallery folders, including images outside the series index. For a series with composed magazine pages, set `archiveFolder` in `src/data/galleryDefinitions.ts` and place its standalone photos in `src/assets/photography/archive/<archiveFolder>/`. This replaces that series' gallery files only in the archive; magazine pages, covers, and reading order still use the gallery assets. Builds fail if a configured archive folder is empty.
 - Add visually reviewed tags and English/Spanish image descriptions in `src/data/photoTags.ts` for every photograph included in the archive, using `folder/filename` keys. Magazine-only pages do not need archive annotations. The grid checks annotation coverage when building. It renders 18 photographs initially and fetches archive metadata once on the first search, filter, or scroll that needs more photos. Multiple selected tags must all match; text search recognizes both languages.
 - Define developer experiments in `src/data/labs.ts`; their routes are generated from the project slug.
 - Reuse values from `tokens.css` when styling components. `pnpm check:tokens` rejects color literals, undefined variables, and un-tokenized typography or elevation values in project styles.
@@ -121,6 +127,8 @@ The legacy `/:lang/dev/projects/` route redirects to the Labs archive.
 ## Project principles
 
 Changes should remain mobile-first, accessible, multilingual, and usable in both themes. Prefer semantic HTML and progressive enhancement, respect reduced-motion preferences, optimize images and client-side work, and preserve the site's canonical, alternate-language, and structured metadata.
+
+Keep Astro templates focused on presentation, browser controllers on interaction and cleanup, and calculations and filtering independent of the DOM. Import photo contracts from `src/types/photos.ts` when only types are needed. The [SOLID review](docs/solid-review.md) explains the module boundaries and verification performed during the refactor.
 
 ## Deployment
 

@@ -1,17 +1,15 @@
-import type { ImageMetadata } from 'astro';
+import type { ArchivePhoto } from '../types/photos';
+import { photoImageModules as modules } from './photoAssets';
 import { getImage } from 'astro:assets';
 import { photoGalleries } from './photoGalleries';
-import { photoAnnotations, photoTags, type PhotoTag } from './photoTags';
+import { photoAnnotations, photoTags } from './photoTags';
 import { ui, type Lang } from '../i18n/content';
 import { normalizePhotoSearch } from '../utils/photoSearch';
 
+export type { ArchivePhoto } from '../types/photos';
+
 export const PHOTO_BATCH_SIZE = 18;
 export const photoGridSizes = '(min-width: 80rem) 18vw, (min-width: 60rem) 23vw, (min-width: 40rem) 30vw, 46vw';
-
-const modules = import.meta.glob<{ default: ImageMetadata }>([
-  '../assets/photography/galleries/**/*.jpg',
-  '../assets/photography/archive/**/*.jpg',
-], { eager: true });
 
 // Magazine assets stay in galleries; an archive override replaces only that series in the grid.
 const replacedGalleryFolders = new Set(photoGalleries.filter(({ archiveFolder }) => archiveFolder).map(({ assetFolder }) => assetFolder));
@@ -46,22 +44,6 @@ const groups = folders.map((folder) => sourcePhotos.filter((photo) => photo.fold
 export const archivePhotos = Array.from({ length: Math.max(...groups.map((group) => group.length)) }, (_, index) =>
   groups.flatMap((group) => group[index] ? [group[index]] : []),
 ).flat();
-
-export interface ArchivePhoto {
-  id: string;
-  folder: string;
-  filename: string;
-  src: string;
-  srcset: string;
-  width: number;
-  height: number;
-  viewer: string;
-  alt: string;
-  title: string;
-  tags: readonly PhotoTag[];
-  tagLabel: string;
-  search: string;
-}
 
 const assets = new Map<string, Promise<{ src: string; srcset: string; viewer: string }>>();
 
