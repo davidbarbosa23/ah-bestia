@@ -144,7 +144,10 @@
   --radius-header: 1.75rem;
   --size-header-capsule: 45rem;
   --size-header-expanded: 54rem;
-  --shadow-header: 0 var(--space-xs) var(--space-xl) color-mix(in oklch, var(--color-ink) 8%, transparent);
+  --blur-header: 1.25rem;
+  --opacity-header-surface: 70%;
+  --opacity-header-rule: 50%;
+  --shadow-header: 0 var(--space-3xs) var(--space-md) oklch(0% 0 0 / 0.03);
   --size-control-sm: 2.5rem;
   --size-control: 2.75rem;
   --size-field: 3rem;

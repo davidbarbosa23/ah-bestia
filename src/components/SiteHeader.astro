@@ -19,7 +19,8 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
 <div class="header-scroll-sentinel" aria-hidden="true" data-header-sentinel></div>
 <header class="site-header site-header--floating" data-site-header>
   <div class="site-header__inner">
-    <span class="header-surface" aria-hidden="true"></span>
+    <span class="header-surface header-surface--shadow" aria-hidden="true"></span>
+    <span class="header-surface header-surface--glass" aria-hidden="true"></span>
     <a class="wordmark" href={homePath} aria-label={`db/ ${labels.common.homeLabel}`}>
       <span class="wordmark__letters" aria-hidden="true">
         {Array.from('David Barbosa').map((letter, index) => (
@@ -63,8 +64,9 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
     pointer-events: none;
   }
   .site-header.site-header--floating {
+    align-self: center;
     width: min(calc(100% - var(--page-gutter) * 2), var(--size-header-expanded));
-    margin: var(--space-md) auto 0;
+    margin: var(--space-md) 0 0;
     inset-block-start: var(--space-md);
     border: 0;
     background: transparent;
@@ -73,7 +75,9 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
   }
   .site-header .site-header__inner {
     position: relative;
+    isolation: isolate;
     width: 100%;
+    margin-inline: auto;
     min-height: var(--size-header-compact);
     padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-lg);
     grid-template-columns: minmax(0, 1fr) auto;
@@ -87,19 +91,38 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
   }
   .header-surface {
     position: absolute;
+    z-index: var(--layer-behind);
     inset: 0;
-    border: var(--rule-hair) solid var(--color-rule);
     border-radius: inherit;
-    background: var(--color-paper-2);
-    box-shadow: var(--shadow-header);
     pointer-events: none;
     transform-origin: top left;
     opacity: 0;
     transition: opacity var(--dur-header) var(--ease-out);
   }
+  .header-surface--shadow { box-shadow: var(--shadow-header); }
+  .header-surface--glass {
+    border: var(--rule-hair) solid color-mix(in oklch, var(--color-rule) var(--opacity-header-rule), transparent);
+    background: var(--color-paper-2);
+    /* Clip backdrop paint to rounded corners without clipping the separate shadow. */
+    clip-path: border-box;
+  }
   .site-header__inner > :not(.header-surface) { position: relative; }
   .site-header[data-header-condensed] .header-surface,
   .site-header[data-menu-open] .header-surface { opacity: 1; }
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .header-surface--glass {
+      background: color-mix(in oklch, var(--color-paper-2) var(--opacity-header-surface), transparent);
+      -webkit-backdrop-filter: blur(var(--blur-header));
+      backdrop-filter: blur(var(--blur-header));
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .header-surface--glass {
+      background: var(--color-paper-2);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
   .site-header .wordmark {
     gap: 0;
     font-size: var(--text-base);
