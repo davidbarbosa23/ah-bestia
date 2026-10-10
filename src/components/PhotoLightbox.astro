@@ -40,6 +40,7 @@ const labels = ui[lang].photography.lightbox;
 </dialog>
 
 <script>
+  import { setPhotoUrl } from '../utils/photoUrl';
   let photoLightboxResizeHandler: (() => void) | undefined;
   let photoLightboxController: AbortController | undefined;
 
@@ -206,6 +207,7 @@ const labels = ui[lang].photography.lightbox;
       currentIndex = index;
       requestedIndex = index;
       const opener = openers[currentIndex];
+      setPhotoUrl(opener.dataset.lightboxId ?? null);
       image.src = opener.dataset.lightboxSrc ?? '';
       image.alt = opener.dataset.lightboxAlt ?? '';
       count.textContent = `${String(currentIndex + 1).padStart(2, '0')} / ${String(openers.length).padStart(2, '0')}`;
@@ -591,6 +593,9 @@ const labels = ui[lang].photography.lightbox;
     });
 
     dialog.addEventListener('close', () => {
+      // A queued close event must not clear a newly opened deep link.
+      if (dialog.open) return;
+      setPhotoUrl(null);
       isPhotoTransitioning = false;
       clearPhotoTransition();
       resetZoom();
@@ -604,6 +609,24 @@ const labels = ui[lang].photography.lightbox;
 
     photoLightboxResizeHandler = renderTransform;
     window.addEventListener('resize', photoLightboxResizeHandler);
+
+    const readPhotoUrl = () => {
+      const id = new URLSearchParams(window.location.search).get('photo');
+      if (!id) {
+        if (dialog.open) dialog.close();
+        return;
+      }
+      openers = [...document.querySelectorAll<HTMLElement>('[data-lightbox-open]')];
+      const index = openers.findIndex((opener) => opener.dataset.lightboxId === id);
+      if (index < 0) return;
+      returnFocus = openers[index];
+      showPhoto(index);
+      if (!dialog.open) dialog.showModal();
+      close.focus();
+    };
+    window.addEventListener('popstate', readPhotoUrl, { signal: photoLightboxController.signal });
+    document.addEventListener('photo-grid:ready', readPhotoUrl, { signal: photoLightboxController.signal });
+    readPhotoUrl();
   };
 
   document.addEventListener('astro:page-load', setupPhotoLightbox);

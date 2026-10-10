@@ -75,6 +75,7 @@ const pages = await Promise.all(
             class="magazine__page"
             data-magazine-page
             data-page-index={index}
+            data-photo-id={page.image}
             data-fit={page.fit}
             data-tone={page.tone}
             data-position={index === 0 ? 'single' : undefined}
@@ -211,6 +212,7 @@ const pages = await Promise.all(
 </section>
 
 <script>
+  import { setPhotoUrl } from '../utils/photoUrl';
   const setupMagazines = () => {
     const controlledDocument = document as Document & {
       magazineController?: AbortController;
@@ -868,6 +870,11 @@ const pages = await Promise.all(
       const render = (updateVisuals = true) => {
         currentIndex = normalizeIndex(currentIndex);
         const visible = visibleIndices(currentIndex);
+        if (isFullscreen()) {
+          const selectedPhoto = new URLSearchParams(window.location.search).get('photo');
+          const selectedIsVisible = visible.some((index) => pages[index]?.dataset.photoId === selectedPhoto);
+          setPhotoUrl(selectedIsVisible ? selectedPhoto : pages[currentIndex]?.dataset.photoId ?? null);
+        }
         const visibleSet = new Set(visible);
         preloadAround(visible);
         if (isFullscreen()) {
@@ -1087,6 +1094,7 @@ const pages = await Promise.all(
           revealControls();
           render();
         } else {
+          setPhotoUrl(null);
           clearTimeout(controlsIdleTimer);
           magazine.classList.remove('is-controls-active');
           restorePageSources();
@@ -1295,6 +1303,25 @@ const pages = await Promise.all(
         document.body.classList.remove('magazine-expanded');
       }, { once: true });
 
+      const readPhotoUrl = () => {
+        const id = new URLSearchParams(window.location.search).get('photo');
+        if (!id) {
+          if (isFallbackExpanded()) exitFallbackFullscreen();
+          else if (document.fullscreenElement === magazine) void document.exitFullscreen();
+          return;
+        }
+        const index = pages.findIndex((page) => page.dataset.photoId === id);
+        if (index < 0) return;
+        clearTurns();
+        currentIndex = normalizeIndex(index);
+        settledIndex = currentIndex;
+        // Native fullscreen requires a user gesture; deep links use the same
+        // expanded reader layout, with native fullscreen still available.
+        if (!isFullscreen()) enterFallbackFullscreen();
+        else render();
+      };
+      window.addEventListener('popstate', readPhotoUrl, { signal });
+      readPhotoUrl();
       render();
     });
   };
