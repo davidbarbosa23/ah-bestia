@@ -1,6 +1,7 @@
 ---
 import { alternatePath, copy, ui, type Lang } from '../i18n/content';
 import Icon from './Icon.astro';
+import MobileNavigation from './MobileNavigation.astro';
 
 interface Props {
   lang: Lang;
@@ -22,6 +23,7 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
     <span class="header-surface header-surface--shadow" aria-hidden="true"></span>
     <span class="header-surface header-surface--glass" aria-hidden="true"></span>
     <a class="wordmark" href={homePath} aria-label={`db/ ${labels.common.homeLabel}`}>
+      <span class="wordmark__mobile" aria-hidden="true"><span>db/</span> David Barbosa</span>
       <span class="wordmark__letters" aria-hidden="true">
         {Array.from('David Barbosa').map((letter, index) => (
           <span class:list={['wordmark__letter', { 'wordmark__letter--initial': index === 0 || index === 6 }]} data-wordmark-letter>{letter === ' ' ? '\u00a0' : letter}</span>
@@ -29,10 +31,6 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
         <span class="wordmark__suffix" data-wordmark-suffix>/</span>
       </span>
     </a>
-
-    <button class="header-menu-toggle" type="button" aria-expanded="false" aria-controls="header-navigation" data-header-menu>
-      <span>{t.nav.menu}</span><Icon name="plus" />
-    </button>
 
     <div class="header-navigation" id="header-navigation">
       {experience && (
@@ -52,6 +50,7 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
     </div>
   </div>
 </header>
+<MobileNavigation lang={lang} experience={experience} languageHref={altPath} contactEmail={contactEmail} />
 
 <style>
   /* The sentinel changes state once at the threshold, without a scroll listener. */
@@ -107,8 +106,7 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
     clip-path: border-box;
   }
   .site-header__inner > :not(.header-surface) { position: relative; }
-  .site-header[data-header-condensed] .header-surface,
-  .site-header[data-menu-open] .header-surface { opacity: 1; }
+  .site-header[data-header-condensed] .header-surface { opacity: 1; }
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     .header-surface--glass {
       background: color-mix(in oklch, var(--color-paper-2) var(--opacity-header-surface), transparent);
@@ -128,6 +126,7 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
     font-size: var(--text-base);
     color: var(--color-ink);
   }
+  .site-header .wordmark > .wordmark__mobile { display: none; }
   .site-header .wordmark > .wordmark__letters {
     position: relative;
     display: inline-flex;
@@ -155,21 +154,6 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
     inset-inline-start: 0;
     opacity: 0;
   }
-  .header-menu-toggle {
-    display: none;
-    min-height: var(--size-control);
-    padding: 0 var(--space-sm);
-    align-items: center;
-    gap: var(--space-xs);
-    border: 0;
-    border-radius: var(--radius-round);
-    background: transparent;
-    color: var(--color-ink);
-    font-size: var(--text-sm);
-    cursor: pointer;
-  }
-  .header-menu-toggle .icon { transition: transform var(--dur-short) var(--ease-out); }
-  .header-menu-toggle[aria-expanded='true'] .icon { transform: rotate(45deg); }
   .header-navigation {
     grid-column: 1 / -1;
     display: grid;
@@ -192,8 +176,7 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
   .header-experiences a:focus-visible { border-radius: var(--radius-sm); }
   .header-tools { display: flex; gap: var(--space-2xs); }
   .header-tools .theme-button, .header-tools .language-link { border-radius: var(--radius-round); }
-  .header-tools .theme-button:hover, .header-tools .language-link:hover,
-  .header-menu-toggle:hover { background: var(--color-paper-3); }
+  .header-tools .theme-button:hover, .header-tools .language-link:hover { background: var(--color-paper-3); }
   .header-contact {
     display: inline-flex;
     align-items: center;
@@ -212,9 +195,19 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
   .header-contact .icon { transition: transform var(--dur-short) var(--ease-out); }
   .header-contact:hover .icon { transform: translate(var(--space-3xs), calc(-1 * var(--space-3xs))); }
   @media (max-width: 63.99rem) {
-    .site-header[data-menu-ready] .header-menu-toggle { display: inline-flex; }
-    .site-header[data-menu-ready]:not([data-menu-open]) .header-navigation { display: none; }
-    .site-header[data-menu-open] .header-navigation { border-block-start: var(--rule-hair) solid var(--color-rule); margin-block-start: var(--space-xs); }
+    .site-header.site-header--floating { position: static; }
+    .site-header .site-header__inner { padding-inline: 0; border-radius: 0; }
+    .site-header .header-navigation,
+    .site-header .header-surface,
+    .site-header .wordmark > .wordmark__letters { display: none; }
+    .site-header .wordmark > .wordmark__mobile {
+      display: block;
+      width: auto;
+      color: var(--color-ink);
+      line-height: var(--leading-wordmark);
+      white-space: nowrap;
+    }
+    .wordmark__mobile > span { color: var(--color-accent); }
   }
   @media (min-width: 64rem) {
     .site-header .site-header__inner { grid-template-columns: minmax(0, 1fr) auto auto; gap: var(--space-md); border-radius: var(--radius-round); }
@@ -235,7 +228,6 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
   }
   @media (prefers-reduced-motion: reduce) {
     .header-surface,
-    .header-menu-toggle .icon,
     .header-contact .icon { transition: none; }
     .header-contact:hover .icon { transform: none; }
   }
@@ -244,6 +236,7 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
 <script>
   let scrollObserver: IntersectionObserver | undefined;
   let headerAnimations: Animation[] = [];
+  const desktopHeader = window.matchMedia('(min-width: 64rem)');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const stopHeaderAnimations = () => {
     headerAnimations.forEach((animation) => animation.cancel());
@@ -260,7 +253,7 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
     // Measure each endpoint once. The centered links stay still while the surface
     // and outer controls move; text is never scaled and no layout runs per frame.
     const elements = Array.from(header.querySelectorAll<HTMLElement>(
-      '.header-surface, .wordmark, .header-menu-toggle, .header-tools, .header-contact',
+      '.header-surface, .wordmark, .header-tools, .header-contact',
     ));
     const name = header.querySelector<HTMLElement>('.wordmark__letters')!;
     const letters = Array.from(name.querySelectorAll<HTMLElement>('[data-wordmark-letter]'));
@@ -345,25 +338,22 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
   };
   const initializeMenu = () => {
     scrollObserver?.disconnect();
+    stopHeaderAnimations();
     const header = document.querySelector<HTMLElement>('[data-site-header]');
     const sentinel = document.querySelector('[data-header-sentinel]');
     if (!header || !sentinel) return;
-    header.setAttribute('data-menu-ready', '');
+    if (!desktopHeader.matches) {
+      header.removeAttribute('data-header-condensed');
+      return;
+    }
     setHeaderCondensed(header, sentinel.getBoundingClientRect().bottom <= 0, false);
     scrollObserver = new IntersectionObserver(([entry]) => {
       setHeaderCondensed(header, !entry.isIntersecting && entry.boundingClientRect.top < 0);
     });
     scrollObserver.observe(sentinel);
   };
-  const closeMenu = (restoreFocus = false) => {
-    const header = document.querySelector('[data-site-header]');
-    const button = header?.querySelector<HTMLButtonElement>('[data-header-menu]');
-    if (!header?.hasAttribute('data-menu-open')) return;
-    header.removeAttribute('data-menu-open');
-    button?.setAttribute('aria-expanded', 'false');
-    if (restoreFocus) button?.focus();
-  };
   initializeMenu();
+  desktopHeader.addEventListener('change', initializeMenu);
   reducedMotion.addEventListener('change', stopHeaderAnimations);
   window.addEventListener('resize', stopHeaderAnimations, { passive: true });
   document.addEventListener('astro:before-swap', () => {
@@ -372,38 +362,27 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
   });
   document.addEventListener('astro:after-swap', initializeMenu);
   document.addEventListener('astro:page-load', initializeMenu);
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeMenu(true);
-  });
-  document.addEventListener('focusin', (event) => {
-    if (event.target instanceof Element && !event.target.closest('[data-site-header]')) closeMenu();
-  });
   const syncThemeLabel = () => {
     const root = document.documentElement;
-    const themeButton = document.querySelector('[data-theme-toggle]');
-    if (!(themeButton instanceof HTMLElement)) return;
     const dark = root.dataset.theme === 'dark';
-    const nextLabel = dark
-      ? themeButton.dataset.themeLightLabel
-      : themeButton.dataset.themeDarkLabel;
-    if (!nextLabel) return;
-    themeButton.setAttribute('aria-label', nextLabel);
-    themeButton.setAttribute('title', nextLabel);
+    document.querySelectorAll<HTMLElement>('[data-theme-toggle]').forEach((themeButton) => {
+      if (themeButton.hasAttribute('data-theme-switch')) {
+        themeButton.setAttribute('aria-checked', String(dark));
+        return;
+      }
+      const nextLabel = dark
+        ? themeButton.dataset.themeLightLabel
+        : themeButton.dataset.themeDarkLabel;
+      if (!nextLabel) return;
+      themeButton.setAttribute('aria-label', nextLabel);
+      themeButton.setAttribute('title', nextLabel);
+    });
   };
   syncThemeLabel();
   document.addEventListener('astro:page-load', syncThemeLabel);
 
   document.addEventListener('click', (event) => {
     if (!(event.target instanceof Element)) return;
-
-    const menuButton = event.target.closest<HTMLButtonElement>('[data-header-menu]');
-    if (menuButton) {
-      const header = menuButton.closest('[data-site-header]');
-      const open = header?.toggleAttribute('data-menu-open') ?? false;
-      menuButton.setAttribute('aria-expanded', String(open));
-    } else if (!event.target.closest('[data-site-header]') || event.target.closest('a')) {
-      closeMenu();
-    }
 
     if (event.target.closest('[data-theme-toggle]')) {
       const root = document.documentElement;

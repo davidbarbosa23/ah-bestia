@@ -16,7 +16,7 @@ type ErrorTranslation = {
   ui: UiCopy;
   modes: { developer: string; photographer: string };
   theme: { light: string; dark: string };
-  nav: { menu: string; contact: string };
+  nav: Record<keyof typeof copy.en.nav, string>;
   footer: { resume: string; developerDescription: string };
 };
 const getErrorTranslation = (language: Lang): ErrorTranslation => ({
@@ -81,13 +81,13 @@ const pageTitle = `${code} - ${initial.title} - David Barbosa`;
 </SiteLayout>
 
 <script>
-  import type { ErrorCode, Lang as ErrorLanguage, UiCopy } from '../i18n/content';
+  import type { copy, ErrorCode, Lang as ErrorLanguage, UiCopy } from '../i18n/content';
 
   interface ErrorTranslation {
     ui: UiCopy;
     modes: { developer: string; photographer: string };
     theme: { light: string; dark: string };
-    nav: { menu: string; contact: string };
+    nav: Record<keyof typeof copy.en.nav, string>;
     footer: { resume: string; developerDescription: string };
   }
 
@@ -151,6 +151,32 @@ const pageTitle = `${code} - ${initial.title} - David Barbosa`;
     setText('.skip-link', locale.ui.common.skipToContent);
     setText('.header-menu-toggle span', locale.nav.menu);
     setText('.header-contact span', locale.nav.contact);
+    document.querySelectorAll<HTMLElement>('[data-mobile-label]').forEach((element) => {
+      const key = element.dataset.mobileLabel as keyof ErrorTranslation['nav'];
+      element.textContent = locale.nav[key];
+    });
+    document.querySelector('.mobile-navigation')?.setAttribute('aria-label', locale.nav.menu);
+    const mobileDev = document.querySelector<HTMLAnchorElement>('[data-mobile-dev]');
+    if (mobileDev) {
+      mobileDev.href = `/${language}/dev/`;
+      mobileDev.setAttribute('aria-label', `${locale.nav.dev}: ${locale.modes.developer}`);
+    }
+    const mobilePhoto = document.querySelector<HTMLAnchorElement>('[data-mobile-photo]');
+    if (mobilePhoto) {
+      mobilePhoto.href = `/${language}/ph/`;
+      mobilePhoto.setAttribute('aria-label', `${locale.nav.photo}: ${locale.modes.photographer}`);
+    }
+    const mobileLanguage = document.querySelector<HTMLAnchorElement>('[data-mobile-language]');
+    const mobileLanguageName = document.querySelector<HTMLElement>('[data-mobile-language-name]');
+    if (mobileLanguage && mobileLanguageName) {
+      const nextLanguage = language === 'en' ? 'es' : 'en';
+      mobileLanguage.href = getAlternateErrorUrl(nextLanguage);
+      mobileLanguage.hreflang = nextLanguage;
+      mobileLanguage.title = locale.ui.common.switchLanguage;
+      mobileLanguage.removeAttribute('data-language-link');
+      mobileLanguageName.lang = nextLanguage;
+      mobileLanguageName.textContent = nextLanguage === 'es' ? 'Español' : 'English';
+    }
     setText('.site-footer__details p', locale.footer.developerDescription);
     setText('[data-footer-resume]', locale.footer.resume);
 
@@ -216,7 +242,7 @@ const pageTitle = `${code} - ${initial.title} - David Barbosa`;
       return;
     }
 
-    const languageLink = event.target.closest<HTMLAnchorElement>('.language-link');
+    const languageLink = event.target.closest<HTMLAnchorElement>('.language-link, [data-mobile-language]');
     if (!languageLink || !document.querySelector('.error-page')) return;
 
     event.preventDefault();

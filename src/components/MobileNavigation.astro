@@ -1,0 +1,198 @@
+---
+import { copy, ui, type Lang } from '../i18n/content';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+  experience?: 'developer' | 'photographer';
+  languageHref: string;
+  contactEmail: string;
+}
+const { lang, experience, languageHref, contactEmail } = Astro.props;
+const t = copy[lang];
+const altLang = lang === 'en' ? 'es' : 'en';
+---
+
+<nav class="mobile-navigation" aria-label={t.nav.menu}>
+  <a class="mobile-navigation__item" href={`/${lang}/dev/`} aria-label={`${t.nav.dev}: ${t.modes.developer}`} aria-current={experience === 'developer' ? 'page' : undefined} data-mobile-dev>
+    <Icon name="code" /><span data-mobile-label="dev">{t.nav.dev}</span>
+  </a>
+  <a class="mobile-navigation__item" href={`/${lang}/ph/`} aria-label={`${t.nav.photo}: ${t.modes.photographer}`} aria-current={experience === 'photographer' ? 'page' : undefined} data-mobile-photo>
+    <Icon name="camera" /><span data-mobile-label="photo">{t.nav.photo}</span>
+  </a>
+  <a class="mobile-navigation__item" href={`mailto:${contactEmail}`}>
+    <Icon name="mail" /><span data-mobile-label="contact">{t.nav.contact}</span>
+  </a>
+  <button class="mobile-navigation__item" type="button" popovertarget="mobile-settings" aria-controls="mobile-settings" aria-expanded="false" data-mobile-settings-toggle>
+    <Icon name="settings" /><span data-mobile-label="settings">{t.nav.settings}</span>
+  </button>
+</nav>
+
+<div class="mobile-settings" id="mobile-settings" popover="auto" role="region" aria-labelledby="mobile-settings-title">
+  <h2 class="mobile-settings__title" id="mobile-settings-title" data-mobile-label="settings">{t.nav.settings}</h2>
+  <button class="mobile-settings__row" type="button" role="switch" aria-checked="false" data-theme-toggle data-theme-switch>
+    <Icon name="moon" />
+    <span data-mobile-label="darkMode">{t.nav.darkMode}</span>
+    <span class="mobile-settings__switch" aria-hidden="true"></span>
+  </button>
+  <a class="mobile-settings__row" href={languageHref} hreflang={altLang} title={ui[lang].common.switchLanguage} data-language-link data-mobile-language>
+    <Icon name="language" /><span data-mobile-label="language">{t.nav.language}</span>
+    <span class="mobile-settings__language" lang={altLang} data-mobile-language-name>{altLang === 'es' ? 'Español' : 'English'}</span>
+    <Icon name="chevron-right" />
+  </a>
+</div>
+
+<style>
+  .mobile-navigation,
+  .mobile-settings {
+    position: fixed;
+    inset: auto 0 var(--mobile-dock-bottom);
+    margin: 0 auto;
+    border: var(--rule-hair) solid var(--color-rule-2);
+    background: var(--color-paper-2);
+    color: var(--color-ink);
+    box-shadow: var(--shadow-header);
+  }
+  .mobile-navigation {
+    z-index: var(--layer-header);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: min(calc(100% - max(var(--space-md), env(safe-area-inset-left)) - max(var(--space-md), env(safe-area-inset-right))), var(--size-mobile-dock));
+    padding: var(--space-xs);
+    border-radius: var(--radius-round);
+  }
+  .mobile-navigation__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2xs);
+    min-width: 0;
+    min-height: var(--size-mobile-dock-item);
+    padding: var(--space-2xs);
+    border: 0;
+    border-radius: var(--radius-round);
+    background: transparent;
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-caption);
+    cursor: pointer;
+  }
+  .mobile-navigation__item :global(.icon) { width: var(--space-lg); height: var(--space-lg); }
+  .mobile-navigation__item[aria-current='page'],
+  .mobile-navigation__item[aria-expanded='true'] {
+    color: var(--color-focus);
+    background: var(--color-paper-3);
+  }
+  .mobile-navigation__item:hover { color: var(--color-ink); }
+  .mobile-settings {
+    inset-inline-start: auto;
+    inset-inline-end: max(var(--space-md), env(safe-area-inset-right), calc((100% - var(--size-mobile-dock)) / 2));
+    inset-block-end: calc(var(--mobile-dock-bottom) + var(--size-mobile-dock-height) + var(--space-sm));
+    width: min(calc(100% - var(--space-md) * 2), var(--size-mobile-settings));
+    max-height: calc(100dvh - var(--size-mobile-dock-height) - var(--mobile-dock-bottom) - var(--space-xl));
+    overflow-y: auto;
+    padding: var(--space-md);
+    border-radius: var(--radius-header);
+    transform-origin: bottom right;
+  }
+  .mobile-settings__title {
+    margin: var(--space-2xs) var(--space-xs) var(--space-sm);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-body);
+    letter-spacing: normal;
+  }
+  .mobile-settings__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    width: 100%;
+    min-height: var(--size-control);
+    padding: var(--space-xs);
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+    text-align: start;
+    cursor: pointer;
+  }
+  .mobile-settings__row:hover { background: var(--color-paper-3); }
+  .mobile-settings__row > :global(.icon) { flex-shrink: 0; font-size: var(--text-md); }
+  .mobile-settings__language { margin-inline-start: auto; color: var(--color-muted); }
+  .mobile-settings__switch {
+    flex-shrink: 0;
+    width: var(--size-control-sm);
+    height: var(--space-lg);
+    margin-inline-start: auto;
+    padding: var(--space-2xs);
+    border-radius: var(--radius-round);
+    background: var(--color-muted);
+  }
+  .mobile-settings__switch::before {
+    content: '';
+    display: block;
+    width: var(--space-md);
+    height: var(--space-md);
+    border-radius: var(--radius-round);
+    background: var(--color-paper);
+    transition: transform var(--dur-short) var(--ease-out);
+  }
+  [aria-checked='true'] .mobile-settings__switch { background: var(--color-focus); }
+  [aria-checked='true'] .mobile-settings__switch::before { transform: translateX(var(--space-md)); }
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .mobile-navigation,
+    .mobile-settings {
+      background: color-mix(in oklch, var(--color-paper-2) 90%, transparent);
+      -webkit-backdrop-filter: blur(var(--blur-header));
+      backdrop-filter: blur(var(--blur-header));
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .mobile-navigation,
+    .mobile-settings {
+      background: var(--color-paper-2);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .mobile-settings:popover-open { animation: settings-open var(--dur-short) var(--ease-out); }
+    @keyframes settings-open {
+      from { opacity: 0; transform: translateY(var(--space-sm)) scale(0.96); }
+      to { opacity: 1; transform: none; }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-settings__switch::before { transition: none; }
+  }
+  @media (max-width: 63.99rem) {
+    :global(body:has(.mobile-navigation)) {
+      padding-block-end: calc(var(--size-mobile-dock-height) + var(--mobile-dock-bottom) + var(--space-md));
+    }
+    :global(html) { scroll-padding-block-end: calc(var(--size-mobile-dock-height) + var(--mobile-dock-bottom) + var(--space-md)); }
+  }
+  @media (min-width: 64rem) {
+    .mobile-navigation,
+    .mobile-settings { display: none; }
+  }
+</style>
+
+<script>
+  const initializeSettings = () => {
+    const panel = document.querySelector<HTMLElement>('#mobile-settings');
+    const button = document.querySelector<HTMLButtonElement>('[data-mobile-settings-toggle]');
+    if (!panel || !button) return;
+    panel.ontoggle = () => {
+      button.setAttribute('aria-expanded', String(panel.matches(':popover-open')));
+    };
+  };
+  const closeSettings = () => document.querySelector<HTMLElement>('#mobile-settings')?.hidePopover();
+  const desktop = window.matchMedia('(min-width: 64rem)');
+  desktop.addEventListener('change', () => { if (desktop.matches) closeSettings(); });
+  document.addEventListener('astro:before-swap', closeSettings);
+  document.addEventListener('astro:page-load', initializeSettings);
+  initializeSettings();
+</script>
