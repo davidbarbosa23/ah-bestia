@@ -370,8 +370,6 @@ export interface UiCopy {
     switchLanguage: string;
     opensInNewTab: string;
     close: string;
-    backToTop: string;
-    top: string;
   };
   metadata: {
     locale: string;
@@ -472,8 +470,6 @@ export const ui = {
       switchLanguage: 'Cambiar a español',
       opensInNewTab: 'opens in a new tab',
       close: 'Close',
-      backToTop: 'Back to top',
-      top: 'Top',
     },
     metadata: {
       locale: 'en_US',
@@ -635,8 +631,6 @@ export const ui = {
       switchLanguage: 'Switch to English',
       opensInNewTab: 'se abre en una pestaña nueva',
       close: 'Cerrar',
-      backToTop: 'Volver arriba',
-      top: 'Inicio',
     },
     metadata: {
       locale: 'es_CO',

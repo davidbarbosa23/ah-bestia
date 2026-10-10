@@ -149,7 +149,6 @@ const pageTitle = `${code} - ${initial.title} - David Barbosa`;
     setText('[data-error-developer]', locale.modes.developer);
     setText('[data-error-photography]', locale.modes.photographer);
     setText('.skip-link', locale.ui.common.skipToContent);
-    setText('.back-to-top span', locale.ui.common.top);
     setText('.header-menu-toggle span', locale.nav.menu);
     setText('.header-contact span', locale.nav.contact);
     setText('.site-footer__details p', locale.footer.developerDescription);
@@ -205,11 +204,6 @@ const pageTitle = `${code} - ${initial.title} - David Barbosa`;
       themeButton.title = themeLabel;
     }
 
-    const backToTop = document.querySelector<HTMLElement>('[data-back-to-top]');
-    if (backToTop) {
-      backToTop.setAttribute('aria-label', locale.ui.common.backToTop);
-      backToTop.title = locale.ui.common.backToTop;
-    }
   };
 
   const localizeErrorPage = () => applyErrorLanguage(getErrorLanguage());
