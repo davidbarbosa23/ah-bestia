@@ -44,14 +44,12 @@ const galleryViewerImages = await Promise.all(
   storyPhotos.map(async (photo, index) => {
     const widths = [...new Set([480, 720, 960, 1200, Math.min(1600, photo.image.width)])]
       .filter((width) => width <= photo.image.width);
-    const [viewer, avif] = await Promise.all([
-      getImage({ src: photo.image, width: Math.min(1600, photo.image.width), format: 'webp', quality: 80 }),
-      Promise.all(widths.map((width) => getImage({ src: photo.image, width, format: 'avif', quality: 60 }))),
-    ]);
+    const avif = await Promise.all(widths.map((width) => getImage({ src: photo.image, width, format: 'avif', quality: 60 })));
     return {
       ...photo,
       number: index + 1,
-      viewer,
+      // Preserve every available source pixel in the fullscreen viewer.
+      viewer: photo.image,
       avifSrcset: avif.map(({ src, attributes }) => `${src} ${attributes.width}w`).join(', '),
     };
   }),

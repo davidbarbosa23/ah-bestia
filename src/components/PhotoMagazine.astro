@@ -24,7 +24,7 @@ const fullscreenSpreadMaxByHeight = `${Math.round(88 * pageWidth * 2 / pageHeigh
 
 const pages = await Promise.all(
   magazine.pages.map(async (page, index) => {
-    const [small, large, expanded] = await Promise.all([
+    const [small, large] = await Promise.all([
       getImage({
         src: page.imageAsset,
         width: Math.min(720, page.imageAsset.width),
@@ -37,12 +37,6 @@ const pages = await Promise.all(
         format: 'webp',
         quality: 82,
       }),
-      getImage({
-        src: page.imageAsset,
-        width: Math.min(2800, page.imageAsset.width),
-        format: 'webp',
-        quality: 88,
-      }),
     ]);
 
     return {
@@ -51,7 +45,8 @@ const pages = await Promise.all(
         ?? `${labels.series.photo} ${index + 1} ${labels.series.from} ${content.title}`,
       small,
       large,
-      expanded,
+      // Fullscreen and zoom use the original without resizing or recompression.
+      expanded: page.imageAsset,
     };
   }),
 );
