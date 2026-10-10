@@ -123,6 +123,11 @@
   --dur-micro: 120ms;
   --dur-short: 220ms;
   --dur-long: 420ms;
+  --dur-header: 500ms;
+  --ease-header: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-header-letter: 60ms;
+  --dur-header-letter-fade: 50ms;
+  --delay-header-letter: 17ms;
   --dur-page-turn: 720ms;
   --dur-magazine-controls-idle: 2400ms;
   --opacity-magazine-controls-idle: 0.22;
@@ -137,8 +142,8 @@
   --radius-md: 0.625rem;
   --radius-round: 999px;
   --radius-header: 1.75rem;
-  --size-header-capsule: 57rem;
-  --size-header-expanded: 65rem;
+  --size-header-capsule: 45rem;
+  --size-header-expanded: 54rem;
   --shadow-header: 0 var(--space-xs) var(--space-xl) color-mix(in oklch, var(--color-ink) 8%, transparent);
   --size-control-sm: 2.5rem;
   --size-control: 2.75rem;

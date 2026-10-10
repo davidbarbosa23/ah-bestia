@@ -19,8 +19,14 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
 <div class="header-scroll-sentinel" aria-hidden="true" data-header-sentinel></div>
 <header class="site-header site-header--floating" data-site-header>
   <div class="site-header__inner">
+    <span class="header-surface" aria-hidden="true"></span>
     <a class="wordmark" href={homePath} aria-label={`db/ ${labels.common.homeLabel}`}>
-      <span class="wordmark__short" aria-hidden="true">db/</span><span class="wordmark__full">David Barbosa</span>
+      <span class="wordmark__letters" aria-hidden="true">
+        {Array.from('David Barbosa').map((letter, index) => (
+          <span class:list={['wordmark__letter', { 'wordmark__letter--initial': index === 0 || index === 6 }]} data-wordmark-letter>{letter === ' ' ? '\u00a0' : letter}</span>
+        ))}
+        <span class="wordmark__suffix" data-wordmark-suffix>/</span>
+      </span>
     </a>
 
     <button class="header-menu-toggle" type="button" aria-expanded="false" aria-controls="header-navigation" data-header-menu>
@@ -66,6 +72,7 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
     box-shadow: none;
   }
   .site-header .site-header__inner {
+    position: relative;
     width: 100%;
     min-height: var(--size-header-compact);
     padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-lg);
@@ -78,17 +85,53 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
   .site-header[data-header-condensed] .site-header__inner {
     width: min(100%, var(--size-header-capsule));
   }
-  .site-header[data-header-condensed] .site-header__inner,
-  .site-header[data-menu-open] .site-header__inner {
-    border-color: var(--color-rule);
+  .header-surface {
+    position: absolute;
+    inset: 0;
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: inherit;
     background: var(--color-paper-2);
     box-shadow: var(--shadow-header);
+    pointer-events: none;
+    transform-origin: top left;
+    opacity: 0;
+    transition: opacity var(--dur-header) var(--ease-out);
   }
-  .site-header .wordmark { gap: 0; font-size: var(--text-sm); }
-  .site-header .wordmark__full { width: auto; white-space: nowrap; }
-  .site-header .wordmark__short { display: none; }
-  .site-header[data-header-condensed] .wordmark__short { display: block; }
-  .site-header[data-header-condensed] .wordmark__full { display: none; }
+  .site-header__inner > :not(.header-surface) { position: relative; }
+  .site-header[data-header-condensed] .header-surface,
+  .site-header[data-menu-open] .header-surface { opacity: 1; }
+  .site-header .wordmark {
+    gap: 0;
+    font-size: var(--text-base);
+    color: var(--color-ink);
+  }
+  .site-header .wordmark > .wordmark__letters {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    line-height: var(--leading-wordmark);
+    white-space: nowrap;
+    color: inherit;
+  }
+  .wordmark__letter { display: block; }
+  .wordmark__suffix {
+    display: block;
+    position: absolute;
+    inset-inline-start: 0;
+    opacity: 0;
+  }
+  .site-header[data-header-condensed] .wordmark { color: var(--color-accent); }
+  .site-header[data-header-condensed] .wordmark__letter--initial { text-transform: lowercase; }
+  .site-header[data-header-condensed] .wordmark__suffix {
+    position: relative;
+    opacity: 1;
+  }
+  .site-header[data-header-condensed] .wordmark__letter:not(.wordmark__letter--initial) {
+    position: absolute;
+    inset-inline-start: 0;
+    opacity: 0;
+  }
   .header-menu-toggle {
     display: none;
     min-height: var(--size-control);
@@ -151,28 +194,141 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
     .site-header[data-menu-open] .header-navigation { border-block-start: var(--rule-hair) solid var(--color-rule); margin-block-start: var(--space-xs); }
   }
   @media (min-width: 64rem) {
-    .site-header .site-header__inner { grid-template-columns: auto minmax(0, 1fr); gap: var(--space-xl); border-radius: var(--radius-round); }
-    .header-navigation { grid-column: 2; grid-row: 1; display: flex; gap: var(--space-md); padding: 0; }
-    .header-experiences { display: flex; gap: var(--space-lg); margin-inline-end: auto; }
+    .site-header .site-header__inner { grid-template-columns: minmax(0, 1fr) auto auto; gap: var(--space-md); border-radius: var(--radius-round); }
+    .header-navigation { display: contents; }
+    .header-experiences {
+      position: absolute;
+      grid-area: auto;
+      inset-inline-start: 50%;
+      inset-block-start: 50%;
+      display: flex;
+      gap: var(--space-lg);
+      margin: 0;
+      transform: translate(-50%, -50%);
+    }
+    .header-tools { grid-column: 2; grid-row: 1; }
+    .header-contact { grid-column: 3; grid-row: 1; }
     .header-experiences a { font-size: var(--text-sm); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .header-menu-toggle .icon, .header-contact .icon { transition: none; }
+    .header-surface,
+    .header-menu-toggle .icon,
+    .header-contact .icon { transition: none; }
     .header-contact:hover .icon { transform: none; }
   }
 </style>
 
 <script>
   let scrollObserver: IntersectionObserver | undefined;
+  let headerAnimations: Animation[] = [];
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const stopHeaderAnimations = () => {
+    headerAnimations.forEach((animation) => animation.cancel());
+    headerAnimations = [];
+  };
+  const setHeaderCondensed = (header: HTMLElement, condensed: boolean, animate = true) => {
+    if (header.hasAttribute('data-header-condensed') === condensed) return;
+    if (!animate || reducedMotion.matches) {
+      stopHeaderAnimations();
+      header.toggleAttribute('data-header-condensed', condensed);
+      return;
+    }
+
+    // Measure each endpoint once. The centered links stay still while the surface
+    // and outer controls move; text is never scaled and no layout runs per frame.
+    const elements = Array.from(header.querySelectorAll<HTMLElement>(
+      '.header-surface, .wordmark, .header-menu-toggle, .header-tools, .header-contact',
+    ));
+    const name = header.querySelector<HTMLElement>('.wordmark__letters')!;
+    const letters = Array.from(name.querySelectorAll<HTMLElement>('[data-wordmark-letter]'));
+    const suffix = name.querySelector<HTMLElement>('[data-wordmark-suffix]')!;
+    const nameBefore = name.getBoundingClientRect();
+    const lettersBefore = letters.map((letter) => {
+      const rect = letter.getBoundingClientRect();
+      return { x: rect.left - nameBefore.left, width: rect.width, opacity: getComputedStyle(letter).opacity };
+    });
+    const suffixBefore = { x: suffix.getBoundingClientRect().left - nameBefore.left, opacity: getComputedStyle(suffix).opacity };
+    const interrupted = headerAnimations.some((animation) => animation.playState === 'running');
+    const before = elements.map((element) => element.getBoundingClientRect());
+    stopHeaderAnimations();
+    header.toggleAttribute('data-header-condensed', condensed);
+    const after = elements.map((element) => element.getBoundingClientRect());
+    const nameAfter = name.getBoundingClientRect();
+    const lettersAfter = letters.map((letter) => letter.getBoundingClientRect().left - nameAfter.left);
+    const suffixAfter = suffix.getBoundingClientRect().left - nameAfter.left;
+    const style = getComputedStyle(header);
+    const duration = parseFloat(style.getPropertyValue('--dur-header'));
+    const easing = style.getPropertyValue('--ease-header').trim();
+    headerAnimations = elements.flatMap((element, index) => {
+      const from = before[index];
+      const to = after[index];
+      if (!from.width || !to.width) return [];
+      const x = from.left - to.left;
+      const y = from.top - to.top;
+      const scale = element.classList.contains('header-surface') ? from.width / to.width : 1;
+      if (!x && !y && scale === 1) return [];
+      return [element.animate([
+        { transform: `translate(${x}px, ${y}px) scaleX(${scale})` },
+        { transform: 'none' },
+      ], { duration, easing })];
+    });
+
+    // Remove the non-initial letters in the same left-to-right rhythm as the
+    // reference. Stepped transforms reproduce the contraction without width tweens.
+    const collapse = parseFloat(style.getPropertyValue('--dur-header-letter'));
+    const fade = parseFloat(style.getPropertyValue('--dur-header-letter-fade'));
+    const stagger = parseFloat(style.getPropertyValue('--delay-header-letter'));
+    const drops = letters.flatMap((letter, index) => letter.classList.contains('wordmark__letter--initial')
+      ? [] : [{ index, width: lettersBefore[index].width }]);
+    const nameDuration = collapse + Math.max(0, drops.length - 1) * stagger;
+    let compactX = 0;
+    letters.forEach((letter, index) => {
+      const initial = letter.classList.contains('wordmark__letter--initial');
+      const targetOpacity = initial || !condensed ? '1' : '0';
+      const from = lettersBefore[index];
+      const to = lettersAfter[index];
+      if (interrupted) {
+        headerAnimations.push(letter.animate([
+          { transform: `translateX(${from.x - to}px)`, opacity: from.opacity },
+          { transform: 'none', opacity: targetOpacity },
+        ], { duration, easing }));
+      } else {
+        let position = condensed ? from.x : compactX;
+        const frames: Keyframe[] = [{ offset: 0, transform: `translateX(${position - to}px)`, easing: 'steps(1, end)' }];
+        drops.forEach((drop, order) => {
+          if (drop.index >= index) return;
+          position += (condensed ? -1 : 1) * drop.width;
+          frames.push({
+            offset: (collapse + order * stagger) / nameDuration,
+            transform: `translateX(${position - to}px)`,
+            easing: 'steps(1, end)',
+          });
+        });
+        frames.push({ offset: 1, transform: 'none' });
+        headerAnimations.push(letter.animate(frames, { duration: nameDuration }));
+        if (!initial) {
+          const order = drops.findIndex((drop) => drop.index === index);
+          headerAnimations.push(letter.animate([
+            { opacity: from.opacity }, { opacity: targetOpacity },
+          ], { duration: condensed ? fade : collapse, delay: order * stagger, easing: condensed ? 'ease' : 'steps(1, end)', fill: 'backwards' }));
+        }
+      }
+      if (initial) compactX += from.width;
+    });
+    headerAnimations.push(suffix.animate([
+      { opacity: suffixBefore.opacity, transform: condensed ? 'none' : `translateX(${suffixBefore.x - suffixAfter}px)` },
+      { opacity: condensed ? '1' : '0', transform: 'none' },
+    ], { duration: fade, delay: condensed && !interrupted ? nameDuration : 0, fill: 'backwards' }));
+  };
   const initializeMenu = () => {
     scrollObserver?.disconnect();
-    const header = document.querySelector('[data-site-header]');
+    const header = document.querySelector<HTMLElement>('[data-site-header]');
     const sentinel = document.querySelector('[data-header-sentinel]');
     if (!header || !sentinel) return;
     header.setAttribute('data-menu-ready', '');
-    header.toggleAttribute('data-header-condensed', sentinel.getBoundingClientRect().bottom <= 0);
+    setHeaderCondensed(header, sentinel.getBoundingClientRect().bottom <= 0, false);
     scrollObserver = new IntersectionObserver(([entry]) => {
-      header.toggleAttribute('data-header-condensed', !entry.isIntersecting && entry.boundingClientRect.top < 0);
+      setHeaderCondensed(header, !entry.isIntersecting && entry.boundingClientRect.top < 0);
     });
     scrollObserver.observe(sentinel);
   };
@@ -185,7 +341,12 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
     if (restoreFocus) button?.focus();
   };
   initializeMenu();
-  document.addEventListener('astro:before-swap', () => scrollObserver?.disconnect());
+  reducedMotion.addEventListener('change', stopHeaderAnimations);
+  window.addEventListener('resize', stopHeaderAnimations, { passive: true });
+  document.addEventListener('astro:before-swap', () => {
+    scrollObserver?.disconnect();
+    stopHeaderAnimations();
+  });
   document.addEventListener('astro:after-swap', initializeMenu);
   document.addEventListener('astro:page-load', initializeMenu);
   document.addEventListener('keydown', (event) => {
