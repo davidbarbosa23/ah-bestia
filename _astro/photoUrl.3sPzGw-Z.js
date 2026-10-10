@@ -1,1 +1,0 @@
-function e(e){let t=new URL(window.location.href);e?t.searchParams.set(`photo`,e):t.searchParams.delete(`photo`),t.href!==window.location.href&&window.history.replaceState(window.history.state,``,t),document.querySelectorAll(`[data-language-link]`).forEach(e=>{let n=new URL(e.href);n.search=t.search,e.href=n.href})}export{e as t};
