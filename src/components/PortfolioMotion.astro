@@ -13,28 +13,60 @@
     cleanup();
     if (preference.matches || document.documentElement.dataset.languageTransition === 'true') return;
     const easing = getComputedStyle(document.documentElement).getPropertyValue('--ease-out').trim();
-    const developer = document.body.dataset.experience === 'developer';
-    const reveal = (element: HTMLElement, delay = 0, image = false, hero = false) => {
-      const containsPriorityImage = element.querySelector('img[fetchpriority="high"]') !== null;
+    const styles = getComputedStyle(document.documentElement);
+    const duration = Number.parseFloat(styles.getPropertyValue('--dur-long'));
+    const distance = styles.getPropertyValue('--space-sm').trim();
+    const pending = new Map<HTMLElement, Animation>();
+    const elements = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
+    // Read all positions before creating animations. Already-visible content stays put.
+    const belowFold = elements.filter((element) => element.getBoundingClientRect().top >= window.innerHeight);
+    belowFold.forEach((element) => {
       const animation = element.animate([
-        { opacity: (developer && hero) || containsPriorityImage ? 1 : 0, transform: image ? `translateX(${developer ? 40 : 24}px) scale(.97)` : `translateY(${developer ? 32 : 24}px)` },
+        { opacity: 0, transform: `translateY(${distance})` },
         { opacity: 1, transform: 'none' },
-      ], { duration: image ? (developer ? 1000 : 900) : (developer ? 800 : 720), delay, easing, fill: 'backwards' });
+      ], { duration, easing, fill: 'both' });
+      animation.pause();
+      pending.set(element, animation);
       animations.push(animation);
-      animation.finished.then(() => { animations = animations.filter((item) => item !== animation); }).catch(() => {});
-    };
-    document.querySelectorAll<HTMLElement>('[data-hero-reveal]').forEach((element, index) => reveal(element, index * (developer ? 100 : 90), false, true));
-    document.querySelectorAll<HTMLElement>('[data-hero-image]').forEach((element) => reveal(element, developer ? 100 : 120, true, true));
+      animation.finished.then(() => {
+        animation.cancel();
+        animations = animations.filter((item) => item !== animation);
+      }).catch(() => {});
+    });
     observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting || !(entry.target instanceof HTMLElement)) return;
         observer?.unobserve(entry.target);
-        reveal(entry.target, Number(entry.target.dataset.revealOrder ?? 0) * 100);
+        pending.get(entry.target)?.play();
+        pending.delete(entry.target);
       });
-    }, { threshold: .08 });
-    document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((element) => observer?.observe(element));
+    }, { threshold: 0, rootMargin: '0px 0px 64px 0px' });
+    belowFold.forEach((element) => observer?.observe(element));
   };
   document.addEventListener('astro:page-load', setup);
   document.addEventListener('astro:before-swap', cleanup);
-  preference.addEventListener('change', () => preference.matches ? cleanup() : setup());
+  // A preference change should never replay entrances on content being read.
+  preference.addEventListener('change', cleanup);
 </script>
+
+<style is:global>
+  /* Start with the first styled paint; never hide primary text or the LCP image. */
+  @media (prefers-reduced-motion: no-preference) {
+    body:not([data-skip-entrance]) [data-hero-reveal] {
+      animation: portfolio-enter var(--dur-long) var(--ease-out) backwards;
+    }
+
+    body:not([data-skip-entrance]) [data-hero-reveal]:nth-child(2) {
+      animation-delay: calc(var(--dur-micro) / 3);
+    }
+
+    body:not([data-skip-entrance]) [data-hero-reveal]:nth-child(n + 3) {
+      animation-delay: calc(var(--dur-micro) / 1.5);
+    }
+  }
+
+  @keyframes portfolio-enter {
+    from { transform: translateY(var(--space-sm)); }
+    to { transform: none; }
+  }
+</style>
