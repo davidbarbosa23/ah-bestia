@@ -80,6 +80,21 @@ const altLang = lang === 'en' ? 'es' : 'en';
     cursor: pointer;
   }
   .mobile-navigation__item :global(.icon) { width: var(--space-lg); height: var(--space-lg); }
+  /* Keep the labels in the accessibility tree and preserve the touch targets. */
+  .mobile-navigation[data-labels-hidden]:not(:focus-within):not(:has([aria-expanded='true'])) {
+    padding: var(--space-2xs);
+    width: min(calc(100% - max(var(--space-md), env(safe-area-inset-left)) - max(var(--space-md), env(safe-area-inset-right))), var(--size-mobile-dock-small));
+    
+    .mobile-navigation__item {
+      > [data-mobile-label] {
+        opacity: 0;
+        transform: translateY(var(--space-3xs));
+      }
+    }
+  }
+  .mobile-navigation[data-labels-hidden]:not(:focus-within):not(:has([aria-expanded='true'])) .mobile-navigation__item :global(.icon) {
+    transform: translateY(var(--mobile-navigation-label-offset));
+  }
   .mobile-navigation__item[aria-current='page'],
   .mobile-navigation__item[aria-expanded='true'] {
     color: var(--color-focus);
@@ -159,6 +174,10 @@ const altLang = lang === 'en' ? 'es' : 'en';
     }
   }
   @media (prefers-reduced-motion: no-preference) {
+    .mobile-navigation__item > [data-mobile-label] {
+      transition: opacity var(--dur-short) var(--ease-out), transform var(--dur-short) var(--ease-out);
+    }
+    .mobile-navigation__item :global(.icon) { transition: transform var(--dur-short) var(--ease-out); }
     .mobile-settings:popover-open { animation: settings-open var(--dur-short) var(--ease-out); }
     @keyframes settings-open {
       from { opacity: 0; transform: translateY(var(--space-sm)) scale(0.96); }
@@ -181,18 +200,77 @@ const altLang = lang === 'en' ? 'es' : 'en';
 </style>
 
 <script>
-  const initializeSettings = () => {
+  const desktop = window.matchMedia('(min-width: 64rem)');
+  let navigationController: AbortController | undefined;
+  let scrollFrame = 0;
+  const stopNavigation = () => {
+    navigationController?.abort();
+    cancelAnimationFrame(scrollFrame);
+    scrollFrame = 0;
+  };
+  const initializeNavigation = () => {
+    stopNavigation();
+    const navigation = document.querySelector<HTMLElement>('.mobile-navigation');
     const panel = document.querySelector<HTMLElement>('#mobile-settings');
     const button = document.querySelector<HTMLButtonElement>('[data-mobile-settings-toggle]');
-    if (!panel || !button) return;
-    panel.ontoggle = () => {
-      button.setAttribute('aria-expanded', String(panel.matches(':popover-open')));
+    if (!navigation || !panel || !button) return;
+    button.setAttribute('aria-expanded', String(panel.matches(':popover-open')));
+    navigation.removeAttribute('data-labels-hidden');
+    if (desktop.matches) return;
+
+    navigationController = new AbortController();
+    const { signal } = navigationController;
+    const directionThreshold = 8;
+    let previousY = Math.max(0, window.scrollY);
+    let direction = 0;
+    let distance = 0;
+    const showLabels = () => {
+      navigation.removeAttribute('data-labels-hidden');
+      previousY = Math.max(0, window.scrollY);
+      distance = 0;
     };
+    panel.addEventListener('toggle', () => {
+      button.setAttribute('aria-expanded', String(panel.matches(':popover-open')));
+      if (panel.matches(':popover-open')) showLabels();
+    }, { signal });
+    navigation.addEventListener('focusin', showLabels, { signal });
+    navigation.addEventListener('pointerdown', showLabels, { passive: true, signal });
+    navigation.addEventListener('pointerenter', showLabels, { passive: true, signal });
+
+    // Sample once per frame; only change the DOM after meaningful movement.
+    // The listener exists only while the mobile dock is mounted and visible.
+    document.addEventListener('scroll', () => {
+      if (scrollFrame) return;
+      scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = 0;
+        const currentY = Math.max(0, window.scrollY);
+        const delta = currentY - previousY;
+        previousY = currentY;
+        if (currentY === 0) {
+          showLabels();
+          return;
+        }
+        if (!delta) return;
+        const nextDirection = Math.sign(delta);
+        distance = nextDirection === direction ? distance + Math.abs(delta) : Math.abs(delta);
+        direction = nextDirection;
+        if (distance < directionThreshold) return;
+        const hide = direction > 0;
+        if (navigation.hasAttribute('data-labels-hidden') !== hide) {
+          navigation.toggleAttribute('data-labels-hidden', hide);
+        }
+      });
+    }, { passive: true, signal });
   };
   const closeSettings = () => document.querySelector<HTMLElement>('#mobile-settings')?.hidePopover();
-  const desktop = window.matchMedia('(min-width: 64rem)');
-  desktop.addEventListener('change', () => { if (desktop.matches) closeSettings(); });
-  document.addEventListener('astro:before-swap', closeSettings);
-  document.addEventListener('astro:page-load', initializeSettings);
-  initializeSettings();
+  desktop.addEventListener('change', () => {
+    if (desktop.matches) closeSettings();
+    initializeNavigation();
+  });
+  document.addEventListener('astro:before-swap', () => {
+    closeSettings();
+    stopNavigation();
+  });
+  document.addEventListener('astro:page-load', initializeNavigation);
+  initializeNavigation();
 </script>
