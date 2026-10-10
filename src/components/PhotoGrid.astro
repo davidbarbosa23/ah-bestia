@@ -68,6 +68,12 @@ const count = labels.count.replace('{shown}', String(photos.length)).replace('{t
 </script>
 
 <style is:global>
+  .photo-grid__header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    gap: var(--space-lg);
+  }
   .photo-grid {
     padding-block: var(--space-lg) var(--space-3xl);
   }

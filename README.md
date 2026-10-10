@@ -116,6 +116,7 @@ The legacy `/:lang/dev/projects/` route redirects to the Labs archive.
 - Add visually reviewed tags and English/Spanish image descriptions in `src/data/photoTags.ts` for every photograph included in the archive, using `folder/filename` keys. Magazine-only pages do not need archive annotations. The grid checks annotation coverage when building. It renders 18 photographs initially and fetches archive metadata once on the first search, filter, or scroll that needs more photos. Multiple selected tags must all match; text search recognizes both languages.
 - Define developer experiments in `src/data/labs.ts`; their routes are generated from the project slug.
 - Reuse values from `tokens.css` when styling components. `pnpm check:tokens` rejects color literals, undefined variables, and un-tokenized typography or elevation values in project styles.
+- Keep `src/styles/global.css` for shared foundations, accessibility utilities, controls, and site navigation/footer styles. Import feature styles from their owning component or page so unrelated routes do not load them. Keep each feature's responsive, hover, focus, and reduced-motion rules with that feature; add developer portfolio styles to `src/styles/developer.css` after its base layout rules.
 
 ## Project principles
 
