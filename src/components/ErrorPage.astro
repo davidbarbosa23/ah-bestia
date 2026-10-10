@@ -16,11 +16,15 @@ type ErrorTranslation = {
   ui: UiCopy;
   modes: { developer: string; photographer: string };
   theme: { light: string; dark: string };
+  nav: { menu: string; contact: string };
+  footer: { resume: string; developerDescription: string };
 };
 const getErrorTranslation = (language: Lang): ErrorTranslation => ({
   ui: ui[language],
   modes: copy[language].modes,
   theme: copy[language].theme,
+  nav: copy[language].nav,
+  footer: copy[language].footer,
 });
 const translations = {
   en: getErrorTranslation('en'),
@@ -83,6 +87,8 @@ const pageTitle = `${code} - ${initial.title} - David Barbosa`;
     ui: UiCopy;
     modes: { developer: string; photographer: string };
     theme: { light: string; dark: string };
+    nav: { menu: string; contact: string };
+    footer: { resume: string; developerDescription: string };
   }
 
   const isErrorLanguage = (value: string | null): value is ErrorLanguage =>
@@ -144,14 +150,27 @@ const pageTitle = `${code} - ${initial.title} - David Barbosa`;
     setText('[data-error-photography]', locale.modes.photographer);
     setText('.skip-link', locale.ui.common.skipToContent);
     setText('.back-to-top span', locale.ui.common.top);
+    setText('.header-menu-toggle span', locale.nav.menu);
+    setText('.header-contact span', locale.nav.contact);
+    setText('.site-footer__details p', locale.footer.developerDescription);
+    setText('[data-footer-resume]', locale.footer.resume);
 
     document.querySelector('[data-error-actions]')?.setAttribute('aria-label', locale.ui.error.actionsLabel);
-    document.querySelector('.site-tools')?.setAttribute('aria-label', locale.ui.common.utilityNavigation);
+    document.querySelector('.header-tools')?.setAttribute('aria-label', locale.ui.common.utilityNavigation);
+
+    const footerHome = document.querySelector<HTMLAnchorElement>('.site-footer__name');
+    if (footerHome) {
+      footerHome.href = `/${language}/dev/`;
+      footerHome.setAttribute('aria-label', locale.ui.common.homeLabel);
+    }
+    document.querySelectorAll('.site-footer .sr-only').forEach((element) => {
+      element.textContent = ` (${locale.ui.common.opensInNewTab})`;
+    });
 
     const homeLink = document.querySelector<HTMLAnchorElement>('.wordmark');
     if (homeLink) {
       homeLink.href = `/${language}/dev/`;
-      homeLink.setAttribute('aria-label', locale.ui.common.homeLabel);
+      homeLink.setAttribute('aria-label', `db/ ${locale.ui.common.homeLabel}`);
     }
 
     const primaryLink = document.querySelector<HTMLAnchorElement>('a[data-error-primary]');

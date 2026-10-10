@@ -13,36 +13,153 @@ const labels = ui[lang];
 const altLang = lang === 'en' ? 'es' : 'en';
 const altPath = languageHref ?? alternatePath(Astro.url.pathname, lang);
 const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
+const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.com' : 'davidbarbosa.dev@gmail.com';
 ---
 
-<header class:list={['site-header', experience && `site-header--${experience}`]} data-site-header>
+<header class="site-header site-header--floating" data-site-header>
   <div class="site-header__inner">
-    <a class="wordmark" href={homePath} aria-label={labels.common.homeLabel}>
+    <a class="wordmark" href={homePath} aria-label={`db/ ${labels.common.homeLabel}`}>
       <span aria-hidden="true">db/</span><span>David Barbosa</span>
     </a>
 
-    {experience && (
-      <nav class="experience-switch" aria-label={t.modes.label}>
-        <a class:list={['experience-switch__option', experience === 'developer' && 'is-active']} href={`/${lang}/dev/`} aria-current={experience === 'developer' ? 'page' : undefined} aria-label={t.modes.developer}>
-          <span class="switch-wide">{t.modes.developer}</span><span class="switch-short" aria-hidden="true">DEV</span>
-        </a>
-        <a class:list={['experience-switch__option', experience === 'photographer' && 'is-active']} href={`/${lang}/ph/`} aria-current={experience === 'photographer' ? 'page' : undefined} aria-label={t.modes.photographer}>
-          <span class="switch-wide">{t.modes.photographer}</span><span class="switch-short" aria-hidden="true">PHOTO</span>
-        </a>
-      </nav>
-    )}
+    <button class="header-menu-toggle" type="button" aria-expanded="false" aria-controls="header-navigation" data-header-menu>
+      <span>{t.nav.menu}</span><Icon name="plus" />
+    </button>
 
-    <nav class="site-tools" aria-label={labels.common.utilityNavigation}>
-      <button class="theme-button" type="button" data-theme-toggle data-theme-light-label={t.theme.light} data-theme-dark-label={t.theme.dark} aria-label={t.theme.light} title={t.theme.light}>
-        <Icon name="sun" class="theme-icon theme-icon--sun" />
-        <Icon name="moon" class="theme-icon theme-icon--moon" />
-      </button>
-      <a class="language-link" href={altPath} hreflang={altLang} lang={altLang} aria-label={labels.common.switchLanguage} title={labels.common.switchLanguage} data-language-link>{altLang.toUpperCase()}</a>
-    </nav>
+    <div class="header-navigation" id="header-navigation">
+      {experience && (
+        <nav class="header-experiences" aria-label={t.modes.label}>
+          <a href={`/${lang}/dev/`} aria-current={experience === 'developer' ? 'page' : undefined}>{t.modes.developer}</a>
+          <a href={`/${lang}/ph/`} aria-current={experience === 'photographer' ? 'page' : undefined}>{t.modes.photographer}</a>
+        </nav>
+      )}
+      <nav class="header-tools" aria-label={labels.common.utilityNavigation}>
+        <button class="theme-button" type="button" data-theme-toggle data-theme-light-label={t.theme.light} data-theme-dark-label={t.theme.dark} aria-label={t.theme.light} title={t.theme.light}>
+          <Icon name="sun" class="theme-icon theme-icon--sun" />
+          <Icon name="moon" class="theme-icon theme-icon--moon" />
+        </button>
+        <a class="language-link" href={altPath} hreflang={altLang} lang={altLang} aria-label={labels.common.switchLanguage} title={labels.common.switchLanguage} data-language-link>{altLang.toUpperCase()}</a>
+      </nav>
+      <a class="header-contact" href={`mailto:${contactEmail}`}><span>{t.nav.contact}</span><Icon name="arrow-up-right" /></a>
+    </div>
   </div>
 </header>
 
+<style>
+  /* Floating navigation borrows the reference's shape, using the site's own tokens. */
+  .site-header.site-header--floating {
+    width: min(calc(100% - var(--page-gutter) * 2), var(--size-header-capsule));
+    margin: var(--space-md) auto 0;
+    inset-block-start: var(--space-md);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: var(--radius-header);
+    background: var(--color-paper-2);
+    backdrop-filter: none;
+    box-shadow: var(--shadow-header);
+  }
+  .site-header .site-header__inner {
+    width: 100%;
+    min-height: var(--size-header-compact);
+    padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-lg);
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0 var(--space-sm);
+  }
+  .site-header .wordmark { gap: var(--space-xs); font-size: var(--text-xs); }
+  .site-header .wordmark > span:last-child { width: auto; white-space: nowrap; }
+  .header-menu-toggle {
+    display: none;
+    min-height: var(--size-control);
+    padding: 0 var(--space-sm);
+    align-items: center;
+    gap: var(--space-xs);
+    border: 0;
+    border-radius: var(--radius-round);
+    background: transparent;
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .header-menu-toggle .icon { transition: transform var(--dur-short) var(--ease-out); }
+  .header-menu-toggle[aria-expanded='true'] .icon { transform: rotate(45deg); }
+  .header-navigation {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-xs) var(--space-xs) 0;
+  }
+  .header-experiences { grid-column: 1 / -1; display: grid; gap: var(--space-xs); }
+  .header-experiences a {
+    display: flex;
+    align-items: center;
+    min-height: var(--size-control);
+    color: var(--color-muted);
+    font-size: var(--text-base);
+    font-weight: var(--weight-medium);
+  }
+  .header-experiences a[aria-current='page'] { color: var(--color-focus); }
+  .header-experiences a:hover { color: var(--color-ink); }
+  .header-experiences a:focus-visible { border-radius: var(--radius-sm); }
+  .header-tools { display: flex; gap: var(--space-2xs); }
+  .header-tools .theme-button, .header-tools .language-link { border-radius: var(--radius-round); }
+  .header-tools .theme-button:hover, .header-tools .language-link:hover,
+  .header-menu-toggle:hover { background: var(--color-paper-3); }
+  .header-contact {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    min-height: var(--size-control);
+    padding-inline: var(--space-lg);
+    border-radius: var(--radius-round);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    white-space: nowrap;
+  }
+  .header-contact:hover { background: var(--color-ink-2); }
+  .header-contact .icon { transition: transform var(--dur-short) var(--ease-out); }
+  .header-contact:hover .icon { transform: translate(var(--space-3xs), calc(-1 * var(--space-3xs))); }
+  @media (max-width: 63.99rem) {
+    .site-header[data-menu-ready] .header-menu-toggle { display: inline-flex; }
+    .site-header[data-menu-ready]:not([data-menu-open]) .header-navigation { display: none; }
+    .site-header[data-menu-open] .header-navigation { border-block-start: var(--rule-hair) solid var(--color-rule); margin-block-start: var(--space-xs); }
+  }
+  @media (min-width: 64rem) {
+    .site-header.site-header--floating { border-radius: var(--radius-round); }
+    .site-header .site-header__inner { grid-template-columns: auto minmax(0, 1fr); gap: var(--space-xl); }
+    .header-navigation { grid-column: 2; grid-row: 1; display: flex; gap: var(--space-md); padding: 0; }
+    .header-experiences { display: flex; gap: var(--space-lg); margin-inline-end: auto; }
+    .header-experiences a { font-size: var(--text-sm); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .header-menu-toggle .icon, .header-contact .icon { transition: none; }
+    .header-contact:hover .icon { transform: none; }
+  }
+</style>
+
 <script>
+  const initializeMenu = () => {
+    document.querySelector('[data-site-header]')?.setAttribute('data-menu-ready', '');
+  };
+  const closeMenu = (restoreFocus = false) => {
+    const header = document.querySelector('[data-site-header]');
+    const button = header?.querySelector<HTMLButtonElement>('[data-header-menu]');
+    if (!header?.hasAttribute('data-menu-open')) return;
+    header.removeAttribute('data-menu-open');
+    button?.setAttribute('aria-expanded', 'false');
+    if (restoreFocus) button?.focus();
+  };
+  initializeMenu();
+  document.addEventListener('astro:page-load', initializeMenu);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeMenu(true);
+  });
+  document.addEventListener('focusin', (event) => {
+    if (event.target instanceof Element && !event.target.closest('[data-site-header]')) closeMenu();
+  });
   const syncThemeLabel = () => {
     const root = document.documentElement;
     const themeButton = document.querySelector('[data-theme-toggle]');
@@ -60,6 +177,15 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
 
   document.addEventListener('click', (event) => {
     if (!(event.target instanceof Element)) return;
+
+    const menuButton = event.target.closest<HTMLButtonElement>('[data-header-menu]');
+    if (menuButton) {
+      const header = menuButton.closest('[data-site-header]');
+      const open = header?.toggleAttribute('data-menu-open') ?? false;
+      menuButton.setAttribute('aria-expanded', String(open));
+    } else if (!event.target.closest('[data-site-header]') || event.target.closest('a')) {
+      closeMenu();
+    }
 
     if (event.target.closest('[data-theme-toggle]')) {
       const root = document.documentElement;

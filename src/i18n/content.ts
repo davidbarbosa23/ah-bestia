@@ -149,6 +149,8 @@ export const copy = {
     footer: {
       copyright: 'David Barbosa',
       resume: 'Résumé',
+      developerDescription: 'Thoughtful software. Clear interfaces. Dependable systems.',
+      photographyDescription: 'An independent eye for light, movement, and everyday life.',
     },
   },
   es: {
@@ -312,6 +314,8 @@ export const copy = {
     footer: {
       copyright: 'David Barbosa',
       resume: 'Currículum',
+      developerDescription: 'Software bien pensado. Interfaces claras. Sistemas confiables.',
+      photographyDescription: 'Una mirada independiente a la luz, el movimiento y lo cotidiano.',
     },
   },
 } as const;
