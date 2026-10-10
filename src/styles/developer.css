@@ -12,6 +12,7 @@
 html[lang='es'] .developer-home .developer-hero h1 { font-size: var(--text-developer-hero-es); }
 .developer-home .developer-hero h1 span:last-child { color: var(--color-accent); }
 .developer-home .developer-hero__intro { max-width: 48ch; font-size: var(--text-base); }
+.developer-home .developer-hero__intro strong { color: var(--color-focus); font-weight: var(--weight-semibold); }
 .developer-home .developer-hero__portrait { max-width: var(--size-developer-portrait); }
 .developer-home .developer-about { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); padding-block: var(--space-2xl); }
 .developer-home .developer-about__copy { gap: var(--space-xl); }

@@ -32,6 +32,7 @@ export const copy = {
       title: 'I make software\nfeel considered.',
       intro:
         'I’m David Barbosa, senior software engineer in Bogotá. I turn complex product problems into clear web interfaces and dependable systems.',
+      introEmphasis: 'senior software engineer',
       primaryCta: 'Explore Labs',
       secondaryCta: 'Contact me',
       codeLabel: 'david.ts',
@@ -149,8 +150,10 @@ export const copy = {
     footer: {
       copyright: 'David Barbosa',
       resume: 'Résumé',
-      developerDescription: 'Thoughtful software. Clear interfaces. Dependable systems.',
-      photographyDescription: 'An independent eye for light, movement, and everyday life.',
+      developerDescription:
+        'Thoughtful software. Clear interfaces. Dependable systems.',
+      photographyDescription:
+        'An independent eye for light, movement, and everyday life.',
     },
   },
   es: {
@@ -182,7 +185,8 @@ export const copy = {
       status: 'Disponible para colaboraciones seleccionadas',
       title: 'Construyo software que\nse siente bien pensado.',
       intro:
-        'Soy David Barbosa, ingeniero senior en Bogotá. Convierto problemas complejos de producto en interfaces web claras y sistemas confiables.',
+        'Soy David Barbosa, ingeniero de software senior en Bogotá. Convierto problemas complejos de producto en interfaces web claras y sistemas confiables.',
+      introEmphasis: 'ingeniero de software senior',
       primaryCta: 'Explorar Labs',
       secondaryCta: 'Contáctame',
       codeLabel: 'david.ts',
@@ -314,8 +318,10 @@ export const copy = {
     footer: {
       copyright: 'David Barbosa',
       resume: 'Currículum',
-      developerDescription: 'Software bien pensado. Interfaces claras. Sistemas confiables.',
-      photographyDescription: 'Una mirada independiente a la luz, el movimiento y lo cotidiano.',
+      developerDescription:
+        'Software bien pensado. Interfaces claras. Sistemas confiables.',
+      photographyDescription:
+        'Una mirada independiente a la luz, el movimiento y lo cotidiano.',
     },
   },
 } as const;

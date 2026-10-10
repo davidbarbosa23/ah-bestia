@@ -2357,7 +2357,6 @@ html[data-theme='dark'] .theme-button .theme-icon--moon { display: block; }
 .portfolio-heading p { max-width: 58ch; }
 .developer-hero { display: grid; gap: var(--space-xl); padding-block: var(--space-xl) var(--space-2xl); }
 .developer-hero__copy { align-self: center; display: grid; gap: var(--space-lg); }
-.developer-hero__role { color: var(--color-focus); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
 .developer-hero h1 { font-size: var(--text-portfolio-hero); line-height: var(--leading-portfolio-hero); letter-spacing: var(--tracking-snug); }
 .developer-hero h1 span { display: block; }
 html[lang='es'] .developer-hero h1 { font-size: var(--text-portfolio-hero-es); }
