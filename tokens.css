@@ -84,6 +84,7 @@
   --space-4xl: 9rem;
 
   --text-xs: 0.75rem;
+  --text-mobile-navigation: 0.625rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-md: 1.25rem;
@@ -144,11 +145,13 @@
   --radius-header: 1.75rem;
   --size-header-capsule: 45rem;
   --size-header-expanded: 54rem;
-  --size-mobile-dock: 27rem;
-  --size-mobile-dock-item: 3.5rem;
+  --size-mobile-dock: 20rem;
+  --size-mobile-dock-item: var(--size-control);
   --size-mobile-settings: 18rem;
-  --size-mobile-dock-height: calc(var(--size-mobile-dock-item) + var(--space-xs) * 2 + var(--rule-hair) * 2);
-  --mobile-dock-bottom: max(var(--space-md), env(safe-area-inset-bottom));
+  --size-mobile-dock-height: calc(
+    var(--size-mobile-dock-item) + var(--space-2xs) * 2 + var(--rule-hair) * 2
+  );
+  --mobile-dock-bottom: max(var(--space-xs), env(safe-area-inset-bottom));
   --blur-header: 1.25rem;
   --opacity-header-surface: 70%;
   --opacity-header-rule: 50%;

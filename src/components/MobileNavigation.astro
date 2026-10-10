@@ -66,15 +66,15 @@ const altLang = lang === 'en' ? 'es' : 'en';
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--space-2xs);
+    gap: var(--space-3xs);
     min-width: 0;
     min-height: var(--size-mobile-dock-item);
-    padding: var(--space-2xs);
+    padding: 0 var(--space-2xs);
     border: 0;
     border-radius: var(--radius-round);
     background: transparent;
     color: var(--color-muted);
-    font-size: var(--text-xs);
+    font-size: var(--text-mobile-navigation);
     font-weight: var(--weight-medium);
     line-height: var(--leading-caption);
     cursor: pointer;
@@ -83,7 +83,7 @@ const altLang = lang === 'en' ? 'es' : 'en';
   .mobile-navigation__item[aria-current='page'],
   .mobile-navigation__item[aria-expanded='true'] {
     color: var(--color-focus);
-    background: var(--color-paper-3);
+    background: color-mix(in oklch, var(--color-paper-3) 50%, transparent);
   }
   .mobile-navigation__item:hover { color: var(--color-ink); }
   .mobile-settings {
@@ -145,7 +145,7 @@ const altLang = lang === 'en' ? 'es' : 'en';
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     .mobile-navigation,
     .mobile-settings {
-      background: color-mix(in oklch, var(--color-paper-2) 90%, transparent);
+      background: color-mix(in oklch, var(--color-paper-2) 70%, transparent);
       -webkit-backdrop-filter: blur(var(--blur-header));
       backdrop-filter: blur(var(--blur-header));
     }
