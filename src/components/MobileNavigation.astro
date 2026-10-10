@@ -11,13 +11,16 @@ interface Props {
 const { lang, experience, languageHref, contactEmail } = Astro.props;
 const t = copy[lang];
 const altLang = lang === 'en' ? 'es' : 'en';
+const developerPath = `/${lang}/dev/`;
+const photographerPath = `/${lang}/ph/`;
+const currentPath = `${Astro.url.pathname.replace(/\/+$/, '')}/`;
 ---
 
 <nav class="mobile-navigation" aria-label={t.nav.menu}>
-  <a class="mobile-navigation__item" href={`/${lang}/dev/`} aria-label={`${t.nav.dev}: ${t.modes.developer}`} aria-current={experience === 'developer' ? 'page' : undefined} data-mobile-dev>
+  <a class="mobile-navigation__item" href={developerPath} aria-label={`${t.nav.dev}: ${t.modes.developer}`} aria-current={currentPath === developerPath ? 'page' : undefined} data-active-section={experience === 'developer' ? '' : undefined} data-mobile-dev>
     <Icon name="code" /><span data-mobile-label="dev">{t.nav.dev}</span>
   </a>
-  <a class="mobile-navigation__item" href={`/${lang}/ph/`} aria-label={`${t.nav.photo}: ${t.modes.photographer}`} aria-current={experience === 'photographer' ? 'page' : undefined} data-mobile-photo>
+  <a class="mobile-navigation__item" href={photographerPath} aria-label={`${t.nav.photo}: ${t.modes.photographer}`} aria-current={currentPath === photographerPath ? 'page' : undefined} data-active-section={experience === 'photographer' ? '' : undefined} data-mobile-photo>
     <Icon name="camera" /><span data-mobile-label="photo">{t.nav.photo}</span>
   </a>
   <a class="mobile-navigation__item" href={`mailto:${contactEmail}`}>
@@ -93,7 +96,7 @@ const altLang = lang === 'en' ? 'es' : 'en';
   .mobile-navigation[data-labels-hidden]:not(:focus-within):not(:has([aria-expanded='true'])) .mobile-navigation__item :global(.icon) {
     transform: translateY(var(--mobile-navigation-label-offset));
   }
-  .mobile-navigation__item[aria-current='page'],
+  .mobile-navigation__item[data-active-section],
   .mobile-navigation__item[aria-expanded='true'] {
     color: var(--color-focus);
     background: color-mix(in oklch, var(--color-paper-3) 50%, transparent);
