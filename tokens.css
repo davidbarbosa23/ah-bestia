@@ -138,6 +138,7 @@
   --radius-round: 999px;
   --radius-header: 1.75rem;
   --size-header-capsule: 57rem;
+  --size-header-expanded: 65rem;
   --shadow-header: 0 var(--space-xs) var(--space-xl) color-mix(in oklch, var(--color-ink) 8%, transparent);
   --size-control-sm: 2.5rem;
   --size-control: 2.75rem;

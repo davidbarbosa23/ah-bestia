@@ -16,10 +16,11 @@ const homePath = `/${lang}/${experience === 'photographer' ? 'ph' : 'dev'}/`;
 const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.com' : 'davidbarbosa.dev@gmail.com';
 ---
 
+<div class="header-scroll-sentinel" aria-hidden="true" data-header-sentinel></div>
 <header class="site-header site-header--floating" data-site-header>
   <div class="site-header__inner">
     <a class="wordmark" href={homePath} aria-label={`db/ ${labels.common.homeLabel}`}>
-      <span aria-hidden="true">db/</span><span>David Barbosa</span>
+      <span class="wordmark__short" aria-hidden="true">db/</span><span class="wordmark__full">David Barbosa</span>
     </a>
 
     <button class="header-menu-toggle" type="button" aria-expanded="false" aria-controls="header-navigation" data-header-menu>
@@ -46,16 +47,23 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
 </header>
 
 <style>
-  /* Floating navigation borrows the reference's shape, using the site's own tokens. */
+  /* The sentinel changes state once at the threshold, without a scroll listener. */
+  .header-scroll-sentinel {
+    position: absolute;
+    inset-block-start: var(--space-xl);
+    inset-inline-start: 0;
+    width: var(--rule-hair);
+    height: var(--rule-hair);
+    pointer-events: none;
+  }
   .site-header.site-header--floating {
-    width: min(calc(100% - var(--page-gutter) * 2), var(--size-header-capsule));
+    width: min(calc(100% - var(--page-gutter) * 2), var(--size-header-expanded));
     margin: var(--space-md) auto 0;
     inset-block-start: var(--space-md);
-    border: var(--rule-hair) solid var(--color-rule);
-    border-radius: var(--radius-header);
-    background: var(--color-paper-2);
+    border: 0;
+    background: transparent;
     backdrop-filter: none;
-    box-shadow: var(--shadow-header);
+    box-shadow: none;
   }
   .site-header .site-header__inner {
     width: 100%;
@@ -63,9 +71,24 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
     padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-lg);
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 0 var(--space-sm);
+    border: var(--rule-hair) solid transparent;
+    border-radius: var(--radius-header);
+    background: transparent;
   }
-  .site-header .wordmark { gap: var(--space-xs); font-size: var(--text-xs); }
-  .site-header .wordmark > span:last-child { width: auto; white-space: nowrap; }
+  .site-header[data-header-condensed] .site-header__inner {
+    width: min(100%, var(--size-header-capsule));
+  }
+  .site-header[data-header-condensed] .site-header__inner,
+  .site-header[data-menu-open] .site-header__inner {
+    border-color: var(--color-rule);
+    background: var(--color-paper-2);
+    box-shadow: var(--shadow-header);
+  }
+  .site-header .wordmark { gap: 0; font-size: var(--text-sm); }
+  .site-header .wordmark__full { width: auto; white-space: nowrap; }
+  .site-header .wordmark__short { display: none; }
+  .site-header[data-header-condensed] .wordmark__short { display: block; }
+  .site-header[data-header-condensed] .wordmark__full { display: none; }
   .header-menu-toggle {
     display: none;
     min-height: var(--size-control);
@@ -128,8 +151,7 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
     .site-header[data-menu-open] .header-navigation { border-block-start: var(--rule-hair) solid var(--color-rule); margin-block-start: var(--space-xs); }
   }
   @media (min-width: 64rem) {
-    .site-header.site-header--floating { border-radius: var(--radius-round); }
-    .site-header .site-header__inner { grid-template-columns: auto minmax(0, 1fr); gap: var(--space-xl); }
+    .site-header .site-header__inner { grid-template-columns: auto minmax(0, 1fr); gap: var(--space-xl); border-radius: var(--radius-round); }
     .header-navigation { grid-column: 2; grid-row: 1; display: flex; gap: var(--space-md); padding: 0; }
     .header-experiences { display: flex; gap: var(--space-lg); margin-inline-end: auto; }
     .header-experiences a { font-size: var(--text-sm); }
@@ -141,8 +163,18 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
 </style>
 
 <script>
+  let scrollObserver: IntersectionObserver | undefined;
   const initializeMenu = () => {
-    document.querySelector('[data-site-header]')?.setAttribute('data-menu-ready', '');
+    scrollObserver?.disconnect();
+    const header = document.querySelector('[data-site-header]');
+    const sentinel = document.querySelector('[data-header-sentinel]');
+    if (!header || !sentinel) return;
+    header.setAttribute('data-menu-ready', '');
+    header.toggleAttribute('data-header-condensed', sentinel.getBoundingClientRect().bottom <= 0);
+    scrollObserver = new IntersectionObserver(([entry]) => {
+      header.toggleAttribute('data-header-condensed', !entry.isIntersecting && entry.boundingClientRect.top < 0);
+    });
+    scrollObserver.observe(sentinel);
   };
   const closeMenu = (restoreFocus = false) => {
     const header = document.querySelector('[data-site-header]');
@@ -153,6 +185,8 @@ const contactEmail = experience === 'photographer' ? 'davidbarbosa.design@gmail.
     if (restoreFocus) button?.focus();
   };
   initializeMenu();
+  document.addEventListener('astro:before-swap', () => scrollObserver?.disconnect());
+  document.addEventListener('astro:after-swap', initializeMenu);
   document.addEventListener('astro:page-load', initializeMenu);
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') closeMenu(true);
