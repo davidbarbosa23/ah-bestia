@@ -18,7 +18,8 @@ const homePath = `/${lang}/${photographer ? 'ph' : 'dev'}/`;
     </div>
   )}
   <div class="site-footer__identity page-shell">
-    <a class="site-footer__name" href={homePath} aria-label={labels.common.homeLabel}>{t.footer.copyright}</a>
+    <!-- Decorative signature; the copyright below repeats the name at readable contrast. -->
+    <p class="site-footer__name" aria-hidden="true">{t.footer.copyright}</p>
     <div class="site-footer__details">
       <p>{photographer ? t.footer.photographyDescription : t.footer.developerDescription}</p>
       <a class="site-footer__email" href={`mailto:${email}`}>{email}<Icon name="arrow-up-right" /></a>
@@ -36,8 +37,8 @@ const homePath = `/${lang}/${photographer ? 'ph' : 'dev'}/`;
 
 <style>
   .site-footer.site-footer--signature {
-    gap: var(--space-xl);
-    padding-block: var(--space-2xl) var(--space-lg);
+    gap: var(--space-2xl);
+    padding-block: var(--space-2xl);
     border-block-start: var(--rule-hair) solid var(--color-rule);
   }
   .site-footer__contact { padding-block-end: var(--space-lg); }
@@ -46,7 +47,7 @@ const homePath = `/${lang}/${photographer ? 'ph' : 'dev'}/`;
     display: block;
     width: fit-content;
     max-width: 100%;
-    color: var(--color-muted);
+    color: var(--color-paper-3);
     font-family: var(--font-display);
     font-size: var(--text-footer-name);
     font-weight: var(--weight-medium);
@@ -54,7 +55,6 @@ const homePath = `/${lang}/${photographer ? 'ph' : 'dev'}/`;
     letter-spacing: var(--tracking-tighter);
     white-space: nowrap;
   }
-  .site-footer__name:hover { color: var(--color-ink); }
   .site-footer__details { display: grid; justify-items: start; gap: var(--space-md); }
   .site-footer__details p { max-width: 38ch; color: var(--color-ink-2); }
   .site-footer__email {
@@ -73,7 +73,7 @@ const homePath = `/${lang}/${photographer ? 'ph' : 'dev'}/`;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-md) var(--space-xl);
-    padding-block-start: var(--space-lg);
+    padding-block-start: var(--space-xl);
     border-block-start: var(--rule-hair) solid var(--color-rule);
     color: var(--color-muted);
     font-family: var(--font-mono);
@@ -83,8 +83,8 @@ const homePath = `/${lang}/${photographer ? 'ph' : 'dev'}/`;
   .site-footer__links a { display: inline-flex; align-items: center; gap: var(--space-2xs); min-height: var(--size-control); }
   .site-footer__links a:hover, .site-footer__email:hover { color: var(--color-focus); }
   @media (min-width: 40rem) {
-    .site-footer.site-footer--signature { gap: var(--space-2xl); padding-block-start: var(--space-3xl); }
-    .site-footer__identity { gap: var(--space-xl); }
+    .site-footer.site-footer--signature { padding-block: var(--space-3xl); }
+    .site-footer__identity { gap: var(--space-2xl); }
     .site-footer__details { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-xl); }
     .site-footer__details p { font-size: var(--text-md); }
   }
