@@ -1,5 +1,7 @@
 import type { Lang } from '../i18n/content';
-import type { GalleryImage } from './photoGalleries';
+import type { GalleryImage, PhotoStorySpread } from '../types/photos';
+
+export type { PhotoStorySpread } from '../types/photos';
 
 interface StoryPhoto {
   filename: string;
@@ -9,11 +11,6 @@ interface StoryPhoto {
 type StorySpread =
   | { layout: 'pair'; photos: [StoryPhoto, StoryPhoto] }
   | { layout: 'feature' | 'wide'; photos: [StoryPhoto] };
-
-export interface PhotoStorySpread {
-  layout: StorySpread['layout'];
-  photos: (GalleryImage & { alt: Record<Lang, string> })[];
-}
 
 const photograph = (filename: string, en: string, es: string): StoryPhoto => ({ filename, alt: { en, es } });
 const pair = (first: StoryPhoto, second: StoryPhoto): StorySpread => ({ layout: 'pair', photos: [first, second] });

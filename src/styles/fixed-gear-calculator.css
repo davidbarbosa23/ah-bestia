@@ -1,0 +1,491 @@
+/* Fixed-gear calculator controls, visualization, and results. */
+.fg-calculator {
+  display: block;
+  border-block: var(--rule-hair) solid var(--color-rule-2);
+  background: var(--color-paper);
+  color: var(--color-ink-2);
+}
+
+.fg-calculator__header {
+  padding-block: var(--space-xl);
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.fg-calculator__header > div {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.fg-calculator__header h2 {
+  font-size: var(--text-lab-title);
+}
+
+.fg-calculator__header > p {
+  max-width: 55ch;
+}
+
+.fg-calculator__workspace {
+  border-block: var(--rule-hair) solid var(--color-rule-2);
+  display: grid;
+}
+
+.fg-controls {
+  padding-block: var(--space-xl);
+  display: grid;
+  gap: var(--space-xl);
+}
+
+.fg-controls fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: var(--space-md);
+}
+
+.fg-controls legend {
+  width: 100%;
+  margin-block-end: var(--space-md);
+  padding-block-end: var(--space-sm);
+  border-block-end: var(--rule-hair) solid var(--color-rule);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+}
+
+.fg-field {
+  display: grid;
+  gap: var(--space-xs);
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+}
+
+.fg-select-wrap {
+  position: relative;
+  display: block;
+}
+
+.fg-select-wrap > .icon {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: var(--space-md);
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-accent);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.fg-field select {
+  width: 100%;
+  min-height: var(--size-field);
+  padding-inline: var(--space-md) var(--space-xl);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: 0;
+  appearance: none;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  outline: var(--outline-control) solid var(--color-paper);
+  outline-offset: var(--outline-offset-control);
+  text-transform: none;
+}
+
+.fg-field select:focus-visible {
+  outline: var(--outline-control) solid var(--color-focus);
+  outline-offset: var(--outline-offset-control);
+}
+
+.fg-field select:active {
+  background: var(--color-paper-2);
+}
+
+.fg-check {
+  min-height: var(--size-field);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-sm);
+  align-items: start;
+  cursor: pointer;
+}
+
+.fg-check input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-block-start: var(--space-3xs);
+  accent-color: var(--color-accent);
+}
+
+.fg-check span {
+  display: grid;
+  gap: var(--space-2xs);
+}
+
+.fg-check strong {
+  color: var(--color-ink);
+  font-weight: var(--weight-semibold);
+}
+
+.fg-check small {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-support);
+}
+
+.fg-unit-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.fg-unit-switch label {
+  position: relative;
+  min-width: 0;
+}
+
+.fg-unit-switch input {
+  position: absolute;
+  opacity: 0;
+}
+
+.fg-unit-switch span {
+  min-height: var(--size-field);
+  padding-inline: var(--space-md);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  display: grid;
+  place-items: center;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fg-unit-switch label + label span {
+  border-inline-start: 0;
+}
+
+.fg-unit-switch input:checked + span {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.fg-unit-switch input:focus-visible + span {
+  outline: var(--outline-control) solid var(--color-focus);
+  outline-offset: var(--outline-offset-control);
+}
+
+.fg-unit-switch span:active {
+  transform: translateY(1px);
+}
+
+.fg-visual {
+  min-height: 24rem;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: clip;
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+}
+
+.fg-wheel {
+  width: min(100%, 34rem);
+  height: auto;
+  padding: var(--space-lg);
+  overflow: visible;
+}
+
+.fg-wheel__tire,
+.fg-wheel__rim,
+.fg-wheel__spoke,
+.fg-wheel__cog,
+.fg-wheel__chain,
+.fg-wheel__crank circle,
+.fg-wheel__crank path {
+  fill: none;
+  stroke: var(--color-muted);
+  vector-effect: non-scaling-stroke;
+}
+
+.fg-wheel__tire {
+  stroke-width: 10;
+}
+
+.fg-wheel__rim,
+.fg-wheel__cog,
+.fg-wheel__crank circle:first-child {
+  stroke-width: 2;
+}
+
+.fg-wheel__spoke,
+.fg-wheel__chain,
+.fg-wheel__crank path {
+  stroke-width: 1;
+}
+
+.fg-wheel__hub {
+  fill: var(--color-ink);
+}
+
+.fg-wheel__skids {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-linecap: butt;
+  stroke-width: 12;
+  transform: rotate(-90deg);
+  transform-origin: 230px 195px;
+  vector-effect: non-scaling-stroke;
+}
+
+.fg-visual__ratio {
+  position: absolute;
+  inset-inline-start: var(--space-md);
+  inset-block-end: var(--space-md);
+  display: grid;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+}
+
+.fg-visual__ratio strong {
+  color: var(--color-ink);
+  font-size: var(--text-xl);
+  font-variant-numeric: tabular-nums;
+}
+
+.fg-analysis,
+.fg-data-section {
+  padding-block: var(--space-2xl);
+  display: grid;
+  gap: var(--space-xl);
+}
+
+.fg-section-heading {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.fg-section-heading h3 {
+  font-size: var(--text-xl);
+}
+
+.fg-section-heading > p:last-child:not(.mono-label) {
+  max-width: 65ch;
+  color: var(--color-muted);
+}
+
+.fg-metrics {
+  border-block-start: var(--rule-hair) solid var(--color-rule-2);
+}
+
+.fg-metrics article {
+  padding-block: var(--space-lg);
+  border-block-end: var(--rule-hair) solid var(--color-rule);
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.fg-metrics article > p {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+}
+
+.fg-metrics strong {
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-metric);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-tighter);
+  line-height: var(--leading-none);
+}
+
+.fg-metrics small {
+  max-width: 26rem;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.fg-data-section {
+  border-block-start: var(--rule-hair) solid var(--color-rule-2);
+}
+
+.fg-equivalents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.fg-equivalents button {
+  min-height: var(--size-control);
+  padding-inline: var(--space-sm);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out),
+    transform var(--dur-micro) var(--ease-out);
+  white-space: nowrap;
+}
+
+.fg-equivalents button[aria-current='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+.fg-equivalents button:active {
+  transform: translateY(1px);
+}
+
+.fg-field select:disabled,
+.fg-equivalents button:disabled,
+.fg-unit-switch input:disabled + span {
+  border-color: var(--color-rule);
+  background: var(--color-paper-2);
+  color: var(--color-muted);
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.fg-cadence {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-block-start: var(--rule-hair) solid var(--color-rule-2);
+}
+
+.fg-cadence article {
+  min-width: 0;
+  padding: var(--space-md) var(--space-sm);
+  border-inline-end: var(--rule-hair) solid var(--color-rule);
+  border-block-end: var(--rule-hair) solid var(--color-rule);
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.fg-cadence article:nth-child(2n) {
+  border-inline-end: 0;
+}
+
+.fg-cadence span {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+}
+
+.fg-cadence strong {
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .fg-field select:not(:disabled):hover,
+  .fg-unit-switch input:not(:disabled) + span:hover,
+  .fg-equivalents button:not(:disabled):hover {
+    background: var(--color-paper-2);
+  }
+
+  .fg-equivalents button[aria-current='true']:hover {
+    background: var(--color-accent);
+  }
+}
+
+@media (min-width: 40rem) {
+  .fg-calculator__header,
+  .fg-analysis,
+  .fg-data-section {
+    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+    align-items: start;
+  }
+
+  .fg-calculator__header > p,
+  .fg-section-heading + * {
+    grid-column: 2;
+  }
+
+  .fg-controls {
+    grid-template-columns: minmax(0, 1.25fr) minmax(9rem, 0.75fr);
+    align-items: start;
+  }
+
+  .fg-unit-fieldset {
+    align-self: start;
+  }
+
+  .fg-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .fg-metrics article {
+    padding-inline: var(--space-md);
+    border-inline-end: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .fg-metrics article:first-child {
+    padding-inline-start: 0;
+  }
+
+  .fg-metrics article:last-child {
+    padding-inline-end: 0;
+    border-inline-end: 0;
+  }
+
+  .fg-metrics strong {
+    font-size: var(--text-metric-wide);
+  }
+
+  .fg-cadence {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .fg-cadence article:nth-child(2n) {
+    border-inline-end: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .fg-cadence article:nth-child(3n) {
+    border-inline-end: 0;
+  }
+}
+
+@media (min-width: 60rem) {
+  .fg-calculator__workspace {
+    grid-template-columns: minmax(18rem, 0.7fr) minmax(0, 1.3fr);
+  }
+
+  .fg-controls {
+    padding-inline-end: var(--space-xl);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fg-visual {
+    min-height: 34rem;
+  }
+}
+.fg-calculator__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: start;
+  gap: var(--space-lg);
+}
+.fg-calculator__header > p {
+  max-width: 60ch;
+}

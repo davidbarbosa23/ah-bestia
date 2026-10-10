@@ -3,21 +3,22 @@ import { Image } from 'astro:assets';
 import portrait from '../assets/portrait.jpg';
 import { copy, ui, type Lang } from '../i18n/content';
 import Icon from './Icon.astro';
+import Button from './Button.astro';
 import PortfolioMotion from './PortfolioMotion.astro';
 import '../styles/developer.css';
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const t = copy[lang].dev;
+const introEmphasisIndex = t.intro.indexOf(t.introEmphasis);
 ---
 <div class="experience experience--developer" data-experience-panel="developer">
   <main id="main" class="developer-home">
     <section class="developer-hero page-shell" aria-labelledby="developer-title">
       <div class="developer-hero__copy">
-        <p class="developer-hero__role" data-hero-reveal>{t.currentValue}</p>
         <h1 id="developer-title" data-hero-reveal>{t.title.split('\n').map((line) => <span>{line}</span>)}</h1>
-        <p class="developer-hero__intro" data-hero-reveal>{t.intro}</p>
+        <p class="developer-hero__intro" data-hero-reveal>{introEmphasisIndex >= 0 ? <>{t.intro.slice(0, introEmphasisIndex)}<strong>{t.introEmphasis}</strong>{t.intro.slice(introEmphasisIndex + t.introEmphasis.length)}</> : t.intro}</p>
         <div class="portfolio-actions" data-hero-reveal>
-          <a class="button button--primary" href="mailto:davidbarbosa.dev@gmail.com">{t.secondaryCta}<Icon name="arrow-up-right" /></a>
+          <Button href="mailto:davidbarbosa.dev@gmail.com">{t.secondaryCta}<Icon name="arrow-up-right" /></Button>
           <a class="text-link" href="/david-barbosa-resume.pdf" target="_blank" rel="noreferrer">{copy[lang].footer.resume}<Icon name="arrow-up-right" /><span class="sr-only"> ({ui[lang].common.opensInNewTab})</span></a>
         </div>
       </div>
@@ -43,7 +44,7 @@ const t = copy[lang].dev;
     </section>
     <section class="developer-contact page-shell" id="contact" aria-labelledby="contact-title" tabindex="-1" data-reveal>
       <h2 id="contact-title">{t.contactTitle}</h2><p>{t.contactBody}</p>
-      <a class="button button--primary" href="mailto:davidbarbosa.dev@gmail.com">{t.contactLink}<Icon name="arrow-up-right" /></a>
+      <Button href="mailto:davidbarbosa.dev@gmail.com">{t.contactLink}<Icon name="arrow-up-right" /></Button>
     </section>
   </main>
   <PortfolioMotion />

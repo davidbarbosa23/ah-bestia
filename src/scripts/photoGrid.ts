@@ -1,7 +1,8 @@
-import type { ArchivePhoto } from '../data/photoArchive';
+import type { ArchivePhoto } from '../types/photos';
 import type { PhotoGridCopy } from '../i18n/content';
-import { normalizePhotoSearch } from '../utils/photoSearch';
+import { createPhotoTagAliases, filterPhotos } from '../utils/photoFilters';
 import { formatPhotoFolder } from '../utils/photoFolder';
+import { syncPhotoLanguageLinks } from '../utils/photoUrl';
 
 let cleanupGrid: (() => void) | undefined;
 
@@ -27,12 +28,8 @@ export function setupPhotoGrid() {
   const labels: PhotoGridCopy = JSON.parse(root.querySelector('[data-grid-copy]')!.textContent!);
   const tagButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-grid-tag]')];
   const validTags = new Set(tagButtons.map((button) => button.dataset.gridTag!));
-  const tagAliases = new Map<string, string>();
-  validTags.forEach((tag) => tagAliases.set(normalizePhotoSearch(tag.replace(/-/g, ' ')), tag));
   const tagLabels: Record<string, string>[] = JSON.parse(root.dataset.tagLabels!);
-  tagLabels.forEach((translations) => Object.entries(translations).forEach(([tag, label]) => {
-    tagAliases.set(normalizePhotoSearch(label), tag);
-  }));
+  const tagAliases = createPhotoTagAliases(validTags, tagLabels);
   const selected = new Set<string>();
   const batchSize = Number(root.dataset.batchSize);
   const controller = new AbortController();
@@ -190,11 +187,7 @@ export function setupPhotoGrid() {
       if (historyMode === 'push') history.pushState(history.state, '', url);
       else history.replaceState(history.state, '', url);
     }
-    document.querySelectorAll<HTMLAnchorElement>('[data-language-link]').forEach((link) => {
-      const alternate = new URL(link.href);
-      alternate.search = url.search;
-      link.href = alternate.toString();
-    });
+    syncPhotoLanguageLinks(url);
   };
 
   const applyFilters = async (historyMode: 'push' | 'replace' = 'push') => {
@@ -203,21 +196,11 @@ export function setupPhotoGrid() {
     error.hidden = true;
     syncUrl(historyMode);
     updateControls();
-    const query = normalizePhotoSearch(search.value.trim());
-    const queryTag = tagAliases.get(query);
-    const words = queryTag ? [] : query.split(/\s+/).filter(Boolean);
-    const tags = [...selected];
-    const folder = selectedFolder;
-    if (queryTag) tags.push(queryTag);
+    const filters = { query: search.value, tags: [...selected], folder: selectedFolder };
     try {
       const photos = await getPhotos();
       if (signal.aborted || requestRevision !== revision) return;
-      matches = photos.filter((photo) => (!folder || photo.folder === folder)
-        && tags.every((tag) => (photo.tags as readonly string[]).includes(tag))
-        && words.every((word) => {
-          const tag = tagAliases.get(word);
-          return tag ? (photo.tags as readonly string[]).includes(tag) : photo.search.includes(word);
-        }));
+      matches = filterPhotos(photos, filters, tagAliases);
       total = matches.length;
       cursor = Math.min(batchSize, total);
       renderBatch(matches.slice(0, cursor), true);

@@ -11,6 +11,7 @@
     "photos:metadata": "node scripts/photo-metadata.mjs",
     "check": "astro check && npm run check:tokens",
     "check:tokens": "node scripts/check-css-tokens.mjs",
+    "test": "node --experimental-strip-types --test",
     "deploy:gh-page": "node scripts/deploy-gh-page.mjs",
     "preview": "astro preview",
     "astro": "astro"

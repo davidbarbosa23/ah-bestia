@@ -10,6 +10,8 @@ Manage the background server with `astro dev stop`, `astro dev status`, and `ast
 
 ## Project standards
 
+Use [the UX definitions](docs/ux-system.md) as the shared interface contract. Reuse `Button.astro` and its primary, secondary, and ghost styles for standalone actions; keep the rounded header button as the reference.
+
 Apply these requirements to every change:
 
 - Check the performance impact and avoid unnecessary JavaScript, network requests, rendering work, and asset weight.

@@ -4,6 +4,10 @@ export function setPhotoUrl(photo: string | null) {
   if (photo) url.searchParams.set('photo', photo);
   else url.searchParams.delete('photo');
   if (url.href !== window.location.href) window.history.replaceState(window.history.state, '', url);
+  syncPhotoLanguageLinks(url);
+}
+
+export function syncPhotoLanguageLinks(url: URL) {
   document.querySelectorAll<HTMLAnchorElement>('[data-language-link]').forEach((link) => {
     const alternate = new URL(link.href);
     alternate.search = url.search;

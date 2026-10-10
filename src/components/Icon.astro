@@ -17,8 +17,13 @@ import x from '@tabler/icons/outline/x.svg?raw';
 import search from '@tabler/icons/outline/search.svg?raw';
 import sun from '@tabler/icons/outline/sun.svg?raw';
 import moon from '@tabler/icons/outline/moon.svg?raw';
+import code from '@tabler/icons/outline/code.svg?raw';
+import camera from '@tabler/icons/outline/camera.svg?raw';
+import mail from '@tabler/icons/outline/mail.svg?raw';
+import settings from '@tabler/icons/outline/settings.svg?raw';
+import language from '@tabler/icons/outline/language.svg?raw';
 
-const icons = { 'arrow-down': arrowDown, 'arrow-left': arrowLeft, 'arrow-right': arrowRight, 'arrow-up': arrowUp, 'arrow-up-right': arrowUpRight, 'chevron-left': chevronLeft, 'chevron-right': chevronRight, enter, folder, fullscreen, 'fullscreen-exit': fullscreenExit, minus, plus, status, x, search, sun, moon };
+const icons = { 'arrow-down': arrowDown, 'arrow-left': arrowLeft, 'arrow-right': arrowRight, 'arrow-up': arrowUp, 'arrow-up-right': arrowUpRight, 'chevron-left': chevronLeft, 'chevron-right': chevronRight, enter, folder, fullscreen, 'fullscreen-exit': fullscreenExit, minus, plus, status, x, search, sun, moon, code, camera, mail, settings, language };
 interface Props { name: keyof typeof icons; class?: string; }
 const { name, class: className } = Astro.props;
 // Official SVG assets render on the server: no icon runtime or React bundle.

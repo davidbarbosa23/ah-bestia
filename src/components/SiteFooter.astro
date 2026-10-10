@@ -5,22 +5,87 @@ interface Props { lang: Lang; experience?: 'developer' | 'photographer'; }
 const { lang, experience = 'developer' } = Astro.props;
 const t = copy[lang];
 const labels = ui[lang];
+const photographer = experience === 'photographer';
+const email = photographer ? 'davidbarbosa.design@gmail.com' : 'davidbarbosa.dev@gmail.com';
+const homePath = `/${lang}/${photographer ? 'ph' : 'dev'}/`;
 ---
 
-<footer class:list={['site-footer', experience === 'photographer' && 'site-footer--photographer']}>
-  {experience === 'photographer' && (
-    <div class="site-footer__contact">
+<footer class="site-footer site-footer--signature">
+  {photographer && Astro.url.pathname !== homePath && (
+    <div class="site-footer__contact page-shell">
       <p>{t.photo.collaborationBody}</p>
       <a class="text-link" href={`mailto:davidbarbosa.design@gmail.com?subject=${encodeURIComponent(t.photo.collaborationSubject)}`}>{t.photo.collaborationLink}<Icon name="arrow-up-right" /></a>
     </div>
   )}
-  <div class="site-footer__meta">
-    <span>{t.footer.copyright} · {new Date().getFullYear()}</span>
-     <div>
-      <a href={experience === 'photographer' ? 'mailto:davidbarbosa.design@gmail.com' : 'mailto:davidbarbosa.dev@gmail.com'}>Email</a>
-      <a href="/david-barbosa-resume.pdf" target="_blank" rel="noreferrer">{t.footer.resume} <Icon name="arrow-up-right" /><span class="sr-only"> ({labels.common.opensInNewTab})</span></a>
+  <div class="site-footer__identity page-shell">
+    <!-- Decorative signature; the copyright below repeats the name at readable contrast. -->
+    <p class="site-footer__name" aria-hidden="true">{t.footer.copyright}</p>
+    <div class="site-footer__details">
+      <p>{photographer ? t.footer.photographyDescription : t.footer.developerDescription}</p>
+      <a class="site-footer__email" href={`mailto:${email}`}>{email}<Icon name="arrow-up-right" /></a>
+    </div>
+  </div>
+  <div class="site-footer__bottom page-shell">
+    <span>© {new Date().getFullYear()} {t.footer.copyright}</span>
+    <div class="site-footer__links">
+      <a href="/david-barbosa-resume.pdf" target="_blank" rel="noreferrer"><span data-footer-resume>{t.footer.resume}</span><Icon name="arrow-up-right" /><span class="sr-only"> ({labels.common.opensInNewTab})</span></a>
       <a href="https://github.com/davidbarbosa23" rel="me noreferrer" target="_blank">GitHub <Icon name="arrow-up-right" /><span class="sr-only"> ({labels.common.opensInNewTab})</span></a>
       <a href="https://www.linkedin.com/in/davidbarbosar/" rel="me noreferrer" target="_blank">LinkedIn <Icon name="arrow-up-right" /><span class="sr-only"> ({labels.common.opensInNewTab})</span></a>
     </div>
   </div>
 </footer>
+
+<style>
+  .site-footer.site-footer--signature {
+    gap: var(--space-2xl);
+    padding-block: var(--space-2xl);
+    border-block-start: var(--rule-hair) solid var(--color-rule);
+  }
+  .site-footer__contact { padding-block-end: var(--space-lg); }
+  .site-footer__identity { display: grid; gap: var(--space-xl); }
+  .site-footer__name {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    color: color-mix(in oklch, var(--color-ink-2) 25%, transparent);
+    font-family: var(--font-display);
+    font-size: var(--text-footer-name);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-tighter);
+    white-space: nowrap;
+  }
+  .site-footer__details { display: grid; justify-items: start; gap: var(--space-md); }
+  .site-footer__details p { max-width: 38ch; color: var(--color-ink-2); }
+  .site-footer__email {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: var(--size-control);
+    font-size: var(--text-sm);
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule-2);
+    text-underline-offset: var(--space-2xs);
+  }
+  .site-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md) var(--space-xl);
+    padding-block-start: var(--space-xl);
+    border-block-start: var(--rule-hair) solid var(--color-rule);
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+  .site-footer__links { display: flex; flex-wrap: wrap; gap: var(--space-sm) var(--space-lg); }
+  .site-footer__links a { display: inline-flex; align-items: center; gap: var(--space-2xs); min-height: var(--size-control); }
+  .site-footer__links a:hover, .site-footer__email:hover { color: var(--color-focus); }
+  @media (min-width: 40rem) {
+    .site-footer.site-footer--signature { padding-block: var(--space-3xl); }
+    .site-footer__identity { gap: var(--space-2xl); }
+    .site-footer__details { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-xl); }
+    .site-footer__details p { font-size: var(--text-md); }
+  }
+</style>
