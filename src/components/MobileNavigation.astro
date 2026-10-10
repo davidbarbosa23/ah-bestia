@@ -55,6 +55,7 @@ const altLang = lang === 'en' ? 'es' : 'en';
   }
   .mobile-navigation {
     z-index: var(--layer-header);
+    contain: layout;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     width: min(calc(100% - max(var(--space-md), env(safe-area-inset-left)) - max(var(--space-md), env(safe-area-inset-right))), var(--size-mobile-dock));
@@ -84,13 +85,10 @@ const altLang = lang === 'en' ? 'es' : 'en';
   .mobile-navigation[data-labels-hidden]:not(:focus-within):not(:has([aria-expanded='true'])) {
     padding: var(--space-2xs);
     width: min(calc(100% - max(var(--space-md), env(safe-area-inset-left)) - max(var(--space-md), env(safe-area-inset-right))), var(--size-mobile-dock-small));
-    
-    .mobile-navigation__item {
-      > [data-mobile-label] {
-        opacity: 0;
-        transform: translateY(var(--space-3xs));
-      }
-    }
+  }
+  .mobile-navigation[data-labels-hidden]:not(:focus-within):not(:has([aria-expanded='true'])) .mobile-navigation__item > [data-mobile-label] {
+    opacity: 0;
+    transform: translateY(var(--space-3xs));
   }
   .mobile-navigation[data-labels-hidden]:not(:focus-within):not(:has([aria-expanded='true'])) .mobile-navigation__item :global(.icon) {
     transform: translateY(var(--mobile-navigation-label-offset));
@@ -111,6 +109,14 @@ const altLang = lang === 'en' ? 'es' : 'en';
     padding: var(--space-md);
     border-radius: var(--radius-header);
     transform-origin: bottom right;
+    opacity: 0;
+    transform: translateY(var(--space-xs));
+    pointer-events: none;
+  }
+  .mobile-settings:popover-open {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
   }
   .mobile-settings__title {
     margin: var(--space-2xs) var(--space-xs) var(--space-sm);
@@ -174,14 +180,29 @@ const altLang = lang === 'en' ? 'es' : 'en';
     }
   }
   @media (prefers-reduced-motion: no-preference) {
+    /* This fixed, contained grid only lays out its four controls during resizing. */
+    .mobile-navigation {
+      transition: width var(--dur-long) var(--ease-out), padding var(--dur-long) var(--ease-out);
+    }
+    .mobile-navigation__item {
+      transition: color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out);
+    }
     .mobile-navigation__item > [data-mobile-label] {
       transition: opacity var(--dur-short) var(--ease-out), transform var(--dur-short) var(--ease-out);
     }
-    .mobile-navigation__item :global(.icon) { transition: transform var(--dur-short) var(--ease-out); }
-    .mobile-settings:popover-open { animation: settings-open var(--dur-short) var(--ease-out); }
-    @keyframes settings-open {
-      from { opacity: 0; transform: translateY(var(--space-sm)) scale(0.96); }
-      to { opacity: 1; transform: none; }
+    .mobile-navigation__item :global(.icon) { transition: transform var(--dur-long) var(--ease-out); }
+    .mobile-settings {
+      transition:
+        opacity var(--dur-short) var(--ease-out),
+        transform var(--dur-short) var(--ease-out),
+        display var(--dur-short) allow-discrete,
+        overlay var(--dur-short) allow-discrete;
+    }
+    @starting-style {
+      .mobile-settings:popover-open {
+        opacity: 0;
+        transform: translateY(var(--space-xs));
+      }
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -220,13 +241,14 @@ const altLang = lang === 'en' ? 'es' : 'en';
 
     navigationController = new AbortController();
     const { signal } = navigationController;
-    const directionThreshold = 8;
+    const directionThreshold = 24;
     let previousY = Math.max(0, window.scrollY);
     let direction = 0;
     let distance = 0;
     const showLabels = () => {
       navigation.removeAttribute('data-labels-hidden');
       previousY = Math.max(0, window.scrollY);
+      direction = 0;
       distance = 0;
     };
     panel.addEventListener('toggle', () => {
@@ -235,7 +257,9 @@ const altLang = lang === 'en' ? 'es' : 'en';
     }, { signal });
     navigation.addEventListener('focusin', showLabels, { signal });
     navigation.addEventListener('pointerdown', showLabels, { passive: true, signal });
-    navigation.addEventListener('pointerenter', showLabels, { passive: true, signal });
+    navigation.addEventListener('pointerenter', (event) => {
+      if (event.pointerType === 'mouse') showLabels();
+    }, { passive: true, signal });
 
     // Sample once per frame; only change the DOM after meaningful movement.
     // The listener exists only while the mobile dock is mounted and visible.
