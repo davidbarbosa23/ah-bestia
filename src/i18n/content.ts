@@ -6,7 +6,7 @@ export const copy = {
     meta: {
       homeTitle: 'David Barbosa - Senior Software Engineer',
       homeDescription:
-        'Senior software engineer in Bogotá focused on product-minded web platforms, clear interfaces, and maintainable systems.',
+        'David Barbosa, senior software engineer in Bogotá, focused on web applications, accessibility, performance, and maintainable code.',
       projectsTitle: 'Labs - David Barbosa',
       projectsDescription:
         'I build small web tools and interface experiments, documenting each one from problem to working result.',
@@ -28,24 +28,24 @@ export const copy = {
     },
     theme: { light: 'Use light theme', dark: 'Use dark theme' },
     dev: {
-      status: 'Available for selected collaborations',
-      title: 'I make software\nfeel considered.',
+      status: 'Open to interesting offers and small projects',
+      title: 'I build\nweb applications.',
       intro:
-        'I’m David Barbosa, senior software engineer in Bogotá. I turn complex product problems into clear web interfaces and dependable systems.',
+        'I’m David Barbosa, a senior software engineer. I live in Bogotá and focus on building fast, accessible web applications that are easy to maintain.',
       introEmphasis: 'senior software engineer',
       primaryCta: 'Explore Labs',
-      secondaryCta: 'Contact me',
+      secondaryCta: 'Let’s talk',
       codeLabel: 'david.ts',
-      aboutTitle: 'Pragmatic by default. Curious on purpose.',
+      aboutTitle: 'How I like to work.',
       aboutBody:
-        'I work from ambiguous requirements to shipped software: clarifying the problem, shaping the interface, and building systems teams can maintain. My background in graphic design helps me connect product intent, technical decisions, and the details users notice.',
+        'I care about applications loading quickly, being accessible, and working well across devices. I follow web standards and aim for secure, clear code that the people building on it can understand and maintain.',
       current: 'Currently',
       currentValue: 'Senior Software Engineer',
       location: 'Based in',
       locationValue: 'Bogotá, Colombia',
       focus: 'Working with',
-      focusValue: 'TypeScript · React · Web platforms',
-      experienceTitle: 'From web design to senior software engineering.',
+      focusValue: 'TypeScript · React · Web applications',
+      experienceTitle: 'My experience.',
       experience: [
         ['2021-NOW', 'Mercado Libre', 'Senior Software Engineer'],
         ['2020', 'Quantum Connexion', 'Software Engineer'],
@@ -62,10 +62,10 @@ export const copy = {
         'A bilingual gearing calculator for track and fixed-gear riders, translating chainring and sprocket choices into ratios, skid patches, development, and speed.',
       projectMeta: 'Product experiment · Calculation UI',
       projectLink: 'Try the calculator',
-      contactTitle: 'Building something worth getting right?',
+      contactTitle: 'Let’s talk',
       contactBody:
-        'Send me the problem, the constraints, and the outcome you need. I’ll tell you where I can help.',
-      contactLink: 'Email',
+        'I’m open to interesting offers or projects. Tell me what you have in mind.',
+      contactLink: 'Send me an email',
     },
     photo: {
       status: 'Independent photographic practice',
@@ -150,8 +150,7 @@ export const copy = {
     footer: {
       copyright: 'David Barbosa',
       resume: 'Résumé',
-      developerDescription:
-        'Thoughtful software. Clear interfaces. Dependable systems.',
+      developerDescription: 'I build and look after web applications.',
       photographyDescription:
         'An independent eye for light, movement, and everyday life.',
     },
@@ -160,7 +159,7 @@ export const copy = {
     meta: {
       homeTitle: 'David Barbosa - Ingeniero de Software Senior',
       homeDescription:
-        'Ingeniero de software senior en Bogotá enfocado en plataformas web, interfaces claras y sistemas mantenibles.',
+        'David Barbosa, ingeniero de software senior en Bogotá. Aplicaciones web con foco en accesibilidad, rendimiento y código mantenible.',
       projectsTitle: 'Labs - David Barbosa',
       projectsDescription:
         'Construyo pequeñas herramientas web y experimentos de interfaz, documentando cada uno desde el problema hasta un resultado funcional.',
@@ -182,24 +181,24 @@ export const copy = {
     },
     theme: { light: 'Usar tema claro', dark: 'Usar tema oscuro' },
     dev: {
-      status: 'Disponible para colaboraciones seleccionadas',
-      title: 'Construyo software que\nse siente bien pensado.',
+      status: 'Abierto a ofertas interesantes y proyectos pequeños',
+      title: 'Construyo\naplicaciones web.',
       intro:
-        'Soy David Barbosa, ingeniero de software senior en Bogotá. Convierto problemas complejos de producto en interfaces web claras y sistemas confiables.',
+        'Soy David Barbosa, ingeniero de software senior. Vivo en Bogotá y me enfoco en crear aplicaciones web rápidas, accesibles y fáciles de mantener.',
       introEmphasis: 'ingeniero de software senior',
       primaryCta: 'Explorar Labs',
-      secondaryCta: 'Contáctame',
+      secondaryCta: 'Hablemos',
       codeLabel: 'david.ts',
-      aboutTitle: 'Pragmático por defecto. Curioso a propósito.',
+      aboutTitle: 'Cómo me gusta trabajar.',
       aboutBody:
-        'Trabajo desde requisitos ambiguos hasta software en producción: aclaro el problema, doy forma a la interfaz y construyo sistemas que el equipo puede mantener. Mi formación en diseño gráfico me ayuda a conectar la intención del producto, las decisiones técnicas y los detalles que las personas perciben.',
+        'Me importa que una aplicación cargue rápido, sea accesible y funcione bien en distintos dispositivos. Trabajo con los estándares de la web y busco que el código sea seguro, claro y fácil de mantener para quienes siguen construyendo sobre él.',
       current: 'Actualmente',
       currentValue: 'Ingeniero de Software Senior',
-      location: 'Desde',
+      location: 'Vivo en',
       locationValue: 'Bogotá, Colombia',
       focus: 'Trabajo con',
-      focusValue: 'TypeScript · React · Plataformas web',
-      experienceTitle: 'Del diseño web a la ingeniería de software senior.',
+      focusValue: 'TypeScript · React · Aplicaciones web',
+      experienceTitle: 'Mi experiencia.',
       experience: [
         ['2021-HOY', 'Mercado Libre', 'Ingeniero de Software Senior'],
         ['2020', 'Quantum Connexion', 'Ingeniero de Software'],
@@ -220,10 +219,10 @@ export const copy = {
         'Una calculadora bilingüe para ciclistas de pista y piñón fijo que convierte elecciones de plato, piñón, cubierta y cadencia en relación, puntos de derrape, desarrollo y velocidad.',
       projectMeta: 'Experimento de producto · Interfaz de cálculo',
       projectLink: 'Probar la calculadora',
-      contactTitle: '¿Estás construyendo algo que vale la pena hacer bien?',
+      contactTitle: 'Hablemos',
       contactBody:
-        'Cuéntame el problema, las restricciones y el resultado que necesitas. Te diré dónde puedo ayudar.',
-      contactLink: 'Email',
+        '¿Tienes alguna oferta interesante o proyecto?. Cuéntame qué tienes en mente.',
+      contactLink: 'Escríbeme',
     },
     photo: {
       status: 'Práctica fotográfica independiente',
@@ -318,8 +317,7 @@ export const copy = {
     footer: {
       copyright: 'David Barbosa',
       resume: 'Currículum',
-      developerDescription:
-        'Software bien pensado. Interfaces claras. Sistemas confiables.',
+      developerDescription: 'Me dedico a construir y cuidar aplicaciones web.',
       photographyDescription:
         'Una mirada independiente a la luz, el movimiento y lo cotidiano.',
     },
